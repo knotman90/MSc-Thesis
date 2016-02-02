@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="OpenCL.html">
+<LINK REL="Next" HREF="OpenACC.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="OpenCL.html">Previous</A>
+<A HREF="OpenACC.html">Next</A>
+<HR NOSHADE>
+<H3 id="model-architecture"><A NAME="6_2_1">Model Architecture</A></H3>
+<P>The model architecture follows that one already studied for CUDA (see
+ section [cudaProgrammingModel]) but with different names.</P>
+<DIV class="figure"> <IMG alt="OpenCL heterogeneous computing." HEIGHT="699"
+src="openCL1.png" WIDTH="1295">
+<P class="caption">OpenCL heterogeneous computing.
+<!--span data-label=&quot;openCL&quot;-->
+</P>
+</DIV>
+<DL>
+<DT>Work-items:</DT>
+<DD>
+<P>
+<BR> are equivalent to the CUDA threads and are the smallest execution
+ entity of the hierarchy. Every time a Kernel is launched, lots of
+ work-items (a number specified by the programmer) are launched, each
+ one executing the same code. Each work-item has an ID, which is
+ accessible from the kernel, and which is used to distinguish the data
+ to be processed by each work-item.</P>
+</DD>
+<DT>Work-group:</DT>
+<DD>
+<P>
+<BR> equivalents to CUDA blocks, and their purpose is to permit
+ communication between groups of work-items and reflect how the work is
+ organized (usually organized as N-dimensional grid of work-groups with</P>
+<P>N {1,2,3}</P>
+<P>). As work-items, they are provided by a unique ID within a kernel.
+ Also the memory model is similar to the CUDA’s one. The host has to
+ orchestrate the memory copy to/from the device and explicit;y call the
+ kernel.</P>
+</DD>
+</DL>
+<P>A big difference is in how a kernel is queued to execution on the
+ accelerator. Kernels are usually listed in separate files the OpenCL
+ runtime take that source code to create kernel object that can be first
+ decorated with the parameters on which it is going to be executed and
+ then effectively enqueued for execution onto device. Here a brief
+ description of the typical flow of an OpenCL application.</P>
+<OL>
+<LI>
+<P>Contexts creation: The first step in every OpenCL application is to
+ create a context and associate to it a number of devices, an available
+ OpenCL platform (there might be present more than one implementation),
+ and then each operation (memory management, kernel compiling and
+ running) is performed within<EM> this</EM> context. In the example
+ [code:openCLContext] a context associated with the CPU device and the
+ first finded platform is created.
+<BR></P>
+</LI>
+<LI>
+<P>Memory buffers creation: OpenCL buffer Object are created. Those
+ buffer are used to hold data to be computed onto devices.
+<BR></P>
+</LI>
+<LI>
+<P>Load and build program: we need to load and build the compute program
+ (the program we intend to run on devices). The purpose of this phase is
+ to create an object<STRONG><EM> cl::Program</EM></STRONG> that is
+ associable with a context and then proceed building for a particular
+ subset of context’s devices. We first query the runtime for the
+ available devices and then load directly source code as string in a<STRONG>
+<EM> cl::Program:Source</EM></STRONG> OpenCL object (see listing1
+ [code:loadBuildProgramCL]).
+<BR></P>
+</LI>
+<LI>
+<P>In order a kernel to be executed a<EM> kernel object</EM> must be
+ created. For a given<EM> Program</EM> there would exists more than one
+ entry point (identified by the keyword<EM> __kernel</EM> <A class="footnoteRef"
+href="#fn50" id="fnref50"><SUP>50</SUP></A>). We choose one of them for
+ execution specifying in the kernel object constructor
+<BR></P>
+</LI>
+<LI>
+<P>We effectively execute the kernel putting it into a<EM>
+ cl::CommandQueue</EM>. Given a cl::CommandQueue queue, kernels can be
+ queued using<EM> queue.enqueuNDRangeKernel</EM> that queues a kernel on
+ the associated device. Launching a kernel need some parameters (similar
+ to launch configuration in CUDA, see section [kernels]) to specify the
+ work distribution among work-groups and their dimensionality and size
+ of each dimension (see listing [code:openCLQueuCommand]). We can test
+ the status of the execution by querying the associated<EM> event</EM>.
+<BR></P>
+</LI>
+</OL>
+<PRE> <CODE>cl_int err;
+	cl::vector&lt; cl::Platform &gt; platformList;
+	cl::Platform::get(&amp;platformList);
+	checkErr(platformList.size()!=0 ?  \\
+			CL_SUCCESS:-1,&quot;cl::Platform::get&quot;);
+	cl_context_properties cprops[3] =
+	{CL_CONTEXT_PLATFORM, (cl_context_properties)(platformList[0])(), 0};
+	cl::Context context(CL_DEVICE_TYPE_CPU,cprops,NULL,NULL,&amp;err);
+	checkErr(err, &quot;Conext::Context()&quot;); </CODE></PRE>
+<PRE> <CODE>cl::Buffer outCL(context,CL_MEM_WRITE_ONLY |
+                          		CL_MEM_USE_HOST_PTR,hw.length()+1,outH,&amp;err);
+    checkErr(err, &quot;Buffer::Buffer()&quot;);</CODE></PRE>
+<PRE> <CODE>std::ifstream file(&quot;pathToSourceCode.cl&quot;);
+	checkErr(file.is_open() ? CL_SUCCESS:-1, &quot;pathToSourceCode.cl&quot;);std::string
+	prog( std::istreambuf_iterator&lt;char&gt;(file),
+	(std::istreambuf_iterator&lt;char&gt;()));
+	cl::Program::Sources source(1,std::make_pair(prog.c_str(), prog.length()+1));
+	cl::Program program(context, source);
+	err = program.build(devices,&quot;&quot;);
+	checkErr(err, &quot;Program::build()&quot;);</CODE></PRE>
+<PRE> <CODE>cl::CommandQueue queue(context, devices[0], 0, &amp;err);
+	checkErr(err, &quot;CommandQueue::CommandQueue()&quot;);cl::Event event;
+	err = queue.enqueueNDRangeKernel(kernel,cl::NullRange,
+	cl::NDRange(hw.length()+1),	cl::NDRange(1, 1),NULL,&amp;event);
+	checkErr(err, &quot;ComamndQueue::enqueueNDRangeKernel()&quot;);</CODE></PRE>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="OpenCL.html">Previous</A>
+<A HREF="OpenACC.html">Next</A>
+</BODY>
+</HTML>

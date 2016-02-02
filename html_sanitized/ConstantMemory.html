@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="TextureMemory.html">
+<LINK REL="Next" HREF="SharedMemory.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="TextureMemory.html">Previous</A>
+<A HREF="SharedMemory.html">Next</A>
+<HR NOSHADE>
+<H4 id="sect:constantmemory"><A NAME="5_3_3_5">Constant Memory</A></H4>
+<P>Specific part of device memory is the constant memory, which allows
+ to store limited amount (64KB) of constant symbols. Similarly to the
+ texture memory, the accesses are cached but only reading is allowed.
+ Constant memory should be used for small variables that are shared
+ among all threads and do no require interpolation. It is declared by
+ the host using the keyword<STRONG> __constant__</STRONG>, and its size
+ is to be known at compile time. There are two main reason why reading
+ from constant memory can save bandwidth:</P>
+<UL>
+<LI>
+<P>A single read can be broadcasted to all thread of the same<EM> warp</EM>
+.</P>
+</LI>
+<LI>
+<P>Constant memory is cached, so consecutive reads of the same address
+ will not incur any additional traffic on off-chip DRAM.</P>
+</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="TextureMemory.html">Previous</A>
+<A HREF="SharedMemory.html">Next</A>
+</BODY>
+</HTML>

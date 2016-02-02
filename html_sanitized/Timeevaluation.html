@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Computationoftheminimizingoutflowsphi0i.html">
+<LINK REL="Next" HREF="Outflowscomputation.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Computationoftheminimizingoutflowsphi0i.html">Previous</A>
+<A HREF="Outflowscomputation.html">Next</A>
+<HR NOSHADE>
+
+<H4 id="sect:modeltimeEvaluation"><A NAME="9_2_1_2">Time evaluation</A></H4>
+<P>Once the minimizing outflows are computed, the CA clock can be
+ determined. As stated above, when
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_1\) is executed in “time evaluation mode”,
+<!--span class=&quot;math inline&quot;-->
+ \(t\) is preliminary set to a large value,
+<!--span class=&quot;math inline&quot;-->
+ \(t_{\max}\). As a consequence, the computed displacements,
+<!--span class=&quot;math inline&quot;-->
+ \(s_{(0,i)}\), can overcome the maximum allowed distance,
+<!--span class=&quot;math inline&quot;-->
+ \(w\), i.e. the distance between the central cell and the neighbor that
+ receive the flow. In case of over-displacement, i.e.
+<!--span class=&quot;math inline&quot;-->
+ \(s_{(0,i)} &gt; w\), the time
+<!--span class=&quot;math inline&quot;-->
+ \(t\) must be opportunely reduced in order to avoid the overflow. The
+ new value of
+<!--span class=&quot;math inline&quot;-->
+ \(t\) is determined as follows:</P>
+<UL>
+<LI>
+<P>for each minimizing flow,
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,i)}\), a new time,
+<!--span class=&quot;math inline&quot;-->
+ \(t_{(0,i)}\), is computed by imposing
+<!--span class=&quot;math inline&quot;-->
+ \(s_{(0,i)} = w\) and by solving the equation with respect to
+<!--span class=&quot;math inline&quot;-->
+ \(t\):
+<!--span class=&quot;math display&quot;-->
+ \[t_{(0,i)} = t = \frac{ - v_{0_{(0,i)}} + \sqrt{v_{0_{(0,i)}}^2 + 2
+ \overline{a} w} }{\overline{a}}\] so that overflow is avoided between
+ the central cell and its
+<!--span class=&quot;math inline&quot;-->
+ \(i\)-th neighbor;</P>
+</LI>
+<LI>
+<P>a new time,
+<!--span class=&quot;math inline&quot;-->
+ \(t_j\), is computed in order to avoid overflow conditions along all
+ the neighborhood as:
+<!--span class=&quot;math display&quot;-->
+ \[t_c = \min_{i=1,2, \ldots ,8} t_{(0,i)}\] so that overflow is avoided
+ in all the neighborhood;</P>
+</LI>
+<LI>
+<P>a new minimal time,
+<!--span class=&quot;math inline&quot;-->
+ \(t_{opt}\), is computed as:
+<!--span class=&quot;math display&quot;-->
+ \[t_{opt} = \min_{c \in R} t_{c}\] in order to avoid overflow
+ conditions over all the cellular space
+<!--span class=&quot;math inline&quot;-->
+ \(R\);</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(t_{opt}\) is multiplied by a relaxation rate factor,
+<!--span class=&quot;math inline&quot;-->
+ \(0 &lt; r \leq 1\), for smoothing the phenomenon, and the new CA clock,
+<!--span class=&quot;math inline&quot;-->
+ \(\overline{t}\), is obtained:
+<!--span class=&quot;math display&quot;-->
+ \[\overline{t} = t_{opt} r\]</P>
+</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Computationoftheminimizingoutflowsphi0i.html">Previous</A>
+<A HREF="Outflowscomputation.html">Next</A>
+</BODY>
+</HTML>

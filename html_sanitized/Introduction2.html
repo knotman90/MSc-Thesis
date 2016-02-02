@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ComputeUnifiedDeviceArchitectureCUDA.html">
+<LINK REL="Next" HREF="CUDAHardwaremodel.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ComputeUnifiedDeviceArchitectureCUDA.html">Previous</A>
+<A HREF="CUDAHardwaremodel.html">Next</A>
+<HR NOSHADE>
+<H2 id="introduction-2"><A NAME="5_1">Introduction</A></H2>
+<P>
+<!--span-->
+I
+<!--span-->
+0.45</P>
+<P><IMG alt="image" HEIGHT="687" src="cudaArchitecture.png" WIDTH="788"></P>
+<P>In November 2006 Nvidia released CUDA a platform (both hardware and
+ software) that allow the developers to use an high-level programming
+ language (e.g. C with slightly additions) to exploit the parallel power
+ of the hardware in order to solve complex computational problems in a
+ more efficient way than on a CPU. CUDA is attractive because is a
+ complete system(software and hardware model map well onto each other
+ aiding the developer comprehension), from silicon to high-level
+ libraries and a growing experience exists providing a valuable resource
+ to developers. It is for these reason CUDA was selected as development
+ platform for this work rather than other platforms<A class="footnoteRef"
+href="#fn15" id="fnref15"><SUP>15</SUP></A>. CUDA expose three level of
+ components to an application (See figure [CUDA_SOFT_ARCH]):</P>
+<OL>
+<LI>
+<P><EM><STRONG>Cuda Driver</STRONG></EM>:</P>
+<UL>
+<LI>
+<P>Distinct from graphics driver. The only purpose of this component is
+ to provide the access to the GPU’s general purpose functionalities.</P>
+</LI>
+</UL>
+</LI>
+<LI>
+<P><EM><STRONG>CUDA Runtime</STRONG></EM>:</P>
+<UL>
+<LI>
+<P>Built on top of the CUDA Driver, provide an higher level of
+ abstraction making the code less cumbersome especially as far as the
+ complexity of host code for kernel launches is concerned.</P>
+</LI>
+</UL>
+</LI>
+<LI>
+<P><EM><STRONG>CUDA Libraries</STRONG></EM>:</P>
+<UL>
+<LI>
+<P>Built on top of the CUDA Runtime, Is a collection of
+ Libraries(CUBLAS, CUSP, CUFFT, Thrust etc.)<A class="footnoteRef" href="#fn16"
+id="fnref16"><SUP>16</SUP></A> providing full-suitable state of the art
+ implementation of algorithms for a wide range of applications.</P>
+</LI>
+</UL>
+</LI>
+</OL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ComputeUnifiedDeviceArchitectureCUDA.html">Previous</A>
+<A HREF="CUDAHardwaremodel.html">Next</A>
+</BODY>
+</HTML>

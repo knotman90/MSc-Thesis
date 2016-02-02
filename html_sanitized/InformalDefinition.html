@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Introduction4.html">
+<LINK REL="Next" HREF="Cellularspacedimensionandgeometry.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Introduction4.html">Previous</A>
+<A HREF="Cellularspacedimensionandgeometry.html">Next</A>
+<HR NOSHADE>
+<H2 id="informal-definition"><A NAME="7_2">Informal Definition</A></H2>
+<P>Informally a<EM> cellular automata</EM> (CA) is a mathematical model
+ that consists of a discrete lattice of sites and a value, the state,
+ that is updated in a sequence of discrete timestamps (steps) according
+ to some logical rules that depend on a neighbor sites of the cell.
+ Hence CA describe systems whose the overall behavior and evolution of
+ the system may be exclusively described on the basis of local
+ interactions
+<!--span class=&quot;citation&quot;-->
+[@wolfram1984], property also called centrism. The most stringent and
+ typical characteristic of the CA-model is the restriction that the
+ local function does not depend on the time t or the place i: a cellular
+ automaton has homogeneous space/time behavior. It is for this reason
+ that ca are sometimes referred to as<EM> shift-dynamical</EM> or<EM>
+ translation invariant</EM> systems. From another point of view we can
+ say that in each lattice site resides a finite state automaton<A class="footnoteRef"
+href="#fn62" id="fnref62"><SUP>62</SUP></A> that take as input only the
+ states of the cells in its neighborhood (see figure [amod3Automata]).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Introduction4.html">Previous</A>
+<A HREF="Cellularspacedimensionandgeometry.html">Next</A>
+</BODY>
+</HTML>

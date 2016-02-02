@@ -1,0 +1,184 @@
+\chapter{Complex cellular automata}
+
+\section{Introduction}
+As stated in the section \ref{cellularAutomataIntroduction} cellular automata
+are a very powerful tool for modelling complex-systems and they were adopted as
+modelling and simulation paradigm in a wide range of applications like
+fluid-dynamical phenomena, gas models \cite{Frisch1986}, or lattice Boltzmann
+model \cite{Chopard1999}.
+The behavior of those physical systems is well described  by the basic laws
+of continuum mechanics (Navier-Stokes for example for fluid-dynamics),
+but in some cases, when  they cannot be applied directly without adding
+phenomenological assumptions or when the set of differential equation
+describing the problem is not amenable to any analytical solution (except for
+relaxed or particular instances) numerical solution are required.
+
+Hence, general cases require approximated numerical methods commonly based on
+space-time discretization and permitted to enlarge the set of cases which can be
+carefully simulated.
+But many others problems are still intractable and for those problems is
+necessary to adopt new solutions. Numerical methods have became more
+popular, as computational power raised up in years, and approaches in order to
+overcome the problems regarding differential equations\cite{Toffoli1984} were
+studied, but at the same time new methods that exploited principles of parallel
+computing were adopted either for reasons of absolute performance or reasons of
+cost/performance.
+
+\section{Complex phenomena modellation with cellular automata}
+Complex phenomena are different from models like Boltzmann lattice model
+because of the lager scale of the space that they take into account, like lava
+flow simulation models that evolve on a topographical mountain
+region map\footnote{Topographical maps are usually discrete altitude value grid
+of square cell not less distant than one or two meters from each other. They are
+also called DEM, acronym for Digital Elevation Model}.
+CA, as defined in the previous chapter are already suitable for this kind of modeling
+but, an extension  was introduced by \cite{Gregorio1999} to better fit the
+problem of complex phenomena modellation.
+
+
+\section{Complex Cellular automata (CCA)}
+While classical CA are based upon elementary automata, with few states and a
+simple transition function, in order to deal with Complex phenomena it is
+often necessary to allow a large number of different states a more complicated
+transition. The notion of substate is introduced in the Complex case for
+decomposing the state of the cell. The values associated to substates can change
+in time either due to interactions among substates inside the cell (internal
+transformations) or to local interactions among neighbouring cells.
+When considering Complex phenomena, each cell usually maps and correspond to
+a portion of space and hence a parameter that define the \emph{size }of the
+space that each cell represent is needed and it's natural assume that
+the cellular space is never higher than 3 ($d \leq 3$).
+
+\subsection{Parameters}
+As said before a spatial mapping between cell size\footnote{In terms of cell
+side or apothem in case respectively of square or hexagonal cell grid.} and
+portion of space in which the automaton evolves is needed and it is also
+reasonable to define a \emph{clock} parameter in order to map each CA step to an
+effective amount of time. The choice of \emph{cell size} and \emph{clock} are
+related to a particular space-time scale in which the CA model simulate the
+phenomena and for this reason it has deeply consequence on the form of the model.
+They are called parameters because they are predetermined and constant during
+the evolution even if in some case a precise estimation mat be given only
+\textit{a posteriori}. Moreover the ``best'' value for a parameter can depends 
+on the value of the other parameters and modification in one of them  can have
+deep consequences on the behavior of the entire model and may require the
+repetition of a parameters set rearranging and recalibration phase.
+
+
+\subsection{Substates}
+The state of the cell has in some ways to reflect all the characteristics that
+are relevant for the system's evolution. Each characteristic is mapped
+to a substate which admitted values are a finite set\footnote{Continuous
+quantities might be approximated by discretizing them. Note that on a computer
+that is not a problem because floating point computer representations are
+already discretized}.
+The set of possible state of the cell is given by the cartesian product of  the
+sets of substates, so, 
+\[
+Q = Q_1 \times Q_2 \times Q_3 \times \ldots \times Q_n
+\]
+When attempting in modelling complex phenomena with many relevant character-
+ics could useful to create an higher hierarchy of substates and so further dividing
+substates in sub-substates and taking in mind that the values of the substates are
+constants within the space occupied by a cell.
+
+\subsection{Elementary processes}\label{elementaryProcesses}
+The transition function has to take into account all the possible processes that
+can happen in  Complex phenomena, as physics, chemical etc. So as the state
+set was decomposed in substates also the transition function is divided in so
+called elementary processes that when applied in concert make up 
+transition function that describe the entire process.
+Moreover the elementary processes can be divided in :
+\begin{description}
+  \item[Internal transformations] \hfill \\
+  Internal transformation \(T_1,T_2,\ldots,T_l\) define the changes in the
+  values of the substates only due to interactions among them (e.g., temperature
+  drop in SCIARA-fv3, see section \ref{sect:temperatureDrop}, is function of
+  the substate lava thickness) inside the cell or due simply to the elapsing of
+  the time (e.g., water loss by evaporation). All cell processes evolution that
+  are not due to interaction with other cells can be ``labeled'' as
+  \emph{internal transformation}. That is, internal transformation are those
+  which would take place if all the cells were independent of each other.
+
+For each internal transformation :
+\[ 
+  T_i \equiv \sigma_{t_i} \colon  S_{T_{i1}}\rightarrow S_{T_{i2}} \:,\: 1 \leq
+  i \leq l
+\] 
+  where $S_{T_{i1}},S_{T_{i2}} \in \mathcal{P}(Q) $(power
+  set of Q) 
+  \item[Local/neighborhood interaction] \hfill \\
+  Local interaction \(I_1,I_2,\ldots,I_k\) describe transformation due to local
+  interaction with the neighborhood cells and are often described in terms of
+  flows of some quantities across them.
+\[
+  I_j \equiv \sigma_{I_j} \colon  S^m_{I_{j1}} \rightarrow S_{I_{j2}} \:,\:
+  1 \leq j \leq k
+\] 
+  where $S_{I_{j1}},S_{I_{j2}} \in \mathcal{P}(Q) $(power
+  set of Q) and \(m\) is the number of the neighborhood cells.
+\end{description}
+
+The whole phenomenon can be so described by sequentially calculating internal
+and local interaction functions. The execution order may be
+particularly  for the model evolution and for the results\cite{Ruxton1996}.
+
+\subsubsection{External influences}
+In some scenario could it be necessary to introduce some extern influence
+from the ``outside" of the automaton point of view. Those kind of influences
+cannot be described in terms of local rules and typically require dedicated
+functions or procedures to be defined. An example of these kind of influences
+could be the lava emission from a vent of a volcano (see section \ref{mcaFormal}
+for a formal definition).
+
+\section{CCA - a formal definition}\label{mcaFormal}
+Formally a Complex cellular automata CCA A is :
+\[
+A=<\mathbb{Z}^d,Q,P,X,\sigma,E,\gamma>
+\]
+where:
+\begin{itemize}
+  \item $\mathbb{Z}^d=\{i=(i_1,i_1,\ldots,i_d)\mid i_k \in
+  \mathbb{Z}, \forall k=1,2,\ldots,d \}$ is the set of cells of the d-dimensional
+   Euclidean space.
+   \item \(Q=Q_1 \times Q_2 \times \ldots \times Q_n \) is the finite set of the
+   finite state automaton and is the cartesian product of all the substates
+   \(Q_1, Q_2, \ldots ,Q_n \).
+   \item \( P=p_1, p_2, \ldots ,p_l \) is the finite set of the
+   parameters
+  
+   \item $X$ is the neighborhood, or neighborhood template; a
+  set of m \(d\)-dimensional
+  \[\xi_j=\{\xi_{j1},\xi_{j2},\ldots,\xi_{jd}\} \;,\: 1\leq j \leq m\] that
+  defines the set of the neighbors cells of a generic cell
+  $i=(i_1,i_1,\ldots,i_d)$
+  \[
+  N(X,i)=\{i+\xi_0,i+\xi_2,\ldots,i+\xi_d\}
+  \] where $\xi_0$ is the null vector.
+  
+  \item $\sigma=Q^m \rightarrow Q $ is the transition
+  function of the cells's finite state automaton . It is divided as specified
+  before (see section \ref{elementaryProcesses}) in internal
+  transformation,\(\sigma_{T_{1}},\sigma_{T_{1}},\ldots,\sigma_{T_{p}}\), and
+  local interactions, \(\sigma_{I_{1}},\sigma_{I_{1}},\ldots,\sigma_{I_{o}}\).
+  For each local interaction is possible to adopt a particular neighborhood
+  template \(X_{I_k} \;,\; 1 \leq k \leq o \) and the general neighborhood
+  template would be : 
+\[
+   D=\bigcup_{i=1}^{o}\{X_{I_k}\}
+\]
+
+\item \(E=\bigcup_{i=1}^{s}\{E_i\} \) is the set of the cells affected by
+external influences.
+
+\item \(\gamma=\{\gamma_1,\gamma_2,\ldots,\gamma_w\}\) is the set of the
+functions that define external influences.
+\[
+\gamma_i= \mathbb{N} \times E_i \times Q \rightarrow Q \;,\; 1 \leq i \leq w
+\]
+where \(\mathbb{N}\) is the set of natural number, representing the current
+step of the CCA.
+  
+  
+\end{itemize}
+

@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="FloatDoubleprecisionconsiderations.html">
+<LINK REL="Next" HREF="Conclusions.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="FloatDoubleprecisionconsiderations.html">Previous</A>
+<A HREF="Conclusions.html">Next</A>
+<HR NOSHADE>
+<H3 id="approximation-and-numerical-errors"><A NAME="10_12_3">
+Approximation and numerical errors</A></H3>
+<P>Validation of the parallel models has been tricky also due to
+ differences (at first sight unexpected) in substate values that were
+ not caused by implementation errors. It has been seen that, different
+ runs of the “<EM>atomic</EM>” version, showed errors growing in the
+ course of CA execution. The source of errors resides in the order of
+ execution of the operations of sums and multiplications, that is
+ completly out of control of the programmer in this “<EM>atomic</EM>
+”-based version. In fact, CUDA atomic operations ensure “thread
+ safe” accesses to variables, but the order in wich they take place is
+ unknown. It is well known that
+<!--span class=&quot;math inline&quot;-->
+ \(A+(B+C) \neq (A+B)+C\) in the general case holds (floating-point
+ operations, as defined in the IEEE-754 standard, are not associative),
+ and that the ordering of large numbers of operations (such as
+ summations) that deal with operands of substantially different
+ magnitudes can significantly affect the final result
+<!--span class=&quot;citation&quot;-->
+ [@Villa_effectsof]<A class="footnoteRef" href="#fn108" id="fnref108"><SUP>
+108</SUP></A>. On massively multi-threaded systems, the
+ non-deterministic nature of how machine floating point operations are
+ interleaved, combined with the fact that intermediate values have to be
+ rounded or truncated to fit in the available precision leads to
+ non-deterministic numerical error propagation. This is the case of
+ SCIARA-fv3 where for a cell
+<!--span class=&quot;math inline&quot;-->
+ \(c\) this kind of error propagates for hundred of thousands steps,
+ making it big enough to be relevant in computing substate values.
+ Problems of this kind have comed out in this version of the model
+ because it is much more numerical sensitive, being more physically
+ accurate in modelling the flows. The problem, hence, does not derive
+ from the parallel implementation and to confirm this hypothesis another
+ order of execution of the distribution phase was tested on the
+ sequential version (seen in listing [code:skypIdleCell]), simply
+ swapping the two <CODE>for</CODE> statements of the cells general loop
+ and comparing the result after a certain number of steps with the
+ original version. Even the sequential implementation show the same
+ numerical problems.</P>
+<P>The magnitude of this error was investigated and results showed
+ (using the dataset of Mt Etna) that after
+<!--span class=&quot;math inline&quot;-->
+ \(350000\) steps the
+<!--span class=&quot;math inline&quot;-->
+ \(\cong80\%\) of the cells had and error less or equal to the
+<!--span class=&quot;math inline&quot;-->
+ \(10\%\) respect to the sequential version, meaning a difference of the
+ order of
+<!--span class=&quot;math inline&quot;-->
+ \(10^{-2}\;m\). However, in the context of complex macroscopic
+ phenomena, and in particular in context of lava flow simulation, errors
+ of this kind are insignificant.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="FloatDoubleprecisionconsiderations.html">Previous</A>
+<A HREF="Conclusions.html">Next</A>
+</BODY>
+</HTML>

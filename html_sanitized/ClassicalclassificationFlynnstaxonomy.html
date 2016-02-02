@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Architectures.html">
+<LINK REL="Next" HREF="Memoryclassification.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Architectures.html">Previous</A>
+<A HREF="Memoryclassification.html">Next</A>
+<HR NOSHADE>
+<H3 id="classical-classification---flynns-taxonomy"><A NAME="3_2_1">
+Classical classification - Flynn’s taxonomy</A></H3>
+<P>The classification is based on the notion of<EM> stream of
+ information</EM>. Two types of information flow into the processor:
+ instructions and data. Conceptually they can be separated into two
+ independent streams. A coarse classification can be made taking in
+ account only the number of instructions and data streams that a
+ parallel machine can manage (see figure [fig:parallelClassification1]).
+ That’s how Flynn’s taxonomy
+<!--span class=&quot;citation&quot;-->
+[@Flynn1972] classifies machines: according to whether they have one or
+ more streams of each type.</P>
+<DIV class="figure"> <IMG alt="Parallel architecture classification." HEIGHT="305"
+src="parallelClassification.png" WIDTH="1470">
+<P class="caption">Parallel architecture classification.
+<!--span data-label=&quot;fig:parallelClassification1&quot;-->
+</P>
+</DIV>
+<DL>
+<DT>SISD:</DT>
+<DD>
+<P><EM><STRONG>Single</STRONG></EM> instruction<EM><STRONG> Single</STRONG>
+</EM> data.
+<BR> No parallelism in either instruction or data streams. Each
+ arithmetic instruction initiates an operation on a data item taken from
+ a single stream of data elements (e.g. mainframes)</P>
+</DD>
+<DT>SIMD:</DT>
+<DD>
+<P><EM><STRONG>Single</STRONG></EM> instruction<EM><STRONG> Multiple</STRONG>
+</EM> data.
+<BR> Data parallelism. The same instruction is executed on a batch of
+ different data. The control unit is responsible for fetching and
+ interpreting instructions. When it encounters an arithmetic or other
+ data processing instruction, it broadcasts the instruction to all
+ processing elements (PE), which then all perform the same operation.
+ For example, the instruction might be<EM> add R3,R0.</EM>. Each PE
+ would add the contents of its own internal register R3 to its own R0.
+ (e.g. stream processors<A class="footnoteRef" href="#fn2" id="fnref2"><SUP>
+2</SUP></A>.)</P>
+</DD>
+<DT>MISD:</DT>
+<DD>
+<P><EM><STRONG>Multiple</STRONG></EM> instruction<EM><STRONG> Single</STRONG>
+</EM> data.
+<BR> Multiple instruction operating on the same data stream. It is a
+ class of system very unusual, mostly for fault-tolerance reasons.</P>
+</DD>
+<DT>MIMD:</DT>
+<DD>
+<P><EM><STRONG>Multiple</STRONG></EM> instruction<EM><STRONG> Multiple</STRONG>
+</EM> data.
+<BR> Multiple instruction operating independently on multiple data
+ streams. (e.g. most modern computers)</P>
+</DD>
+</DL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Architectures.html">Previous</A>
+<A HREF="Memoryclassification.html">Next</A>
+</BODY>
+</HTML>

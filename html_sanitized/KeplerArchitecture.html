@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ComputeCapability.html">
+<LINK REL="Next" HREF="StreamingMultiProcessorSMX.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ComputeCapability.html">Previous</A>
+<A HREF="StreamingMultiProcessorSMX.html">Next</A>
+<HR NOSHADE>
+<H3 id="sect:keplerArch"><A NAME="5_2_2">Kepler Architecture</A></H3>
+<P>NVIDIA Kepler architecture builds on the foundation first established
+ in 2010 with NVIDIA’s Fermi GPU architecture. The first GPU based on
+ this new Kepler architecture, code-named “GK104” is fabricated on a
+ 28nm process, and every internal unit was designed for the best
+ perf/watt possible. The first product being introduced based on GK104
+ is the GeForce GTX 680. Like Fermi, Kepler GPUs are composed of
+ different configurations of Graphics Processing Clusters (GPCs),
+ Streaming Multiprocessors (SMs), and memory controllers. The GeForce
+ GTX 680 GPU consists of four GPCs, eight next-generation Streaming
+ Multiprocessors (SMX), and four memory controllers. In GeForce GTX 680,
+ each GPC has a dedicated raster engine and two SMX units. With a total
+ of eight SMX units, the GeForce GTX 680 implementation has 1536 CUDA
+ Cores (See figure [gtxArch] and table [tab:cudaGtxspec]).</P>
+<DIV class="figure"> <IMG alt="Kepler Architecture (GTX 680)" src="gtxArch.png">
+<P class="caption">Kepler Architecture (GTX 680)
+<!--span data-label=&quot;gtxArch&quot;-->
+</P>
+</DIV>
+<P>Tied to each memory controller are 128KB L2. With four memory
+ controllers, a full GeForce GTX 680 GPU has 512KB L2 cache.</P>
+<TABLE><CAPTION> High-level comparison of Kepler vs. Fermi GPUs
+<!--span data-label=&quot;tab:cudaGtxspec&quot;-->
+</CAPTION><THEAD></THEAD>
+<TR class="header"><TH align="left"><STRONG><EM>GPU</EM></STRONG></TH><TH
+align="left"><STRONG><EM>GTX 680</EM></STRONG></TH><TH align="left"><STRONG>
+<EM>GF110(Fermi)</EM></STRONG></TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="left"><STRONG><EM>Transistor</EM></STRONG></TD><TD
+align="left">3.54 billion</TD><TD align="left">3.0 billion</TD></TR>
+<TR class="even"><TD align="left"><STRONG><EM>CUDA Cores</EM></STRONG></TD><TD
+align="left">1536</TD><TD align="left">512</TD></TR>
+<TR class="odd"><TD align="left"><STRONG><EM>Graphic Core Clock</EM></STRONG>
+</TD><TD align="left">772 MHz</TD><TD align="left">1006 MHz</TD></TR>
+<TR class="even"><TD align="left"><STRONG><EM>GFLOPs</EM></STRONG></TD><TD
+align="left">3090</TD><TD align="left">1581</TD></TR>
+<TR class="odd"><TD align="left"><STRONG><EM>Memory Clock</EM></STRONG></TD><TD
+align="left">6008 MHz</TD><TD align="left">4008 MHz</TD></TR>
+<TR class="even"><TD align="left"><STRONG><EM>Memory Bandwidth</EM></STRONG>
+</TD><TD align="left">192.26 GB/sec</TD><TD align="left">192.4 GB/sec</TD>
+</TR>
+<TR class="odd"><TD align="left"><STRONG><EM>TDP</EM></STRONG></TD><TD align="left">
+195 W</TD><TD align="left">244 W</TD></TR>
+</TABLE>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ComputeCapability.html">Previous</A>
+<A HREF="StreamingMultiProcessorSMX.html">Next</A>
+</BODY>
+</HTML>

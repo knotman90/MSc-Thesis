@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Optimizeinstructionthroughput.html">
+<LINK REL="Next" HREF="NvidiaVisualProfiler.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Optimizeinstructionthroughput.html">Previous</A>
+<A HREF="NvidiaVisualProfiler.html">Next</A>
+<HR NOSHADE>
+<H4 id="library-usage"><A NAME="5_3_5_5">Library usage</A></H4>
+<P>Cuda provide a large yes implemented state of the art functions that
+ span from linear algebra to AI algorithms<A class="footnoteRef" href="#fn47"
+id="fnref47"><SUP>47</SUP></A>. Using them instead of writing own
+ kernels one can accelerate the application development and taking
+ advantage of the performance gain given by the new version of the
+ library due to redesigning of the algorithms or the exploitation of the
+ latest GPU features. For this work for instance we used Thrust that is
+ a library of parallel algorithms(sort, scan, transform, reduction etc.)
+ and data structure (see example code [code:Thrust] at page ).</P>
+<DIV class="figure"> <IMG alt="Example of analysis of a kernel. The profiler gives lots of metrics that are very useful to perform performance tuning of the application and to identify bottleneck. In this case the kernel is very memory bounded."
+HEIGHT="475" src="analysis-view.png" WIDTH="1050">
+<P class="caption">Example of analysis of a kernel. The profiler gives
+ lots of metrics that are very useful to perform performance tuning of
+ the application and to identify bottleneck. In this case the kernel is
+ very memory bounded.
+<!--span data-label=&quot;profiler&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Optimizeinstructionthroughput.html">Previous</A>
+<A HREF="NvidiaVisualProfiler.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Sharedmemoryoptimizations.html">
+<LINK REL="Next" HREF="Testvalidationandperformancesresults.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Sharedmemoryoptimizations.html">Previous</A>
+<A HREF="Testvalidationandperformancesresults.html">Next</A>
+<HR NOSHADE>
+<H2 id="if-divergences-mitigation"><A NAME="10_11">If divergences
+ mitigation</A></H2>
+<P>Here is briefly shown a tecnique that may be useful for the
+ mitigation of thread divergenge due to <CODE>if</CODE> statements. This
+ simply consists in letting all threads execute all instructions within
+ all <CODE>if</CODE> statements, ensuring that the final value of the
+ variables is the same as if would have been computed inside the <CODE>
+if</CODE>s. See as example, how listing [list:ifDivergence1] is
+ converted in an equivalent <CODE>if</CODE>-free code (listing
+ [list:ifDivergence2]) as example :</P>
+<PRE> <CODE>	if (d_Spy[index] &gt;= 0){
+			alpha_p = acos(d_Spx[index]/d_outFlwPriv[getPrivateVarIdx(index,12,0)]);
+		}else{
+			alpha_p = 2.0*PI_GRECO - acos(d_Spx[index]/d_outFlwPriv[getPrivateVarIdx(index,12,0)]);
+		}</CODE></PRE>
+<PRE> <CODE>condition=d_Spy[index] &gt;= 0;
+	alpha_p= -(condition*-(2.0*PI_GRECO)+ acos(d_Spx[index]/d_outFlwPriv[getPrivateVarIdx(index,12,0)]));</CODE></PRE>
+<P>It’s easy to see that whether
+<!--span class=&quot;math inline&quot;-->
+ \(d\_Spy[index] &gt;= 0\) is greater equal than
+<!--span class=&quot;math inline&quot;-->
+ \(0\) the final value of the variable
+<!--span class=&quot;math inline&quot;-->
+ \(alpha\_p\) is equivalent between the two listings (a boolean value is
+ internally represented in C as
+<!--span class=&quot;math inline&quot;-->
+ \(0=false\) and
+<!--span class=&quot;math inline&quot;-->
+ \( a=true,\; a&gt;0\)). It is known that GPUs devote more transistors than
+ CPUs to computation instead of control flow, so in some situations a
+ gain in performance using this tecnique may take place.
+ Experimentations, anyway, have to be performed in order to find the
+ best set of <CODE>if</CODE>s to be converted and evaluate real
+ performance gain obtained. Note that in general converted code,
+ expecially ones with several nested <CODE>if</CODE>s, becomes less
+ readable and maintenable.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Sharedmemoryoptimizations.html">Previous</A>
+<A HREF="Testvalidationandperformancesresults.html">Next</A>
+</BODY>
+</HTML>

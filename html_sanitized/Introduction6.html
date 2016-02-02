@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ParallelGPUCUDAImplementationofthelavaflowmodelSCIARAfv3.html">
+<LINK REL="Next" HREF="TheAssessParallelizeOptimizeDeployAPODdesigncycle.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ParallelGPUCUDAImplementationofthelavaflowmodelSCIARAfv3.html">Previous</A>
+<A HREF="TheAssessParallelizeOptimizeDeployAPODdesigncycle.html">Next</A>
+<HR NOSHADE>
+<H2 id="introduction-5"><A NAME="10_1">Introduction</A></H2>
+<P>Parallel computing is a cost-effective method for efficient
+ resolution of problems and was used as tool for modeling real complex
+ phenomena like a lava flow, or snowflakes. Many techniques were
+ developed in order to exploit the power of parallelization differing
+ from each other primarily for the underlying parallel architecture they
+ are designed for (see chapter [chap:parallelArchitectures]). In this
+ work we adopted GPUs to accelerate the SCIARA-fv3 lava flow (see
+ section [sect:SCIARA_MODEL])cellular automata model<A class="footnoteRef"
+href="#fn82" id="fnref82"><SUP>82</SUP></A> following the APOD
+ parallelizing methodology (see section [sect:APOD]) and hence,
+ different parallel versions of the model were produced, incrementally
+ adopting new features and strategies in order to achieve better
+ performances.</P>
+<P>The versions produced have been:</P>
+<DL>
+<DT><STRONG><EM>Naïve implementation :</EM></STRONG></DT>
+<DD>
+<P>
+<BR> A basic and simple porting consisting in mapping each cell of the
+ cellular space to a CUDA thread. Most part of the scaffolding code was
+ produced here because all the algorithms and data structures, used in
+ the serial code, that have prevented the parallelism have been
+ identified and handled (see section [sect:topLevelStrategies] and
+ [sect:naiveImplementation]) .</P>
+</DD>
+<DT><STRONG><EM>Rectangular Bounding Box - RBB:</EM></STRONG></DT>
+<DD>
+<P>
+<BR> A first important optimization strategy was adopted here in order
+ to mitigate the problem of IDLE allocated threads (see section
+ [sect:idleThreadsDevOccupancy]), that limits the occupancy of the
+ device. The computation is limited only within the boundaries of a
+ rectangle that has the property of containing all the active cells (see
+ sections [sect:serialoptimization] and [sect:RBBOptimization] )</P>
+</DD>
+<DT><STRONG><EM>Shared memory utilization:</EM></STRONG></DT>
+<DD>
+<P>
+<BR> A deep analysis on memory accesses was performed to select buffers
+ and variables more often accessed in kernel code in order to take
+ advantage of the shared memory (see sections [shareMemory] and
+ [sect:sharedMemoryOptimization])</P>
+</DD>
+<DT><STRONG><EM>Atomic function implementation:</EM></STRONG></DT>
+<DD>
+<P>
+<BR> A family of two versions exploiting CUDA<EM> atomic functions</EM>
+ was developed as solution to the problem of race-conditions while
+ distributing flows among cells (see algorithm [alg:distribution])</P>
+<OL>
+<LI>
+<P><STRONG><EM>RBB-atomic</EM></STRONG> : A porting of the RBB version
+ introduced before without utilizing the flow’s substates (see section
+ [sect:raceCondAvoiding]) for lava flow distribution.</P>
+</LI>
+<LI>
+<P><STRONG><EM>List active cells and atomic functions</EM></STRONG> :
+ IDLE cells and related IDLE threads have been found to be the most
+ prominent limiting factor in exploiting GPU power. This version
+ implements a mechanism that tries to avoid almost completely this
+ issue, showing very good improvements in performances (see section
+ [sect:linearCellAtomic]).</P>
+</LI>
+</OL>
+</DD>
+</DL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ParallelGPUCUDAImplementationofthelavaflowmodelSCIARAfv3.html">Previous</A>
+<A HREF="TheAssessParallelizeOptimizeDeployAPODdesigncycle.html">Next</A>
+</BODY>
+</HTML>

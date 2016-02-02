@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="AtomicFunctionsimplementation.html">
+<LINK REL="Next" HREF="Sharedmemoryoptimizations.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="AtomicFunctionsimplementation.html">Previous</A>
+<A HREF="Sharedmemoryoptimizations.html">Next</A>
+<HR NOSHADE>
+<H2 id="sect:linearCellAtomic"><A NAME="10_9">List of active cells
+ implementation</A></H2>
+<P>This section describes a totally different approach that tries to
+ solve the problem of IDLE cells. As seen in section
+ [sect:RBBOptimization] RBB may be a valid solution, but could not be
+ efficient in several situations. The<EM> list of active cells - LAC</EM>
+ approach is built on top of the atomic implementation described in
+ section [sect:atomicImplementation]. It is based on the concept that
+ only the active cells have to be processed by CUDA threads.</P>
+<P>In this version a list of cell indexes is managed by the program, and
+ whenever a new cell is activated by means of some lava quantity it is
+ added to that list in order to be processed by one of the allocated
+ thread. In this way it is possible to keep track of the size of the LAC
+ and launch only the necessary number of threads onto the device. If at
+ the time
+<!--span class=&quot;math inline&quot;-->
+ \(t\) there are
+<!--span class=&quot;math inline&quot;-->
+ \(NC\) active cells, the corresponding LAC list will have size
+<!--span class=&quot;math inline&quot;-->
+ \(NC\). The
+<!--span class=&quot;math inline&quot;-->
+ \(i^{th}\) allocated thread will handle the cell of index
+<!--span class=&quot;math inline&quot;-->
+ \(LAC(i)\) at position
+<!--span class=&quot;math inline&quot;-->
+ \(i\) of the list. Thread index and CA cell index are in this case
+ completely disassociated, disabling the possibility of using the
+ distribution method utilized so far and described in the algorithm
+ [alg:distribution] at page . In theory no waste of computational
+ resources may take place, but other factors have to be considered,
+ first and foremost global memory coalescence (see section
+ [memoryModel]) because cells are not activated in a prefixed order (in
+ terms of same computational step or of cells that trigger their
+ activation), and hence their order in the LAC list could not reflect
+ the real topological proximity, meaning lots of unnecessary global
+ memory accesses. Coalescence may be “improved” simply ordering the
+ LAC regularly<A class="footnoteRef" href="#fn102" id="fnref102"><SUP>
+102</SUP></A> within the execution.</P>
+<P>For example, let’s suppose that
+<!--span class=&quot;math inline&quot;-->
+ \(C\) is a
+<!--span class=&quot;math inline&quot;-->
+ \(n \times m = 3\times 3\) bi-dimensional cellular space and that at
+ time
+<!--span class=&quot;math inline&quot;-->
+ \(t\) only cell
+<!--span class=&quot;math inline&quot;-->
+ \(i\) is active and at time
+<!--span class=&quot;math inline&quot;-->
+ \(t+1\) it triggers the activation of cells (in order)
+<!--span class=&quot;math inline&quot;-->
+ \(\{i-3,i+2,i+4\}\) and at time
+<!--span class=&quot;math inline&quot;-->
+ \(t+2\) of the cells
+<!--span class=&quot;math inline&quot;-->
+ \(\{i+1,i-2,i+3,i-4\}\). The LAC list would be :
+<!--span class=&quot;math inline&quot;-->
+ \(LAC=\{i,i-3,i+2,i+4,i+1,i-2,i+3,i-4\}\)</P>
+<P>(0,0) grid (6,6); ;</P>
+<P>hence
+<!--span class=&quot;math inline&quot;-->
+ \(n \times m = 3\times 3 = 9\) threads will be created and launched
+ with indices
+<!--span class=&quot;math inline&quot;-->
+ \(T=\{0,1,2,3,\ldots,8\}\). They execute the transition function on
+ cells of LAC in such manner that
+<!--span class=&quot;math inline&quot;-->
+ \(T(i)\) manages cell
+<!--span class=&quot;math inline&quot;-->
+ \(LAC(i)\)<A class="footnoteRef" href="#fn103" id="fnref103"><SUP>103</SUP>
+</A>. Obviously, two “contiguous” threads execute on two
+ discontiguous memory locations, disabling coalescence. What was
+ devised, in order to mitigate this issue and keep getting advantage of
+ the low number IDLE threads, is to sort the
+<!--span class=&quot;math inline&quot;-->
+ \(LAC\) thus realizing the topological proximity whithin the buffer and
+ making both threads and cells well “coupled”. The activation is
+ obtained adding the index of the cell to the LAC (see listing
+ [code:LACactivation]).</P>
+<PRE> <CODE>__device__ void ActiveCell(int col, int row, SCALARS_GPU* D_SCAL,int * d_ACT,int*d_indexCelleAttive){
+		int index=linearizedIndex(col,row,d_params[EN_LY]);
+		int old;
+		if (!d_ACT[index]){
+			old=atomicExch(&amp;d_ACT[index],1);
+			if(old==0){
+				atomicExch(&amp;d_indexCelleAttive[atomicInc((unsigned int*)&amp;D_SCAL-&gt;minRect[9],NUMCELLS)],index);
+				
+} } }</CODE></PRE>
+<P>Moreover other overheads may be introcuced by the fact that an atomic
+ operation is required since two or more threads may activate a cell at
+ the same time and hence write the same LAC location.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="AtomicFunctionsimplementation.html">Previous</A>
+<A HREF="Sharedmemoryoptimizations.html">Next</A>
+</BODY>
+</HTML>

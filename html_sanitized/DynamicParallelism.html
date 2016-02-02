@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Registers.html">
+<LINK REL="Next" HREF="PerformanceGuidelines.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Registers.html">Previous</A>
+<A HREF="PerformanceGuidelines.html">Next</A>
+<HR NOSHADE>
+<H3 id="DynamicParallelism"><A NAME="5_3_4">Dynamic Parallelism</A></H3>
+<P>Cuda 5.0 introduces a new feature,<EM>Dynamic Parallelism</EM>
+<!--span class=&quot;citation&quot;-->
+[@dynamicParallelism]<A class="footnoteRef" href="#fn39" id="fnref39"><SUP>
+39</SUP></A> that enable CUDA kernel to create new work, using the API
+ to launch new kernel, perform device memory management, or library call
+ (CUBLAS for instance) all without CPU involvement (see example code
+ [code:dynamicParallelism] at page ). This effectively eliminates the
+ superfluous back and forth communication between the GPU and CPU
+ through nested kernel computations. The launching kernel is called the
+ “parent”, and the new grid it launches the “child”. Child
+ kernels may themselves launch work, creating a nested execution
+ hierarchy<A class="footnoteRef" href="#fn40" id="fnref40"><SUP>40</SUP></A>
+ and giving the possibility to easily exploit and port parallel nested
+ algorithms or other constructs that do not fit a flat, single-level of
+ parallelism. To be considered complete, a parent kernel all child grids
+ created by its threads(whichever it is within the kernel) have
+ completed, even if the programmer does not explicitly synchronize the
+ threads the runtime guarantee synchronization between parent and all
+ the childs ( see figure [dynamicparallelismParentChild] and
+ [dynamicParallelismSynch]). In the example in figure
+ [dynamicParallelismSynch] the kernel C will not be able to begin
+ execution until kernel Z has completed, because from the point of view
+ of C, kernels X,Y,Z are seen as part of B.</P>
+<DIV class="figure"> <IMG alt="Parent Child Synchronization." HEIGHT="268"
+src="dynamicparallelismParentChild.png" WIDTH="475">
+<P class="caption">Parent Child Synchronization.
+<!--span data-label=&quot;dynamicparallelismParentChild&quot;-->
+</P>
+</DIV>
+<P>The same kind of coordination and synchronization holds between
+ X,Y,Z, hence Y can’t begin the execution until X has returned. This
+ allow the program flow can be handled “on GPU” within one single
+ kernel without any memory exchange between GPU and CPU, and also allow
+ hierarchical call to be written where data from a parent kernel is used
+ to decide how to partition the next lower level of the hierarchy (see
+ figure [dynamicparallelismParentChild]) .</P>
+<P>Consistency of global memory access is not guarantees between child
+ and parent, because as usual launches are asynchronous and it means
+ that when a child grid is invoked it return immediately the control to
+ the parent kernel, and the parent does not know when child is really
+ executed. So it can not rely on any assumption about the concurrent
+ execution of the child. There are just two point in the execution of a
+ child grid when the memory is fully consistent with the parent:</P>
+<UL>
+<LI>
+<P>when a child is invoked.</P>
+</LI>
+<LI>
+<P>when the launching thread reaches a synchronization point.</P>
+</LI>
+</UL>
+<P>Moreover childs and parent grid share the same global and constant
+ memory, but as kernels, have different and private local registers and
+ shared memory. It’s illegal to use a pointer to local or shared
+ memory as an argument to a kernel launch.</P>
+<DIV class="figure"> <IMG alt="An example of how the parent grid can launch child grid with dynamic dimension to obtain a better workload."
+HEIGHT="208" src="dynamicpParallelismWorkload.png" WIDTH="833">
+<P class="caption">An example of how the parent grid can launch child
+ grid with dynamic dimension to obtain a better workload.
+<!--span data-label=&quot;dynamicpParallelismWorkload.png&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Registers.html">Previous</A>
+<A HREF="PerformanceGuidelines.html">Next</A>
+</BODY>
+</HTML>

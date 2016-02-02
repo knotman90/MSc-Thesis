@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="KeplervsFermiperformance.html">
+<LINK REL="Next" HREF="Approximationandnumericalerrors.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="KeplervsFermiperformance.html">Previous</A>
+<A HREF="Approximationandnumericalerrors.html">Next</A>
+<HR NOSHADE>
+<H3 id="sect:precisionConsid"><A NAME="10_12_2">Float-Double precision
+ considerations</A></H3>
+<P>Other experiments were performed to test if single-precision data can
+ be considered sufficient for SCIARA simulations by comparing results
+ produced by the GPU version with those produced by the CPU (sequential)
+ version with single precision data (i.e., <CODE>float</CODE> type
+ variables), and those produced still by the same GPU version against a
+ double precision CPU implementation (i.e., <CODE>double</CODE> type
+ variables). In each case, comparison results were satisfactory,
+ especially for the double-precision versions, where the areal
+ extensions of simulations resulted the same, except for few errors of
+ approximation in a limited number of cells. As expected, speed-up
+ measurements were better for float-value implementations, even if more
+ approximation errors were present with respect to the corresponding
+ double-value version.</P>
+<TABLE><CAPTION> Achieved speedup values of experiments carried out for
+ evaluating the performance the GPU version of the SCIARA-fv3 MCA
+ lava-flow model on the GTX 480 (Fermi architecture) and the GTX 680
+ (Kepler architecture) graphic hardware, using the Atomic function
+ hybrid memory (AHM) and the LAC hybrid memory (LAC) A Intel i7-2600
+ based hardware was adopted for reference sequential tests. The
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) matrix refers to the 2006 Mt. Etna event.
+<!--span data-label=&quot;tab:execAHM_LAC&quot;-->
+</CAPTION><THEAD></THEAD>
+<TR class="header"><TH align="center"></TH><TH align="center"><EM>GTX
+ 680 - AHM + LAC</EM></TH><TH align="center"></TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="center">CA dim</TD><TD align="center">AHM
+ (float)</TD><TD align="center">LAC (float)</TD></TR>
+<TR class="even"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(517 \times 378\)</TD><TD align="center">12.3</TD><TD align="center">
+14.3</TD></TR>
+<TR class="odd"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(400 \times 400 \)</TD><TD align="center">21.7</TD><TD align="center">
+20.8</TD></TR>
+</TABLE>
+<TABLE><CAPTION> Achieved speedup values of experiments carried out for
+ evaluating the performance the GPU version of the SCIARA-fv3 MCA
+ lava-flow model on the GTX 480 (Fermi architecture) and the GTX 680
+ (Kepler architecture) graphic hardware, using the Atomic function
+ hybrid memory (AHM) and the LAC hybrid memory (LAC) A Intel i7-2600
+ based hardware was adopted for reference sequential tests. The
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) matrix refers to the 2006 Mt. Etna event.
+<!--span data-label=&quot;tab:execAHM_LAC&quot;-->
+</CAPTION><THEAD></THEAD>
+<TR class="header"><TH align="center"></TH><TH align="center"><EM>GTX
+ 480 - AHM + LAC</EM></TH><TH align="center"></TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="center">CA dim</TD><TD align="center">AHM
+ (float)</TD><TD align="center">LAC (float)</TD></TR>
+<TR class="even"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(517 \times 378\)</TD><TD align="center">19.9</TD><TD align="center">
+21.5</TD></TR>
+<TR class="odd"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(400 \times 400 \)</TD><TD align="center">27.3</TD><TD align="center">
+26.5</TD></TR>
+</TABLE>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="KeplervsFermiperformance.html">Previous</A>
+<A HREF="Approximationandnumericalerrors.html">Next</A>
+</BODY>
+</HTML>

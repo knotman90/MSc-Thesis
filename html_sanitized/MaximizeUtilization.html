@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="PerformanceGuidelines.html">
+<LINK REL="Next" HREF="MemorythroughputUtilization.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="PerformanceGuidelines.html">Previous</A>
+<A HREF="MemorythroughputUtilization.html">Next</A>
+<HR NOSHADE>
+<H4 id="maximize-utilization"><A NAME="5_3_5_1">Maximize Utilization</A></H4>
+<P>At application level the programmer should maximize the device
+ utilization by using asynchronous function calls and streams<A class="footnoteRef"
+href="#fn41" id="fnref41"><SUP>41</SUP></A>.Different operations in
+ different streams can run concurrently giving (even if the device
+ support these kind of operation) better overall performance. At an high
+ level of abstraction we can think t streams as independent task that
+ could, in theory, run in parallel without any consequence on each
+ other. At a lower level, the application should maximize the occupancy.
+ Nvidia provide with its SDK a spreadsheet that enable the programmer to
+ calculate those metrics<A class="footnoteRef" href="#fn42" id="fnref42">
+<SUP>42</SUP></A> However, maximize the occupancy is not a trivial task,
+ because it can be influenced by lot of factors and such kernel launch
+ configuration settings, number of registers utilized by threads or
+ amount of shared memory utilized per block and compute capability.
+ Another important issue can be represented by the lower utilization of
+ the functional units. At every instruction issue time, a warp scheduler
+ selects a warp that is ready to execute its next instruction, if any,
+ and issues the instruction to the active threads of the warp. The
+ number of clock cycles it takes for a warp to be ready to execute its
+ next instruction is called the latency, and full utilization is
+ achieved when all warp schedulers always have some instruction to issue
+ for some warp at every clock cycle during that latency period, or in
+ other words, when latency is completely “hidden”. The most common
+ reason a warp is not ready to execute its next instruction is that the
+ instruction’s input operands are not available yet. For instance if
+ some input operand resides in off-chip memory, the latency is :400 to
+ 800 clock cycles for devices of compute capability 1.x and 2.x and
+ about 200 to 400 clock cycles for devices of compute capability 3.x,
+ that is much higher than registers’s latency which is caused by
+ register dependencies, i.e. some of them are waiting for some previous
+ instructions to be completed. Synchronization is another source of
+ latency, because warps waiting at some synchronizing fence cannot be
+ scheduled. However is not possible to predeterminate the performance
+ given only a execution configuration. Experimentation is recommended to
+ find out the best configuration for the application. Obviously the
+ number of threads per block should be chosen of multiple of the warps
+ size (i.e. 32) otherwise CUDA automatically pad the resulting of blocks
+ subdivision warps with<EM> fake</EM> threads, wasting resources.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="PerformanceGuidelines.html">Previous</A>
+<A HREF="MemorythroughputUtilization.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="HostandDevice.html">
+<LINK REL="Next" HREF="Memorymodel.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="HostandDevice.html">Previous</A>
+<A HREF="Memorymodel.html">Next</A>
+<HR NOSHADE>
+<H3 id="kernels"><A NAME="5_3_2">Kernels Functions And Thread Hierarchy</A>
+</H3>
+<P>
+<!--span-->
+l
+<!--span-->
+0.540 <IMG alt="image" HEIGHT="596" src="heterogeneous-programming.png" WIDTH="366">
+</P>
+<P>Host code schedules kernels to be executed on the GPU, which also
+ specifies starting configuration of the kernel. Kernel code is compiled
+ by nvcc the Nvidia CUDA compiler and sequential code by the host’s
+ normal C<A class="footnoteRef" href="#fn21" id="fnref21"><SUP>21</SUP></A>
+ compiler which is then linked to create a single binary executable. A
+ kernel can be “launched” using thousands or even millions of
+ â€&Aring;�lightweightâ€&iuml;&iquest;&frac12; threads that are to be run on the device.
+ computation on both the CPU and GPU without contention for memory
+ resources (See figure [heterogeneous-programming]). The programmer is
+ encouraged to â€&Aring;�think bigâ€&iuml;&iquest;&frac12; and schedule threads liberally
+ and as needed. Cuda threads are thought as lightweighted for these
+ because there is not any creation overhead and can be created quickly,
+ scheduling of blocks and threads is handled directly on hardware
+ avoiding any software overhead. More threads can hide latency caused by
+ data fetching, leading to performance gains. A kernel is an extension
+ to the standard C function that are executed N times by different N
+ threads(as opposed to only one like regular C function). kernel is
+ defined specifying the<STRONG> __global__</STRONG> keyword and the<EM>
+ execution configuration</EM> &lt;&lt;&lt;…&gt;&gt;&gt;. Each thread is given a unique<EM>
+ threadID</EM> that is accessible through the built-in variable(a
+ 3-component C-structure) threadIdx. (See listing
+ [code:kernelInvocation] at page ).</P>
+<P>The threads are organized by the programmer by defining a grid and
+ making a division of the grid in thread blocks or just blocks, (see
+ figure [threadHierarchy] and [kernelGrid]). The index of the blocks and
+ threads in x, y and z direction can be retrieved ,within a kernel, via
+ statements like: by = blockIdx.y, and tz = threadIdx.z (as well as the
+ grid dimension via dimGrid.(x,y,z)). We can assign a unique (for the
+ grid) global ID to each thread by combining both thread and block
+ index, e.g. for a 2D grid and 2D block
+<!--span class=&quot;math inline&quot;-->
+ \(threadIDx = blockDim.x \times blockIdx.x + threadIdx.x \) and
+<!--span class=&quot;math inline&quot;-->
+ \(threadIDy = blockDim.y \times blockIdx.y + threadIdx.y\). It is
+ useful when we want to assign a portion of work to each thread and
+ divide the work among them<A class="footnoteRef" href="#fn22" id="fnref22">
+<SUP>22</SUP></A></P>
+<DIV class="figure"> <IMG alt="The CUDA architecture on a conceptual level. The grid is divided into blocks that each consists of a number of threads."
+src="thread_hierarchy1.png">
+<P class="caption">The CUDA architecture on a conceptual level. The grid
+ is divided into blocks that each consists of a number of threads.
+<!--span data-label=&quot;threadHierarchy&quot;-->
+</P>
+</DIV>
+<P>Each block consists of a batch of threads, and can be a 1D, 2D or 3D
+ object. This provide a natural and intuitive way to compute on data
+ structure like array(1D), matrix(2D) or volume(3D).</P>
+<DIV class="figure"> <IMG alt="Mapping Hardware-Software" src="mappingSofthard.png">
+<P class="caption">Mapping Hardware-Software
+<!--span data-label=&quot;mappingSofthard&quot;-->
+</P>
+</DIV>
+<P>
+<!--span-->
+r
+<!--span-->
+0.62</P>
+<P><IMG alt="image" HEIGHT="283" src="cuda-grid.png" WIDTH="376"></P>
+<P>The maximal number of threads per block and the maximum
+ dimensionality of the grid and the block which is allowed depends on
+ the compute capability (section [computeCapability])and that limit
+ exist because all threads of a block reside on the same multiprocessor
+ and they share its resources as shared/registers memory or cores. On
+ GTX 680 the maximum number of thread per block is 1024 and the maximum
+ sizes of each dimension of a block is</P>
+<P>1024 1024 64</P>
+<P>.</P>
+<P>It means that, the dimensionally of a block launched on a GTX 680
+ must satisfy:
+<!--span class=&quot;math display&quot;-->
+ \[\begin{cases} xBlockDim \times yBlockDim \times zBlockDim=1024 \\
+ 1\le xBlockDim \le 1024 \\ 1\le yBlockDim \le 1024 \\ 1\le zBlockDim
+ \le 64\\ \end{cases}\] Plus a kernel can be launched and executed only
+ by equally shaped kernel so the total number of threads is the number
+ of threads per block times the number of blocks<A class="footnoteRef" href="#fn23"
+id="fnref23"><SUP>23</SUP></A>. The blocks are divided amongst the
+ physical processors of the GPU, and threads inside a block are grouped
+ in warps. A warp consist typically of 32 threads with consecutive
+ indices that are in principle having their instructions executed
+ simultaneously on the multiprocessor<A class="footnoteRef" href="#fn24" id="fnref24">
+<SUP>24</SUP></A>(SIMD). If one or several threads executes conditional
+ code that differ in code path from other threads in the warp (SIMT),
+ these different execution paths are effectively serialized, as the
+ threads need to wait for each other. This phenomenon is referred to as<EM>
+ thread divergence</EM>[threadDivergence] <A class="footnoteRef" href="#fn25"
+id="fnref25"><SUP>25</SUP></A>, a situation that should be avoided as
+ much as possible. Threads inside a block can cooperate by communicating
+ and sharing (see section [shareMemory]) data through shared memory or
+ by synchronizing their execution via the<STRONG> __syncthreads()</STRONG>
+ intrinsic function that acts as barrier at block level.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="HostandDevice.html">Previous</A>
+<A HREF="Memorymodel.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Deviceoccupancyconsiderations.html">
+<LINK REL="Next" HREF="AtomicFunctionsimplementation.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Deviceoccupancyconsiderations.html">Previous</A>
+<A HREF="AtomicFunctionsimplementation.html">Next</A>
+<HR NOSHADE>
+<H2 id="sect:RBBOptimization"><A NAME="10_7">Rectangular Bounding Box -
+ RBB</A></H2>
+<P>The first adopted strategy utilize a Rectangular Bounding Box (RBB)
+ within which all the active cells reside. As the lava flows and invades
+ more space it dynamically grows, hence is not necessary to launch as
+ many threads as the number of cell in the whole cellular space, but it
+ is sufficient to allocate only those ones that compute the transition
+ function for the cells within the RBB. This drastically reduces
+ execution times, since the sub-rectangle is usually smaller than the
+ original CA space, leading to a more efficient utilization of the
+ device resources.</P>
+<P>For this reason, a GPU optimized CA (GPU-OCA) version has been tested
+ that takes into account, at each CA step, the RBB that includes all
+ active cells (i.e., cells containing lava) of the automaton. However,
+ while in a sequential OCA (CPU-OCA) the CA space matrix is simply
+ scanned by considering the RBB boundaries instead of the whole CA, the
+ GPU-OCA must consider the rectangular grid bounding box (RGBB)
+ containing active cells, which in general includes the traditional RBB
+ of active cells (see figure [fig:RBB]).</P>
+<DIV class="figure"> <IMG alt="An example of dynamic RGBB (rectangular grid bounding box) expansion, referred to a 5 x 5 block size grid. As lava expands, blocks interested by active cells are activated."
+HEIGHT="368" src="RBB.png" WIDTH="1120">
+<P class="caption">An example of dynamic RGBB (rectangular grid bounding
+ box) expansion, referred to a 5 x 5 block size grid. As lava expands,
+ blocks interested by active cells are activated.
+<!--span data-label=&quot;fig:RBB&quot;-->
+</P>
+</DIV>
+<P>However, while in a sequential OCA (CPU-OCA) the CA space matrix is
+ simply scanned by considering the RBB boundaries instead of the whole
+ CA, the GPU-OCA must consider the rectangular grid bounding box (RGBB)
+ containing active cells, which in general includes the traditional RBB
+ of active cells (Figure [fig:RBB]) that has been implemented storing a
+ double copy of an array of 4 indexes that keep trace of the size of the
+ rectangle, one for reading and the other for updating. During the
+ distribution phase (the only time the RBB may increase its sizes), when
+ a newly activated cell resides out of the RBB’s bounds, an atomic
+ CUDA operation (<CODE>atomicExch(…)</CODE>) is performed in order to
+ update the RBB. At the end of the distribution phase the two arrays are
+ swapped, so the subsequent elementary processes will work also on the
+ new active cells.</P>
+<P>The grid of blocks grows dynamically as the simulation is carried on,
+ so at each CA step, the grid of threads readapts itself by creating a
+ new block of threads as soon as the RBB is interested by a newly
+ activated cell (see figure [fig:RBB]) out of its boundaries. Thus,
+ since the overall number of launched kernels is reduced, the
+ computational performance of the algorithm improves significantly.</P>
+<PRE> <CODE>/*distribution phase terminate here*/
+	if(d_nSh[index] &gt; 0 ){	
+		if (col &lt;= D_SCAL-&gt;minRect[0]-1)
+			atomicExch(&amp;D_SCAL-&gt;minRect[5],col);
+		if (col &gt;= D_SCAL-&gt;minRect[1]+1)
+			atomicExch(&amp;D_SCAL-&gt;minRect[6],col);
+		if (row &lt;= D_SCAL-&gt;minRect[2]-1)
+			atomicExch(&amp;D_SCAL-&gt;minRect[7],row);
+		if (row &gt;= D_SCAL-&gt;minRect[3]+1)
+			atomicExch(&amp;D_SCAL-&gt;minRect[8],row);
+	}</CODE></PRE>
+<P>Notwithstanding this operation is implemented by means of atomic CUDA
+ instructions, it does not represent a bottleneck (atomic operations in
+ CUDA have to be used with caution, see section
+<!--span class=&quot;citation&quot;-->
+ [@NvidiaprogGuide]) because each RBB update is performed only once (per
+ RBB’s side) and, considering that the RBB increases its sizes of
+ maximum one unit per dimensions at each CA step, it is easy to see that
+ the first cell that updates a border (e.g. <CODE>D_SCAL-&gt;minRect[5]</CODE>
+, the top border, for example) disables all the others threads to
+ execute further modifications on that variable.</P>
+<P>Despite the good performance improvements that were achieved, figure
+ [fig:RBBSchreenShot] shows, that in some cases, the RBB approach is not
+ optimal<A class="footnoteRef" href="#fn97" id="fnref97"><SUP>97</SUP></A>
+ in limiting the number of IDLE cells. Even within the boundaries of the
+ rectangle the percentage of active cells is still low due the box
+ expansion policy. The boundaries can be expanded due to the activation
+ of a few number of cells (one is sufficient) on the RBB frame, but the
+ entire row and column in which they reside will be scheduled for
+ execution. For example, regarding figure [fig:RBBSchreenShot], if a
+ cell on the bottom right corner was activated, it would produce a RBB
+ size increase consisting of a whole column and row despite the
+ activation of only one cell.</P>
+<DIV class="figure"> <IMG alt="A screenshot from the SCIARA-fv3 model lava flow visualizer showing the RBB in action. Only the portion of the cells within the RBB are actually "
+HEIGHT="990" src="RBBSchreenShot.png" WIDTH="1264">
+<P class="caption">A screenshot from the SCIARA-fv3 model lava flow
+ visualizer showing the RBB in action. Only the portion of the cells
+ within the RBB are actually
+<!--span data-label=&quot;fig:RBBSchreenShot&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Deviceoccupancyconsiderations.html">Previous</A>
+<A HREF="AtomicFunctionsimplementation.html">Next</A>
+</BODY>
+</HTML>

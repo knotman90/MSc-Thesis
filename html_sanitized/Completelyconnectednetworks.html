@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Busbasednetworks.html">
+<LINK REL="Next" HREF="StarConnectedNetworks.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Busbasednetworks.html">Previous</A>
+<A HREF="StarConnectedNetworks.html">Next</A>
+<HR NOSHADE>
+<H3 id="completely-connected-networks"><A NAME="3_3_2">Completely
+ connected networks</A></H3>
+<P>In a completely-connected network, each node has a direct
+ communication link to every other node in the network. This kind of
+ networks don’t need any switching or broadcasting mechanism because a
+ node can send a message to another in a single step, and interferences
+ during the communication are completely prevented. But completely
+ connected network are not suitable for practical uses because of the
+ cost related to their implementation. The number of connection grows
+ quadratically
+<!--span class=&quot;math inline&quot;-->
+ \(O(p^2)\) with the number of the nodes (see figure
+ [fig:completelyConnected]).
+<!--span class=&quot;math display&quot;-->
+ \[c=\frac{n(n-1)}{2}\]</P>
+<DIV class="figure"> <IMG alt="Fully connected mesh network. 6 nodes and c=15 links"
+HEIGHT="430" src="FullMesh.png" WIDTH="419">
+<P class="caption">Fully connected mesh network. 6 nodes and c=15 links
+<!--span data-label=&quot;fig:completelyConnected&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Busbasednetworks.html">Previous</A>
+<A HREF="StarConnectedNetworks.html">Next</A>
+</BODY>
+</HTML>

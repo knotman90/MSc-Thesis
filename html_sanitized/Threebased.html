@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="KMeshes.html">
+<LINK REL="Next" HREF="GPGPUHistoryAndMotivation.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="KMeshes.html">Previous</A>
+<A HREF="GPGPUHistoryAndMotivation.html">Next</A>
+<HR NOSHADE>
+<H3 id="three-based"><A NAME="3_3_5">Three based</A></H3>
+<P>This type of network topology is based on a hierarchy of nodes. The
+ highest level of any tree network consists of a single node, the “<EM>
+root</EM>” that connects nodes (a fixed number referred to as the
+ “branching factor”<A class="footnoteRef" href="#fn8" id="fnref8"><SUP>
+8</SUP></A> of the tree) in the level below by point-to-point links.
+ These lower level nodes are also connected to nodes in the next level
+ down. Tree networks are not constrained to any number of levels, but as
+ tree networks are a variant of the bus network topology, they are prone
+ to crippling network failures should a connection in a higher level of
+ nodes fail/suffer damage. This topology exhibits good scalability and
+ thanks to the different levels makes fault identification and isolation
+ easier but the maintenance may be an issue when the network spans a
+ great area.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="KMeshes.html">Previous</A>
+<A HREF="GPGPUHistoryAndMotivation.html">Next</A>
+</BODY>
+</HTML>

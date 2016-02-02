@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Outflowscomputation.html">
+<LINK REL="Next" HREF="Elementaryprocesstau3temperaturevariationandlavasolidification.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Outflowscomputation.html">Previous</A>
+<A HREF="Elementaryprocesstau3temperaturevariationandlavasolidification.html">Next</A>
+<HR NOSHADE>
+<H3 id="sect:sciaraModelTau2"><A NAME="9_2_2">Elementary process
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_2\): updating of mass and momentum</A></H3>
+<P>The elementary process updates lava thickness and momentum. It is
+ formally defined as:
+<!--span class=&quot;math display&quot;-->
+ \[\tau_2: Q_f^9 \times Q_{\overrightarrow{v_f}}^9 \to Q_h \times
+ Q_{\overrightarrow{p}}\] Once the outflows
+<!--span class=&quot;math inline&quot;-->
+ \(h_{(0,i)}\) are known for each cell
+<!--span class=&quot;math inline&quot;-->
+ \(c \in R\), the new lava thickness inside the cell can be obtained by
+ considering the mass balance between inflows and outflows:
+<!--span class=&quot;math display&quot;-->
+ \[h_{(0)} = \sum_{i=0}^9 (h_{(i,0)} - h_{(0,i)})\]</P>
+<P>Moreover, also the new value for the momentum can be updated by
+ accumulating the contributions given by the inflows:
+<!--span class=&quot;math display&quot;-->
+ \[\overrightarrow{p}_{(0)} = \sum_{i=0}^9 h_{(i,0)}
+ \overrightarrow{v_f}_{_{(i,0)}}\]</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Outflowscomputation.html">Previous</A>
+<A HREF="Elementaryprocesstau3temperaturevariationandlavasolidification.html">Next</A>
+</BODY>
+</HTML>

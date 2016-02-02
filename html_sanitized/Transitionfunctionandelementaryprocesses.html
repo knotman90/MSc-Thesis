@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="MemoryOrganizationanddatastructures.html">
+<LINK REL="Next" HREF="SerialOptimizations.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="MemoryOrganizationanddatastructures.html">Previous</A>
+<A HREF="SerialOptimizations.html">Next</A>
+<HR NOSHADE>
+<H4 id="transition-function-and-elementary-processes"><A NAME="10_3_1_2">
+Transition function and elementary processes</A></H4>
+<P>The transition function
+<!--span class=&quot;math inline&quot;-->
+ \(\tau\) and all the elementary processes
+<!--span class=&quot;math inline&quot;-->
+ \( \tau_1,\tau_2 \ldots \) have correspondent functions in the code.</P>
+<PRE> <CODE>void GlobalTransitionFunction();
+	void SwitchToHeat();
+	void empiricalFlows();
+	void getInitialVelocities(const int&amp; x, const int&amp; y, double* v);
+	double outflowsProp(int x, int y, double *f, double *v, double *p, bool T_or_F);</CODE></PRE>
+<P>The transition function consist of ordered calls to the
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_1,\tau_2 \ldots \) procedures. One of them, <CODE>
+empiricalFlows()</CODE>, is more interesting than the others because it
+ involves the determination of the temporal step, the calculation of the
+ superficial flow and their distribution among the cells in the
+ neighborhood of a central cell. As stated in section
+ [sect:modeltimeEvaluation] the temporal computational step is the
+ minimum between all the temporary computational time step calculated by
+ each cell and the distribution is outlined in the algorithm
+ [alg:distribution] (for the sake of brevity taking in account only one
+ substate, the lava thickness, but the same strategy is applied also to
+ the others):</P>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(nSh(c) \leftarrow nSh(c)-flow(c,n)\)
+<!--span class=&quot;math inline&quot;-->
+ \(nSh(n) \leftarrow nSh(n)+flow(c,n)\)</P>
+<P>
+<BR> where <CODE>flow(c,n)</CODE> is the computed superficial flow of
+ lava from the cell
+<!--span class=&quot;math inline&quot;-->
+ \(c\) to the cell
+<!--span class=&quot;math inline&quot;-->
+ \(n\) and <CODE>nSh(c)</CODE> is the update matrix of the substate
+ thickness. The lava flow from the central cell
+<!--span class=&quot;math inline&quot;-->
+ \(c\) to a cell
+<!--span class=&quot;math inline&quot;-->
+ \(n\) of the neighborhood is subtracted (reason of the minus sign), and
+ added to cell
+<!--span class=&quot;math inline&quot;-->
+ \(n\) itself.</P>
+<P>Two important information arise from the analysis of this function:</P>
+<UL>
+<LI>
+<P>At each step a minimum value has to be found among all the cell of
+ the cellular space; in a parallel context this should be carried out by
+ means of some reduction algorithm.</P>
+</LI>
+<LI>
+<P>This distribution approach is not suitable for a direct porting due
+ to the obvious race condition problems.</P>
+</LI>
+</UL>
+<P>We will take in account these and other problems in section
+ [sect:raceCondAvoiding].</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="MemoryOrganizationanddatastructures.html">Previous</A>
+<A HREF="SerialOptimizations.html">Next</A>
+</BODY>
+</HTML>

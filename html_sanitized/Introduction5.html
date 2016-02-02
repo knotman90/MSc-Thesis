@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Complexcellularautomata.html">
+<LINK REL="Next" HREF="Complexphenomenamodellationwithcellularautomata.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Complexcellularautomata.html">Previous</A>
+<A HREF="Complexphenomenamodellationwithcellularautomata.html">Next</A>
+<HR NOSHADE>
+<H2 id="introduction-4"><A NAME="8_1">Introduction</A></H2>
+<P>As stated in the section [cellularAutomataIntroduction] cellular
+ automata are a very powerful tool for modelling complex-systems and
+ they were adopted as modelling and simulation paradigm in a wide range
+ of applications like fluid-dynamical phenomena, gas models
+<!--span class=&quot;citation&quot;-->
+ [@Frisch1986], or lattice Boltzmann model
+<!--span class=&quot;citation&quot;-->
+ [@Chopard1999]. The behavior of those physical systems is well
+ described by the basic laws of continuum mechanics (Navier-Stokes for
+ example for fluid-dynamics), but in some cases, when they cannot be
+ applied directly without adding phenomenological assumptions or when
+ the set of differential equation describing the problem is not amenable
+ to any analytical solution (except for relaxed or particular instances)
+ numerical solution are required.</P>
+<P>Hence, general cases require approximated numerical methods commonly
+ based on space-time discretization and permitted to enlarge the set of
+ cases which can be carefully simulated. But many others problems are
+ still intractable and for those problems is necessary to adopt new
+ solutions. Numerical methods have became more popular, as computational
+ power raised up in years, and approaches in order to overcome the
+ problems regarding differential equations
+<!--span class=&quot;citation&quot;-->
+[@Toffoli1984] were studied, but at the same time new methods that
+ exploited principles of parallel computing were adopted either for
+ reasons of absolute performance or reasons of cost/performance.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Complexcellularautomata.html">Previous</A>
+<A HREF="Complexphenomenamodellationwithcellularautomata.html">Next</A>
+</BODY>
+</HTML>

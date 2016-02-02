@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ClassicalclassificationFlynnstaxonomy.html">
+<LINK REL="Next" HREF="NetworkTopologies.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ClassicalclassificationFlynnstaxonomy.html">Previous</A>
+<A HREF="NetworkTopologies.html">Next</A>
+<HR NOSHADE>
+<H3 id="memory-classification"><A NAME="3_2_2">Memory classification</A></H3>
+<P>Architectures can be further organized by memory architecture and
+ software models. A first rough categorization can be obtained analyzing
+ the memory layout:</P>
+<DIV class="figure"> <IMG alt="Distributed memory architecture." HEIGHT="717"
+src="distribuitedMemory.png" WIDTH="1032">
+<P class="caption">Distributed memory architecture.
+<!--span data-label=&quot;fig:distribuiteMemory&quot;-->
+</P>
+</DIV>
+<P>
+<BR> All the processors have in common the ability to access all memory
+ locations as global space, usually sharing them via buses. Changes in
+ memory effected by one processor are visible to all the others.
+ Historically can be divided in :</P>
+<UL>
+<LI>
+<P>UMA (Uniform Memory Access) : Identical processors with equal access
+ time to memory (see figure [fig:UMA_NUMA]), sometimes called CC-UMA
+ acronym for Cache Coherent UMA, because the hardware ensures that all
+ the processor can see a memory modification performed by one of them.</P>
+</LI>
+<LI>
+<P>NUMA (Non Uniform Memory Access): Usually different groups of
+ processors (SMP, Symmetric multiprocessors<A class="footnoteRef" href="#fn3"
+id="fnref3"><SUP>3</SUP></A>) are connected, and processors belonging to
+ different SMP can access memory spaces of each others. As NUMA if is
+ present a cache coherence mechanism this architecture is called
+ CC-NUMA.</P>
+</LI>
+</UL>
+<P>This memory architecture provides a user friendly perspective to
+ memory and data sharing across processors, is fast due to the proximity
+ of memory to CPUs, but it is not scalable because adding more CPUs can
+ geometrically increase the traffic on the bus and for cache management.
+ Is up to the programmer to ensure the correct accesses to global memory
+ in order to avoid race-conditions.</P>
+<P>Coupled with this architecture many software solution can be used to
+ program shared memory machines. The most used are:</P>
+<UL>
+<LI>
+<P>Threads. Lightweight processes but with same PID (e.g. pthreads)</P>
+</LI>
+<LI>
+<P>A standard language with preprocessor directives to the compiler that
+ is capable of converting the serial program in a parallel program
+ without any (or very few) intervention by the programmer (e.g. OpenMP<A class="footnoteRef"
+href="#fn4" id="fnref4"><SUP>4</SUP></A>, see example code
+ [code:OpenMPFOR] and [code:OpenMPREDUCTION] at page for complete
+ examples ).</P>
+</LI>
+</UL>
+<DIV class="figure"> <IMG alt="Hybrid memory architecture (Each processor is milti-core)"
+HEIGHT="241" src="hybrid_model.png" WIDTH="485">
+<P class="caption">Hybrid memory architecture (Each processor is
+ milti-core)
+<!--span data-label=&quot;fig:hybridMemory&quot;-->
+</P>
+</DIV>
+<P>Different systems, and hence, different processors connected via some
+ kind of network (see figure [fig:distribuiteMemory]) (usually high
+ speed networks) and the memory space in one processor do not map to
+ another processor. Each of them operate independently on its memory
+ space, so changes are not reflected on memory spaces of the others.
+ Explicit communication is required between processors and is like
+ synchronization programmer’s responsibility. This architecture is
+ very scalable and there’s not any overhead in maintaining cache
+ coherency but all the communication work rely on the programmer.</P>
+<P>The most used paradigm for programming distributed memory machines is
+ the message passing<A class="footnoteRef" href="#fn5" id="fnref5"><SUP>
+5</SUP></A> for further informations.</P>
+<P>As the name suggest is a mix of the two architectures seen before.
+ Only a limited number of processors, say N, have access to a common
+ pool of shared memory. These N processor are connected to the others
+ via network and each processor can consist of many cores. A common
+ example of a programming model for hybrid system is the combination of
+ the message passing model (MPI) with the threads model (OpenMP) in
+ which</P>
+<P>[<EM>a)]</EM></P>
+<P>threads perform computationally intensive task, using local<STRONG>
+ on-node</STRONG> memory space and</P>
+<P>communications between processes on different nodes occurs over
+ network using MPI (see figure[fig:hybridMemory]).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ClassicalclassificationFlynnstaxonomy.html">Previous</A>
+<A HREF="NetworkTopologies.html">Next</A>
+</BODY>
+</HTML>

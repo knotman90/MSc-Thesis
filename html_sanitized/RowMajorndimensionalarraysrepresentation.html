@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Migrationfrom2Dmatricestolineararrays.html">
+<LINK REL="Next" HREF="Naveimplementation.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Migrationfrom2Dmatricestolineararrays.html">Previous</A>
+<A HREF="Naveimplementation.html">Next</A>
+<HR NOSHADE>
+<H4 id="row-major-n-dimensional-arrays-representation"><A NAME="10_4_1_1">
+Row-Major n-dimensional arrays representation</A></H4>
+<P>Generalizing : If
+<!--span class=&quot;math inline&quot;-->
+ \(A=D_1 \times D_2 \times \ldots \times D_n\) is a n-dimensional array
+ and given an element of A specified by a n-tuple
+<!--span class=&quot;math inline&quot;-->
+ \(a=(d_1,d_2,\ldots,d_n)\) of (indexing start from zero) where
+<!--span class=&quot;math inline&quot;-->
+ \(d_k \in [0, D_k-1]\), the memory offset in a 1D representation of A
+ is:
+<!--span class=&quot;math display&quot;-->
+ \[offset=\sum_{k=1}^{n}\left ( { \prod_{l=k+1}^{n}D_l}\right ) d_k\]</P>
+<P>Intuitively a
+<!--span class=&quot;math inline&quot;-->
+ \(n-\)dimensional topology can be thought as series of
+<!--span class=&quot;math inline&quot;-->
+ \(D_n\) topologies of
+<!--span class=&quot;math inline&quot;-->
+ \(n-1\) dimensions each like a 3 dimensional array as a collection of
+ ordered 2D matrices. An offset
+<!--span class=&quot;math inline&quot;-->
+ \(o\) is a linear index of a cell in 1D coordinates that correspond
+ with its position in one of all the possible enumerations of the
+ structure’s cells. For example the
+<!--span class=&quot;math inline&quot;-->
+ \(6\) in figure [fig:rowMajor] is the 4th element in row-major
+ enumeration that sorts the indices by their dimensions from first to
+ last. In another enumeration, as column-major, where the sorting
+ proceeds from last to first, this element would have the 1D index 2.</P>
+<P>Ordering from first to last means that, if a cell has coordinates
+<!--span class=&quot;math inline&quot;-->
+ \(d_n=k, \; D_k\) structures of dimensions
+<!--span class=&quot;math inline&quot;-->
+ \(n-1\) have been already indexed and enumerated. For example in a
+ 3-dimension array of size
+<!--span class=&quot;math inline&quot;-->
+ \((D_1,D_2,D_3)= (10,8,7)\), a cell of coordinate
+<!--span class=&quot;math inline&quot;-->
+ \((d_1,d_2,d_2)=(3,4,5)\) is enumerated after
+<!--span class=&quot;math inline&quot;-->
+ \(d_1=3\) whole 2D matrices of dimension
+<!--span class=&quot;math inline&quot;-->
+ \((D_2,D_3)=(8,7)\). The same concept recursively can be used now to
+ count the 2D element of coordinates
+<!--span class=&quot;math inline&quot;-->
+ \((d_2,d_3)\) in the 2-dimension structure which its belongs. This cell
+ is enumerated after
+<!--span class=&quot;math inline&quot;-->
+ \(d_2=4\) rows each of dimension
+<!--span class=&quot;math inline&quot;-->
+ \(D_3\). The last dimension can be treated as an 1D array itself, and
+ is enough to add the value of that coordinate to the total count to
+ obtain the final offset. Hence the expansion for the 3D example is:
+<!--span class=&quot;math display&quot;-->
+ \[o=d_1 \cdot (D_2 \cdot D_3) + d_2 \cdot (D_3) + d_3 = 3 \cdot (8
+ \cdot 7) + 4 \cdot 7 + 5= 201\] meaning that the cell is located 201
+ cells after<A class="footnoteRef" href="#fn94" id="fnref94"><SUP>94</SUP>
+</A> the buffer begin.</P>
+<DIV class="figure"> <IMG alt="Row-major matrix translation" src="RowMajor2D.png">
+<P class="caption">Row-major matrix translation
+<!--span data-label=&quot;fig:rowMajor2DExample&quot;-->
+</P>
+</DIV>
+<P>In figure [fig:rowMajor2DExample] the highlighted cell (3,4) has an
+ offset:
+<!--span class=&quot;math display&quot;-->
+ \[o=d_1*(D_2)+d_2 = 3 \cdot 7 + 4 = 25\]</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Migrationfrom2Dmatricestolineararrays.html">Previous</A>
+<A HREF="Naveimplementation.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Cellularspacedimensionandgeometry.html">
+<LINK REL="Next" HREF="TransitionFunction.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Cellularspacedimensionandgeometry.html">Previous</A>
+<A HREF="TransitionFunction.html">Next</A>
+<HR NOSHADE>
+<H3 id="neighborhood"><A NAME="7_2_2">Neighborhood</A></H3>
+<DIV class="figure"> <IMG alt="Examples of cellular spaces. (a) 1-D, (b) 2-D squared cells, (c) 2-D hexagonal cells, (d) 3-D cubic cells."
+HEIGHT="383" src="spazioCellulare.png" WIDTH="1503">
+<P class="caption">Examples of cellular spaces. (a) 1-D, (b) 2-D squared
+ cells, (c) 2-D hexagonal cells, (d) 3-D cubic cells.
+<!--span data-label=&quot;spazioCellulare&quot;-->
+</P>
+</DIV>
+<P>The evolution of a cell’s state is function of the states of the
+ neighborhood’s cells. The geometry and the number of cells that are
+ part of the neighborhood depends on the tessellation type, but it has
+ to have three fundamental properties:</P>
+<OL>
+<LI>
+<P><STRONG>Locality</STRONG>. It should involve only a ’limited’
+ number of cells.</P>
+</LI>
+<LI>
+<P><STRONG>Invariance</STRONG>. It should not be changed during the
+ evolution.</P>
+</LI>
+<LI>
+<P><STRONG>Homogeneity</STRONG>. It has to be the same for each cell of
+ the automaton.</P>
+</LI>
+</OL>
+<P>Typically neighborhood “surrounds” the central cell. For 1-D
+ cellular automata its borders are identified with a number
+<!--span class=&quot;math inline&quot;-->
+ \(r \) called<EM> radius</EM>
+<!--span class=&quot;citation&quot;-->
+[@wolfram1983]. A
+<!--span class=&quot;math inline&quot;-->
+ \(r=2\) identify
+<!--span class=&quot;math inline&quot;-->
+ \(n=2r+1\) cells in a 1D lattice: the central cell plus the right and
+ left cells. Typical 2D cellular space neighborhood are the those of
+ Moore and von Neumann neighborhood. The number of cells in the Moore
+ neighborhood of range r is the odd squares
+<!--span class=&quot;math inline&quot;-->
+ \((2r+1)^2,\) the first few of which are 1, 9, 25, 49, 81, and so on as
+ r is increased. Von Neumann’s one consist of the central cell plus
+ the cell at north, south, east, and west of the central cell itself.
+ Moore’s (
+<!--span class=&quot;math inline&quot;-->
+\(r=1\)) one add the farther cells at north-east, south-east, south-west
+ and north-west (see figure [mooreNeigh]).</P>
+<DIV class="figure"> <IMG alt="Examples of different kind of neighborhood with different radius values."
+src="mooreNeigh.png">
+<P class="caption">Examples of different kind of neighborhood with
+ different radius values.
+<!--span data-label=&quot;mooreNeigh&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Cellularspacedimensionandgeometry.html">Previous</A>
+<A HREF="TransitionFunction.html">Next</A>
+</BODY>
+</HTML>

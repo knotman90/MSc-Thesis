@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="FromGraphicstoGeneralPurposeComputing.html">
+<LINK REL="Next" HREF="ComputeUnifiedDeviceArchitectureCUDA.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="FromGraphicstoGeneralPurposeComputing.html">Previous</A>
+<A HREF="ComputeUnifiedDeviceArchitectureCUDA.html">Next</A>
+<HR NOSHADE>
+
+<H3 id="graphicPipeline"><A NAME="4_3_1">Traditional Graphics Pipeline</A>
+</H3>
+<P>A graphics task such as rendering a 3D scene on the GPU involves a
+ sequence of processing stages (i.e. shaders) that run in parallel and
+ in a prefixed order, known as the graphics hardware pipeline<A class="footnoteRef"
+href="#fn11" id="fnref11"><SUP>11</SUP></A> (see Figure
+ [graphicPipeline]).</P>
+<P>The first stage of the pipeline is the vertex processing. The input
+ to this stage is a 3D polygonal mesh. The 3D world coordinates of each
+ vertex of the mesh are transformed to a 2D screen position. Color and
+ texture coordinates associated with each vertex are also evaluated. In
+ the second stage, the transformed vertices are grouped into rendering
+ primitives, such as triangles. Each primitive is scan-converted,
+ generating a set of fragments in screen space. Each fragment stores the
+ state information needed to update a pixel. In the third stage, called
+ the fragment processing, the texture coordinates of each fragment are
+ used to fetch colors of the appropriate texels (texture pixels) from
+ one or more textures. Mathematical operations may also be performed to
+ determine the ultimate color for the fragment. Finally, various tests
+ (e.g., depth and alpha) are conducted to determine whether the fragment
+ should be used to update a pixel in the frame buffer. Each shader in
+ the pipeline performs a basic but specialised operation on the vertices
+ as it passes. In a shader based architecture the individual shader
+ processors exhibit very limited capabilities beyond their specific
+ purpose. Before the advent of CUDA in 2006 most of the techniques for
+ non-graphics computation on the GPU took advantages of the programmable
+ fragment processing stage. The steps involved in mapping a computation
+ on the GPU are as follows:</P>
+<DIV class="figure"> <IMG alt="Typical graphic pipeline" HEIGHT="380" src="pipeline.png"
+WIDTH="746">
+<P class="caption">Typical graphic pipeline
+<!--span data-label=&quot;graphicPipeline&quot;-->
+</P>
+</DIV>
+<OL>
+<LI>
+<P>The data are laid out as texel colors in textures;</P>
+</LI>
+<LI>
+<P>Each computation step is implemented with a user-defined fragment
+ program. The results are encoded as pixel colors and rendered into a
+ pixel-buffer<A class="footnoteRef" href="#fn12" id="fnref12"><SUP>12</SUP>
+</A>;</P>
+</LI>
+<LI>
+<P>Results that are to be used in subsequent calculations are copied to
+ textures for temporary storage.</P>
+</LI>
+</OL>
+<P>The year 2006 marked a significant turning point in GPU architecture.
+ The G80 was the first NVidia GPU to have a unified architecture whereby
+ the different shader processors were combined into unified stream
+ processors. The resulting stream processors had to be more complex so
+ as to provide all of the functionality of the shader processors they
+ replaced. Although research had been carried out into general purpose
+ programming for GPUs previously, this architectural change opened the
+ door to a far wider range of applications and practitioners. More in
+ detail GPU are well-suited for problems highly data-parallel in wich
+ the same code is executed on many data elements at the same time (SIMD
+ paradigm<A class="footnoteRef" href="#fn13" id="fnref13"><SUP>13</SUP></A>
+ or more generally as a CRCW PRAM machine<A class="footnoteRef" href="#fn14"
+id="fnref14"><SUP>14</SUP></A>).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="FromGraphicstoGeneralPurposeComputing.html">Previous</A>
+<A HREF="ComputeUnifiedDeviceArchitectureCUDA.html">Next</A>
+</BODY>
+</HTML>

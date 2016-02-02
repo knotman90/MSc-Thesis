@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Parallelize.html">
+<LINK REL="Next" HREF="Deploy.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Parallelize.html">Previous</A>
+<A HREF="Deploy.html">Next</A>
+<HR NOSHADE>
+<H3 id="optimize"><A NAME="10_2_3">Optimize</A></H3>
+<P>After each round of parallelization the developer can think and move
+ to further optimize the application. Optimizations can be applied
+ incrementally, and can be tested in term of speedup achieved and
+ validated. Optimization can be applied at different level: from the
+ overlapping of memory transfers with computation to the best block-grid
+ dimensions for a given kernel in order to augment the occupancy.
+ Profiling and debug tools are invaluable for this stage of the process
+ as they can suggest the next-best course of action and provide vital
+ information about the performances.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Parallelize.html">Previous</A>
+<A HREF="Deploy.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="MultipleRectangularBoundingBoxes.html">
+<LINK REL="Next" HREF="GeneralCCACUDAGPGPUlibraryCuCCAl.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="MultipleRectangularBoundingBoxes.html">Previous</A>
+<A HREF="GeneralCCACUDAGPGPUlibraryCuCCAl.html">Next</A>
+<HR NOSHADE>
+<H4 id="rbbs-positioning-and-dimensioning"><A NAME="11_2_1_1">RBBs
+ positioning and dimensioning</A></H4>
+<P>One of the greater problem in addressing this kind of cellular space
+ management is to choose how many RBBs have to be utilized and the
+ position of each of them in order to minimize the number of idle cells.
+ This implies an obvious overhead due to extra time spent in optimizing
+ their position. A preliminary adopted solution is to test position of
+ each RBB at different offsets from the beginning of the cellular space,
+ and choose the combination that guarantees the minimum number of IDLE
+ cells. Another problem can arise from the fact that a cell may be
+ activated at the same step from two cells belonging to two different
+ RBB, with the consequence of determining which RBB should take
+ responsibility of the newly activated cell.</P>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\eta\) was monitored utilizing up to 4 RBB at the same time, and good
+ results has appeared (see figure [fig:RBBcomparision]).</P>
+<DIV class="figure"> <IMG alt="Active and Idle cell ratio is monitored at each step utilizing up to 4 RBB on the same cellular space."
+HEIGHT="600" src="RBBcomparision.png" WIDTH="800">
+<P class="caption">Active and Idle cell ratio is monitored at each step
+ utilizing up to 4 RBB on the same cellular space.
+<!--span data-label=&quot;fig:RBBcomparision&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="MultipleRectangularBoundingBoxes.html">Previous</A>
+<A HREF="GeneralCCACUDAGPGPUlibraryCuCCAl.html">Next</A>
+</BODY>
+</HTML>

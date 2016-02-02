@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ModelArchitecture.html">
+<LINK REL="Next" HREF="WaitDirective.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ModelArchitecture.html">Previous</A>
+<A HREF="WaitDirective.html">Next</A>
+<HR NOSHADE>
+<H2 id="openacc"><A NAME="6_3">OpenACC</A></H2>
+<P>OpenACC is a new<A class="footnoteRef" href="#fn51" id="fnref51"><SUP>
+51</SUP></A> open parallel programming standard designed to enable to
+ easily to utilize massively parallel coprocessors. It consist of a
+ series of<EM> pragma</EM><A class="footnoteRef" href="#fn52" id="fnref52">
+<SUP>52</SUP></A> pre-compiler annotation that identifies the succeeding
+ block of code or structured loop as a good candidate for
+ parallelization exactly like OpenMP <A class="footnoteRef" href="#fn53" id="fnref53">
+<SUP>53</SUP></A> developed by a consortium of companies<A class="footnoteRef"
+href="#fn54" id="fnref54"><SUP>54</SUP></A>. The biggest advantage
+ offered by openACC is that the programmer does not need to learn a new
+ language as CUDA or OpenCL require and does not require a complete
+ transformation of existing code. Pragmas and high-level APIs are
+ designed to provide software functionality. They hide many details of
+ the underlying implementation to free a programmer’s attention for
+ other tasks. The compiler is free to ignore any pragma for any reason
+ including: it does not support the pragma, syntax errors, code
+ complexity etc. and at the same time it has to provide profiling tool
+ and information about the parallelization(even if it is possible).
+ OpenACC is available both for C/C++ and Fortran. In this document we
+ will concentrate only on C/C++ version. An OpenACC pragma can be
+ identified from the string “#pragma acc” just like an OpenMP pragma
+ can be identified from “#pragma omp”. The base concept behind
+ openACC is the<EM> offloading</EM> on the accelerator device. Like CUDA
+ or openCL the execution model is host-directed where the bulk of the
+ application execute on CPU and just the compute intensive region are
+ effectively offloaded on accelerator<A class="footnoteRef" href="#fn55" id="fnref55">
+<SUP>55</SUP></A>. The<EM> parallel regions</EM> or<EM> kernel regions</EM>
+, which typically contains work sharing work such as loops are executed
+ as kernel (concept described in section [kernels] at page ). The
+ typical flow of an openACC application is orchestrated by the host that
+ in sequence has to:</P>
+<UL>
+<LI>
+<P>Allocate memory on device.</P>
+</LI>
+<LI>
+<P>Initiate transfer.</P>
+</LI>
+<LI>
+<P>Passing arguments and start kernel execution(a sequence of kernels
+ can be queued).</P>
+</LI>
+<LI>
+<P>Waiting for completion.</P>
+</LI>
+<LI>
+<P>Transfer the result back to the host.</P>
+</LI>
+<LI>
+<P>Deallocate memory.</P>
+</LI>
+</UL>
+<P>For each of the action above there is one or more directive that
+ actually implements the directives and a complete set of option permit
+ to tune the parallelization across different kind of accelerators. For
+ instance the<EM> parallel</EM> directive starts a parallel execution of
+ the code above it on the accelerator, constricting<EM> gangs</EM> of
+ workers (once started the execution the number of gangs and workers
+ inside the gangs remain constant for the duration of the<EM> parallel</EM>
+ execution.) The analogy between the CUDA blocks and between workers and
+ cuda threads is clear and permit to easily understand how the work is
+ effectively executed and organized. It has a number of options that
+ permits to for example copy an array on gpu to work on and to copy back
+ the result on the host side.</P>
+<P>The syntax of a OpanACC directive is :</P>
+<UL>
+<LI>
+<P>C/C++ : #pragma acc directive-name [clause [[,] clause]…] new-line.</P>
+</LI>
+<LI>
+<P>Fortran : !$acc directive-name [clause [[,] clause]…]</P>
+</LI>
+</UL>
+<P>Each clause can be coupled with a number of clauses that modify the
+ behavior of the directive. For example:</P>
+<UL>
+<LI>
+<P>copy( list )Allocates the data in list on the accelerator and copies
+ the data from the host to the accelerator when entering the region, and
+ copies the data from the accelerator to the host when exiting the
+ region.</P>
+</LI>
+<LI>
+<P>copyin( list ) Allocates the data in list on the accelerator and
+ copies the data from the host to the accelerator when entering the
+ region.</P>
+</LI>
+<LI>
+<P>copyout( list ) Allocates the data in list on the accelerator and
+ copies the data from the accelerator to the host when exiting the
+ region.</P>
+</LI>
+<LI>
+<P>create( list ) Allocates the data in list on the accelerator, but
+ does not copy data between the host and device.</P>
+</LI>
+<LI>
+<P>present( list ) The data in list must be already present on the
+ accelerator, from some containing data region; that accelerator copy is
+ found and used.</P>
+</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ModelArchitecture.html">Previous</A>
+<A HREF="WaitDirective.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Conclusions.html">
+<LINK REL="Next" HREF="Workinprogress.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Conclusions.html">Previous</A>
+<A HREF="Workinprogress.html">Next</A>
+<HR NOSHADE>
+<H2 id="summary"><A NAME="11_1">Summary</A></H2>
+<P>In this thesis, a parallel version of the new numerical SCIARA-fv3
+<!--span class=&quot;citation&quot;-->
+[@Spataro2010] model was implemented using different GPGPU strategies,
+ specifically, by adopting the NVIDIA Compute Unified Device
+ Architecture (CUDA)
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide] framework in order to improve the overall execution
+ time. Following the APOD (see section [sect:APOD]) developing strategy,
+ different versions were produced, incrementally adding new features and
+ using more sophisticated CUDA APIs at each developing cycle. Starting
+ from a naive porting (see section [sect:naiveImplementation])
+ consisting in a one thread one cell over the whole cellular space, a
+ LAC version (see section [sect:linearCellAtomic] was developed, that
+ showed best speedups and occupancy (
+<!--span class=&quot;math inline&quot;-->
+\(\eta\)) values. Atomic functions (see sections
+ [sect:atomicImplementation]) were also exploited as an alternative
+ solution to the non race-condition free flow distribution algorithm
+ (see section [sect:raceCondAvoiding]). Tests and numerical analysis
+ were performed in order to understand how to maximize the utilization
+ of the available devices and to validate the parallel model
+ implementations. Numerical approximation and error propagation were
+ also deeply investigated.</P>
+<P>Eventually, a new CUDA C library for CCA were designed, currently in
+ beta-version, permitting an easy parallel programming of CCA for
+ researchers that are not GPGPU experts to effortlessly write and
+ execute their CCA models.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Conclusions.html">Previous</A>
+<A HREF="Workinprogress.html">Next</A>
+</BODY>
+</HTML>

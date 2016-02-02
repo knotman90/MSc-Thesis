@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="MemorythroughputUtilization1.html">
+<LINK REL="Next" HREF="Libraryusage.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="MemorythroughputUtilization1.html">Previous</A>
+<A HREF="Libraryusage.html">Next</A>
+<HR NOSHADE>
+<H4 id="optimize-instruction-throughput"><A NAME="5_3_5_4">Optimize
+ instruction throughput</A></H4>
+<P>Use as much as possible intrinsic<A class="footnoteRef" href="#fn44" id="fnref44">
+<SUP>44</SUP></A> function, avoiding function with low throughput and
+ prefer single precision instead of double precision<A class="footnoteRef"
+href="#fn45" id="fnref45"><SUP>45</SUP></A>. Moreover programmer should
+ be try to minimize thread divergence (see section [threadDivergence])
+ in order to not increase the total number of instruction scheduled for
+ a warp. There are many other option that can permit a fine-tuning of
+ the application regarding integer and floating point arithmetics. But
+ those techniques are not crucial for the performance of the application
+ unless they can give back a good improvement in some scenarios.<A class="footnoteRef"
+href="#fn46" id="fnref46"><SUP>46</SUP></A></P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="MemorythroughputUtilization1.html">Previous</A>
+<A HREF="Libraryusage.html">Next</A>
+</BODY>
+</HTML>

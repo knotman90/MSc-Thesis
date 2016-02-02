@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Timeevaluation.html">
+<LINK REL="Next" HREF="Elementaryprocesstau2updatingofmassandmomentum.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Timeevaluation.html">Previous</A>
+<A HREF="Elementaryprocesstau2updatingofmassandmomentum.html">Next</A>
+<HR NOSHADE>
+<H4 id="outflows-computation"><A NAME="9_2_1_3">Outflows computation</A></H4>
+<P>In “flow computing mode”, minimizing outflows,
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,i)}\), are re-computed by considering the new CA clock
+<!--span class=&quot;math inline&quot;-->
+ \(\overline{t}\). Subsequently, lava outflows,
+<!--span class=&quot;math inline&quot;-->
+ \(h_{(0,i)}\), are computed proportionally to the displacement, by
+ simply multiplying the minimizing outflow by the ratio between the
+ actual displacement and the maximum allowed:
+<!--span class=&quot;math display&quot;-->
+ \[h_{(0,i)} = \phi_{(0,i)} \frac{ s_{(0,i)} }{ w }\] Final velocity and
+ displacement are computed as in Section [sec:min-ouflows].</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Timeevaluation.html">Previous</A>
+<A HREF="Elementaryprocesstau2updatingofmassandmomentum.html">Next</A>
+</BODY>
+</HTML>

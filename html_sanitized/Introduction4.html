@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="CellularAutomata.html">
+<LINK REL="Next" HREF="InformalDefinition.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="CellularAutomata.html">Previous</A>
+<A HREF="InformalDefinition.html">Next</A>
+<HR NOSHADE>
+<H2 id="cellularAutomataIntroduction"><A NAME="7_1">Introduction</A></H2>
+<P>Nowadays most of the basic natural phenomena are well described and
+ known, thanks to the effort of lots of scientist that studied the basic
+ physic’s laws for centuries; for example, the freezing of water or
+ the conduction that are well know and qualitative analyzed. Natural
+ system are usually composed by many parts that interact in a complex
+ net of causes/consequences that is at least very difficult but most of
+ the times impossible to track and so to describe. Even if the single
+ component are each very simple, extremely complex behavior emerge
+ naturally due to the cooperative effect of many components. Much has
+ been discovered about the nature of the components in natural systems,
+ but little is known about the interactions that these components have
+ in order to give the overall complexity observed. Classical theoretical
+ investigations of physical system have been based on mathematical
+ models, like differential equations, that use calculus as tool to solve
+ them, which are able to describe and allow to understand the phenomena,
+ in particular for those that can be described by which are linear
+ differential equation<A class="footnoteRef" href="#fn59" id="fnref59"><SUP>
+59</SUP></A> that are easy solvable with calculus. Problems arise when
+ non-linear differential equations come out from the modellation of the
+ phenomena, like fluid turbulence<A class="footnoteRef" href="#fn60" id="fnref60">
+<SUP>60</SUP></A>. Classical approach usually fails to handle these kind
+ of equations due to the too high number of components, that make the
+ problem intractable even for a computer based numerical approach.
+ Another approach to describe such systems is to distill only the
+ fundamental and essential mathematical mechanism that yield to the
+ complex behavior and at the same time capture the essence of each
+ component process. Cellular automata are a</P>
+<P>
+<!--span-->
+r
+<!--span-->
+0.40 <IMG alt="image" src="torus-2.png"></P>
+<P>candidate class of such systems and are well suitable for the
+ modellation and simulation of a wide class of systems, in particular
+ those ones constructed from<STRONG> many identical</STRONG> components,
+ each (ideally) simple, but together capable of complex behaviour
+<!--span class=&quot;citation&quot;-->
+[@Toffoli1984]
+<!--span class=&quot;citation&quot;-->
+[@toffoli1987]. In literature there are lots applications of cellular
+ automata in a wide rage of class problems from gas
+<!--span class=&quot;citation&quot;-->
+[@Frisch1986] and fluid turbulence
+<!--span class=&quot;citation&quot;-->
+[@Succi1991] simulation to macroscopic phenomena
+<!--span class=&quot;citation&quot;-->
+[@Gregorio1999] like epidemic spread
+<!--span class=&quot;citation&quot;-->
+[@Sirakoulis2000], snowflakes and lava flow
+<!--span class=&quot;citation&quot;-->
+[@Crisci2004]
+<!--span class=&quot;citation&quot;-->
+[@Spataro2010]. CA were first investigated by S. Ulam working on growth
+ of crystals using lattice network and at the same time by Von Neumann
+ in order to study self-reproduction
+<!--span class=&quot;citation&quot;-->
+[@Neumann1966]; it was not very popular until the 1970 and the famous
+ Conway’s game of life
+<!--span class=&quot;citation&quot;-->
+[@Conway1970], then was widely studied on the theoretical viewpoint,
+ computational universality were proved<A class="footnoteRef" href="#fn61"
+id="fnref61"><SUP>61</SUP></A>
+<!--span class=&quot;citation&quot;-->
+[@Thatcher1970] and then mainly utilised, after 1980’s, as parallel
+ model due to its intrinsically parallel nature implemented on parallel
+ computers
+<!--span class=&quot;citation&quot;-->
+[@Margolus1986].</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="CellularAutomata.html">Previous</A>
+<A HREF="InformalDefinition.html">Next</A>
+</BODY>
+</HTML>

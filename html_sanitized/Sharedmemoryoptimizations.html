@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Listofactivecellsimplementation.html">
+<LINK REL="Next" HREF="Ifdivergencesmitigation.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Listofactivecellsimplementation.html">Previous</A>
+<A HREF="Ifdivergencesmitigation.html">Next</A>
+<HR NOSHADE>
+<H2 id="sect:sharedMemoryOptimization"><A NAME="10_10">Shared memory
+ optimizations</A></H2>
+<P>Shared memory (SM) was exploited in order to take advantage of its
+ higher speed <A class="footnoteRef" href="#fn104" id="fnref104"><SUP>
+104</SUP></A>. For this reason, an accurate analysis was carried out in
+ determining how much memory accesses each thread performs for each CA
+ substate matrix, in order to evaluate the convenience of using SM. This
+ investigation gave rise to a “hybrid” memory access pattern, where
+ shared memory allocation was adopted in those kernels accessing CA
+ substate matrixes at least three times<A class="footnoteRef" href="#fn105"
+id="fnref105"><SUP>105</SUP></A></P>
+<P>On this basis, the data buffers corresponding to the elevation, lava
+ thickness and temperature and distributed outflows (
+<!--span class=&quot;math inline&quot;-->
+\(Q_h \;, Q_T \;, Q_o\;, outflows \)) were allocated in SM.</P>
+<P>Let’s briefly show an example of SM usage, its initialization,
+ utilization and finalization. SM has to be initilizated each time a
+ kernel executes (see listing [code:sharedMemoryInitialization] as
+ example code).</P>
+<PRE> <CODE>__shared__ double s_Sz[(blockDimY+2)][(blockdimX+2)];
+	__shared__ double s_Sh[(blockDimY+2)][(blockdimX+2)];
+	... 
+	if(threadIdx.x==0){
+		s_Sz[threadIdx.y+1][0]=d_Sz[getNeigh2(index,lungCOL)];
+		s_Sh[threadIdx.y+1][0]=d_Sh[getNeigh2(index,lungCOL)];
+	}
+
+	if(threadIdx.x==blockDim.x-1){
+		s_Sz[threadIdx.y+1][blockDim.x+1]=d_Sz[getNeigh3(index,lungCOL)];
+		s_Sh[threadIdx.y+1][blockDim.x+1]=d_Sh[getNeigh3(index,lungCOL)];
+	}
+	//cell inside borders of the block(plus ghost cells)
+	s_Sz[threadIdx.y+1][threadIdx.x+1]=d_Sz[index];
+	s_Sh[threadIdx.y+1][threadIdx.x+1]=d_Sh[index];
+
+	__syncthreads(); //shared has to be fully initializated before computation takes
+	//place. end shared loading</CODE></PRE>
+<P>After it has been initializated it can be used normally in place of
+ GM, but at the end of the computation (SM is cancelled each time a
+ kernel ends), if one wants to keep some value in memory, a copy from SM
+ to GM has to be performed.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Listofactivecellsimplementation.html">Previous</A>
+<A HREF="Ifdivergencesmitigation.html">Next</A>
+</BODY>
+</HTML>

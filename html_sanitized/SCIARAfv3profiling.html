@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ProfilingGprof.html">
+<LINK REL="Next" HREF="Toplevelandstrategiesoverview.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ProfilingGprof.html">Previous</A>
+<A HREF="Toplevelandstrategiesoverview.html">Next</A>
+<HR NOSHADE>
+<H3 id="sciara-fv3-profiling"><A NAME="10_3_3">SCIARA-fv3 profiling</A></H3>
+<P>In figure [stackCall] the call graph<A class="footnoteRef" href="#fn89"
+id="fnref89"><SUP>89</SUP></A> coupled with other metrics is shown as
+ the number of times that a function is called and the percentage of the
+ total time that a use (we omitted, without losing any critic
+ informations, functions which the execution time was too short or not
+ directly related to the computation, e.g. initialization of threads or
+ setting up of linked list because of readability). The figure is
+ related to an execution of
+<!--span class=&quot;math inline&quot;-->
+ \(2000\) computational steps of the model itself. We can easily see
+ that the<STRONG> 97%</STRONG> (i.e. it may allow a almost fully
+ parallel implementation) of the computation takes place into function <CODE>
+GlobalTransitionFunction()</CODE> that is called in total, not
+ surprisingly 2000 times. The top level hotspot is so identified and we
+ can start making some prediction about the speedup’s upper bound
+ according to the Amdahl’s law. Using
+<!--span class=&quot;math inline&quot;-->
+ \(p=512\) cores of a fermi GTX 580 GPU we can expect that the speedup
+<!--span class=&quot;math display&quot;-->
+ \[S(512)=\frac{1}{B+\frac{1}{512}(1-B)}\approx31.35, \quad B=1-0.97;\]
+ where B is the serial portion of the whole program. We cannot expect
+ speedups better than
+<!--span class=&quot;math inline&quot;-->
+ \(31\times\) even using 512 cores in parallel and without any
+ additional overhead (at least on 2000 computational steps). Obviously
+ as the computational steps increase the percentage of the total time
+ taken by the hotspots <CODE>GlobalTransitionFunction()</CODE> becomes
+ closer and closer to
+<!--span class=&quot;math inline&quot;-->
+ \(100\%\), giving at limit a theoretical speedup limit
+<!--span class=&quot;math inline&quot;-->
+ \(S(p)=p\). Hence, all the efforts in parallelizing the application
+ have been spent on the acceleration of this part. Each called procedure
+ in <CODE>GlobalTransitionFunction()</CODE> procedure corresponds to an
+ elementary process<A class="footnoteRef" href="#fn90" id="fnref90"><SUP>
+90</SUP></A> of the MCA.</P>
+<DIV class="figure"> <IMG alt="Call graph for the serial version of the SCIARA-fv3 model"
+HEIGHT="1774" src="profiling.png" WIDTH="764">
+<P class="caption">Call graph for the serial version of the SCIARA-fv3
+ model
+<!--span data-label=&quot;stackCall&quot;-->
+</P>
+</DIV>
+<P>Another important information obtainable from the figure [stackCall]
+ is that the bulk of computation is not enclosed in one single very
+ computationally intensive procedure call (like, for example, could be a
+ single call to a matrices multiplication, or a differential equation
+ solver procedure), but it resides in the large number of calls to
+ sub-procedures, (
+<!--span class=&quot;math inline&quot;-->
+\(\approx5\times10^6\) calls for the sub-procedures like <CODE>
+outFlows(…)</CODE> in this specific run of the model).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ProfilingGprof.html">Previous</A>
+<A HREF="Toplevelandstrategiesoverview.html">Next</A>
+</BODY>
+</HTML>

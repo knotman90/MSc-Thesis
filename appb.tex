@@ -1,0 +1,324 @@
+\chapter{Timing}
+\subsection{ Dataset : Plane}
+
+{\footnotesize\begin{longtable}{|c|c|c|c|c|}
+
+\caption{Execution time and speedup on GTX 580, on dataset : Plane }\\
+\hline \textbf{Model}& \textbf{Step} & \textbf{Execution Time \textit{s}} &
+    \textbf{Speedup \(\times\)}\\
+    \hline
+    \endfirsthead
+  \multicolumn{5}{c}%
+{\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+\hline
+    \textbf{Model}& \textbf{Step} & \textbf{Execution Time \textit{s}} &
+    \textbf{Speedup \(\times\)}\\
+    \hline
+    \endhead
+    \hline \multicolumn{5}{r}{\textit{Continued on next page}} \\
+\endfoot
+\hline
+\endlastfoot
+    
+     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT SM}}}
+     	 &1000&0.38 &5.61\\
+	     &10000&4.31 &11.29\\
+	     &50000&23.424 &16.52\\
+	     &250000&143.71 &25.09\\
+	     &COMPLETE&315.29 &29.14\\ \hline\hline
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT SM FM}}}
+	     &1000&0.34 &6.26\\
+	     &10000&3.81 &12.77\\
+	     &50000&20.96 &18.32\\
+	     &250000&136.01 &26.51\\
+	     &COMPLETE&300.86 &30.53\\ \hline\hline
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT GM}}}
+	     &1000&0.39 &5.46\\
+	     &10000&4.4 &11.06\\
+	     &50000&23.7 &16.20\\
+	     &25000&149.35 &24.14\\ 
+	     &COMPLETE&328.91 &27.93\\ \hline\hline
+	     
+	     %fino qui tutto okkkkk devi solo fare speedup
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT GM FM}}}
+	     &1000&0.34 &6.26\\
+	     &10000&3.92 &12.41\\
+	     &50000&21.59 &17.78\\
+	     &25000&142.51 &25.30\\ 
+	     &COMPLETE&316.81 &29.00\\ \hline\hline
+	     
+	    
+	     
+	     \multirow{5}{*}{\textbf{\textit{CUDA DOUBLE GM}}}
+	     &1000&0.46 &4.63\\
+	     &10000&5.52 &8.82\\
+	     &50000&30.70 &12.51\\
+	     &25000&200.83 &17.95\\ 
+	     &COMPLETE&449.74&20.43\\ \hline\hline
+	     
+	     
+	     \multirow{5}{*}{\textbf{\textit{CUDA DOUBLE SM}}}
+	     &1000&0.45 &4.73\\
+	     &10000&5.28 &9.22\\
+	     &50000&29.65 &12.95\\
+	     &25000&194.27 &18.56\\ 
+	     &COMPLETE&432.00&21.26\\ \hline
+	     \multirow{5}{*}{\textbf{\textit{SEQUENTIAL}}}
+	     &1000&2.13 &-\\
+	     &10000&48.66 &-\\
+	     &50000&383.95 &-\\
+	     &25000&3605.83 &-\\ 
+	     &COMPLETE&9186.32&-\\ \hline\hline
+	     
+	         \hline
+\end{longtable}
+
+
+
+
+
+
+
+
+
+
+
+\begin{center}
+\begin{longtable}{|c|c|c|c|c|}
+
+\caption{Execution time and speedup on GTX 680, on dataset : Plane }\\
+\hline \textbf{Model}& \textbf{Step} & \textbf{Execution Time \textit{s}} &
+    \textbf{Speedup \(\times\)}\\
+    \hline
+    \endfirsthead
+  \multicolumn{5}{c}%
+{\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+\hline
+    \textbf{Model}& \textbf{Step} & \textbf{Execution Time \textit{s}} &
+    \textbf{Speedup \(\times\)}\\
+    \hline
+    \endhead
+    \hline \multicolumn{5}{r}{\textit{Continued on next page}} \\
+\endfoot
+\hline
+\endlastfoot
+    
+     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT SM}}}
+     	 &1000&0.46 &4.63\\
+	     &10000&5.3 &9.09\\
+	     &50000&28.99 &13.24\\
+	     &250000&194.05 &18.58\\
+	     &COMPLETE&470.35 &19.53\\ \hline\hline
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT SM FM}}}
+	     &1000&0.45 &4.73\\
+	     &10000&4.78 &10.18\\
+	     &50000&27.29 &14.07\\
+	     &250000&197.73 &18.25\\
+	     &COMPLETE&477.29 &19.21\\ \hline\hline
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT GM}}}
+	     &1000&0.45 &4.73\\
+	     &10000&5.1 &9.54\\
+	     &50000&28.33 &13.55\\
+	     &25000&199.31 &18.09\\ 
+	     &COMPLETE&496.34 &18.50\\ \hline\hline
+	     
+	     %fino qui tutto okkkkk devi solo fare speedup
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT GM FM}}}
+	     &1000&0.4 &5.33\\
+	     &10000&4.46 &10.91\\
+	     &50000&26.21 &14.65\\
+	     &25000&215.63 &16.72\\ 
+	     &COMPLETE&522.36 &17.59\\ \hline\hline
+	     
+	     
+	     
+	     \multirow{5}{*}{\textbf{\textit{CUDA DOUBLE GM}}}
+	     &1000&0.6 &3.55\\
+	     &10000&7.47 &6.51\\
+	     &50000&44.76 &8.58\\
+	     &25000&310.52 &11.61\\ 
+	     &COMPLETE&747.31&12.29\\ \hline\hline
+	     
+	     
+	     \multirow{5}{*}{\textbf{\textit{CUDA DOUBLE SM}}}
+	     &1000&0.6 &3.55\\
+	     &10000&7.28 &6.76\\
+	     &50000&40.65 &9.42\\
+	     &25000&279.63 &12.9\\ 
+	     &COMPLETE&671.75&13.68\\ \hline
+	     \multirow{5}{*}{\textbf{\textit{SEQUENTIAL}}}
+	     &1000&2.13 &-\\
+	     &10000&48.66 &-\\
+	     &50000&383.95 &-\\
+	     &25000&3605.83 &-\\ 
+	     &COMPLETE&9186.32&-\\ \hline\hline
+	     
+	         \hline
+\end{longtable}
+
+\end{center}
+
+
+
+
+
+
+\subsection{ Dataset : Mount Etna}
+
+{\footnotesize
+\begin{longtable}{|c|c|c|c|c|}
+
+\caption{Execution time and speedup on GTX 580, on dataset : Mount Etna }\\
+\hline \textbf{Model}& \textbf{Step} & \textbf{Execution Time \textit{s}} &
+    \textbf{Speedup \(\times\)}\\
+    \hline
+    \endfirsthead
+  \multicolumn{5}{c}%
+{\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+\hline
+    \textbf{Model}& \textbf{Step} & \textbf{Execution Time \textit{s}} &
+    \textbf{Speedup \(\times\)}\\
+    \hline
+    \endhead
+    \hline \multicolumn{5}{r}{\textit{Continued on next page}} \\
+\endfoot
+\hline
+\endlastfoot
+    
+     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT SM}}}
+     	 &1000&0.35 &2.03\\
+	     &10000&3.83 &6.69\\
+	     &50000&26.40 &12.24\\
+	     &250000&263.97 &14.43\\
+	     &COMPLETE&434.82 &15.55\\ \hline\hline
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT SM FM}}}
+	     &1000&0.30 &2.27\\
+	     &10000&3.11 &8.24\\
+	     &50000&22.65 &14.27\\
+	     &250000&254.86 &14.95\\
+	     &COMPLETE&427.68 &15.81\\ \hline\hline
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT GM}}}
+	     &1000&0.31 &2.29\\
+	     &10000&3.43 &7.47\\
+	     &50000&25.18 &12.83\\
+	     &25000&149.35 &13.02\\ 
+	     &COMPLETE&292.54 &13.80\\ \hline\hline
+	     
+	     %fino qui tutto okkkkk devi solo fare speedup
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT GM FM}}}
+	     &1000&0.28 &6.26\\
+	     &10000&3.16 &12.41\\
+	     &50000&24.08 &17.78\\
+	     &25000&280.53 &25.30\\ 
+	     &COMPLETE&494.57 &29.00\\ \hline\hline
+	     
+	    
+	     
+	     \multirow{5}{*}{\textbf{\textit{CUDA DOUBLE GM}}}
+	     &1000&0.46 &4.63\\
+	     &10000&5.52 &8.82\\
+	     &50000&30.70 &12.51\\
+	     &25000&200.83 &17.95\\ 
+	     &COMPLETE&449.74&20.43\\ \hline\hline
+	     
+	     
+	     \multirow{5}{*}{\textbf{\textit{CUDA DOUBLE SM}}}
+	     &1000&0.45 &4.73\\
+	     &10000&5.28 &9.22\\
+	     &50000&29.65 &12.95\\
+	     &25000&194.27 &18.56\\ 
+	     &COMPLETE&432.00&21.26\\ \hline
+	     \multirow{5}{*}{\textbf{\textit{SEQUENTIAL}}}
+	     &1000&2.13 &-\\
+	     &10000&48.66 &-\\
+	     &50000&383.95 &-\\
+	     &25000&3605.83 &-\\ 
+	     &COMPLETE&9186.32&-\\ \hline\hline
+	     
+	         \hline
+\end{longtable}
+
+
+
+
+
+\begin{longtable}{|c|c|c|c|c|}
+
+\caption{Execution time and speedup on GTX 680, on dataset : Mount Etna }\\
+\hline \textbf{Model}& \textbf{Step} & \textbf{Execution Time \textit{s}} &
+    \textbf{Speedup \(\times\)}\\
+    \hline
+    \endfirsthead
+  \multicolumn{5}{c}%
+{\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+\hline
+    \textbf{Model}& \textbf{Step} & \textbf{Execution Time \textit{s}} &
+    \textbf{Speedup \(\times\)}\\
+    \hline
+    \endhead
+    \hline \multicolumn{5}{r}{\textit{Continued on next page}} \\
+\endfoot
+\hline
+\endlastfoot
+    
+     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT SM}}}
+     	 &1000&0.39 &1.82\\
+	     &10000&4.15 &6.17\\
+	     &50000&32.68 &9.89\\
+	     &250000&474.34 &8.03\\
+	     &COMPLETE&810.78 &8.34\\ \hline\hline
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT SM FM}}}
+	     &1000&0.34 &2.09\\
+	     &10000&3.54 &7.24\\
+	     &50000&30.68 &10.53\\
+	     &250000&462.94 &8.23\\
+	     &COMPLETE&818.68 &8.26\\ \hline\hline
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT GM}}}
+	     &1000&0.36 &1.97\\
+	     &10000&3.93 &6.52\\
+	     &50000&35.15 &9.19\\
+	     &25000&542.92 &7.02\\ 
+	     &COMPLETE&931.86 &7.25\\ \hline\hline
+	     
+	     %fino qui tutto okkkkk devi solo fare speedup
+	     \multirow{5}{*}{\textbf{\textit{CUDA FLOAT GM FM}}}
+	     &1000&0.34 &2.09\\
+	     &10000&3.56 &7.20\\
+	     &50000&33.21 &9.73\\
+	     &25000&525.95 &7.24\\ 
+	     &COMPLETE&923.75 &7.32\\ \hline\hline
+	     
+	     
+	     
+	     \multirow{5}{*}{\textbf{\textit{CUDA DOUBLE GM}}}
+	     &1000&0.45 &1.58\\
+	     &10000&5.06 &5.06\\
+	     &50000&46.46& 6.96\\
+	     &25000&700.21 &5.44\\ 
+	     &COMPLETE&1296.26&5.21\\ \hline\hline
+	     
+	     
+	     \multirow{5}{*}{\textbf{\textit{CUDA DOUBLE SM}}}
+	     &1000&0.42 &1.69\\
+	     &10000&4.78 &5.36\\
+	     &50000&42.34 &7.63\\
+	     &25000&564.81 &6.74\\ 
+	     &COMPLETE&1028.35&6.57\\ \hline
+	     \multirow{5}{*}{\textbf{\textit{SEQUENTIAL}}}
+	     &1000&0.71 &-\\
+	     &10000&25.62 &-\\
+	     &50000&323.17 &-\\
+	     &25000&3089.62 &-\\ 
+	     &COMPLETE&6759.4902&-\\ \hline\hline
+	     
+	         \hline
+\end{longtable}
+
+\end{center}
+
+
+\end{center}
+
+
+
+

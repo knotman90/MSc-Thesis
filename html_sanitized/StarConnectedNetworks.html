@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Completelyconnectednetworks.html">
+<LINK REL="Next" HREF="KMeshes.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Completelyconnectednetworks.html">Previous</A>
+<A HREF="KMeshes.html">Next</A>
+<HR NOSHADE>
+
+<H3 id="star-connected-networks"><A NAME="3_3_3">Star-Connected Networks</A>
+</H3>
+<P>Star topology (see figure [fig:starMesh]) every node is connected to
+ a central node that acts as the central processor (as server if we
+ consider the analogy with the LAN) . It is similar to the bus-based
+ (see section [bus-based]) network, because communication between any
+ pair of nodes is routed through the central processor (and the latter
+ is the shared medium the all the other nodes share) and because the
+ central processor is the bottleneck in this topology and also the
+ single point of failure (if this node goes down the entire network
+ stops to work).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Completelyconnectednetworks.html">Previous</A>
+<A HREF="KMeshes.html">Next</A>
+</BODY>
+</HTML>

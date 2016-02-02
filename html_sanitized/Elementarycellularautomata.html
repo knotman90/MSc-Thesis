@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Theoriesandstudies.html">
+<LINK REL="Next" HREF="Wolframscode.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Theoriesandstudies.html">Previous</A>
+<A HREF="Wolframscode.html">Next</A>
+<HR NOSHADE>
+<H3 id="elementary-cellular-automata"><A NAME="7_5_1">Elementary
+ cellular automata</A></H3>
+<P>The most simple AC we can imagine are the elementary cellular
+ automata
+<!--span class=&quot;citation&quot;-->
+[@wolfram1983]. They are one-dimensional periodic N cells array
+<!--span class=&quot;math inline&quot;-->
+ \(\{C_i \mid 1\leq i \leq N, C_i \in \{0,1\} \}\) each with 2 possible
+ state (0,1), and rules that depend only on nearest neighbor value hence
+ a radius r=1 neighborhood with a total number of involved cell
+<!--span class=&quot;math inline&quot;-->
+ \(2r+1=2\times1+1=3\) (central, right and left cells). Since there are
+ only
+<!--span class=&quot;math inline&quot;-->
+ \(2\times2\times2\times=2^{2r+1}=2^3=8\) possible states for the
+ neighborhood of a given cell there are a total of
+<!--span class=&quot;math inline&quot;-->
+ \(2^{2^3}=2^8=256\) possible elementary automata (each of which may be
+ identified with a 8-bit binary number
+<!--span class=&quot;citation&quot;-->
+[@wolfram2002]).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Theoriesandstudies.html">Previous</A>
+<A HREF="Wolframscode.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,201 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="SCIARAfv3profiling.html">
+<LINK REL="Next" HREF="Migrationfrom2Dmatricestolineararrays.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="SCIARAfv3profiling.html">Previous</A>
+<A HREF="Migrationfrom2Dmatricestolineararrays.html">Next</A>
+<HR NOSHADE>
+<H2 id="sect:topLevelStrategies"><A NAME="10_4">Top level and strategies
+ overview</A></H2>
+<P>At high level the workflow of the parallel version consists of (the
+ classic host-managed accelerated program structure):</P>
+<OL>
+<LI>
+<P>Data structures initialization on CPU (see section [1Dto2Dmemory])</P>
+</LI>
+<LI>
+<P>Memory copies
+<!--span class=&quot;math inline&quot;-->
+ \(CPU \rightarrow GPU\)</P>
+</LI>
+<LI>
+<P>Global transition function execution on GPU</P>
+</LI>
+<LI>
+<P>Results memory copies
+<!--span class=&quot;math inline&quot;-->
+ \(CPU \leftarrow GPU\)</P>
+</LI>
+</OL>
+<P>The parallelization strategy design purpose was to avoid as much as
+ possible the highly undesirable
+<!--span class=&quot;math inline&quot;-->
+ \(CPU \leftrightarrow GPU \) copy operations by means of a complete
+ execution of all the elementary processes functions on the device and
+ performing only a
+<!--span class=&quot;math inline&quot;-->
+ \(updatedCA \leftarrow currentCA \) device-to-device copy operation to
+ re-initialize the<EM> updatedCA</EM> swapping the latter with the<EM>
+ currentCA</EM> buffers (see section [sect:serialoptimization]).</P>
+<P>The elementary processes are the constituent of the global transition
+ function of the cellular automata and the order in which they are
+ executed is crucial for the correctness of the final result. They need
+ to be applied sequentially and hence
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_{i+1}\) can be applied only and only if
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_{i}\) was already executed. From an implementation point of view
+ this means that all cells have to first compute the current elementary
+ process before performing the subsequent one. Hence we decided to map
+ each elementary process to different CUDA kernels that allow a global
+ synchronization (at grid level), not interleaving (as soon as they are
+ executed on the same CUDA stream), de facto, any elementary process
+ function. An example is shown in listings [code:kernelCalls].</P>
+<PRE> <CODE>//crater kernel
+	handleVents&lt;&lt;&lt;1,sciaraGPU-&gt;params[EN_numVents]&gt;&gt;&gt;(...);
+	
+	//elementary process #1
+	switchToHeat&lt;&lt;&lt;dimGrid,blockSize&gt;&gt;&gt;(...);
+	
+	//elementary process #2
+	empiricalFlow_fill_TIMES&lt;&lt;&lt;dimGrid,blockSize&gt;&gt;&gt;(...);</CODE></PRE>
+<P>In order to exploit the fine-grain parallelism of the CUDA
+ architecture one of the first issues to decide is the amount of work
+ that a single thread has to be loaded with, in term of numbers of cells
+ that it has to take into account. For example one might think to use
+ one thread for a single row or column or in general for a subset of the
+ cellular space as in a typical data-parallel application. However while
+ working with CUDA a very high number (thousand or even millions) of
+ threads should be created in order to exploit the massive parallel
+ architecture of the GPU
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide]. The most common and widely adopted strategy while
+ working with arrays in CUDA is to map one thread to one cell and
+ similar approaches are used for example in
+<!--span class=&quot;citation&quot;-->
+ [@dambrosio2012]. The thread grid and blocks dimension have to be
+ setted to the best value according to CUDA best practices
+<!--span class=&quot;citation&quot;-->
+[@CUDACBESTPRACTICE] manual and choosed utilizing the CUDA provided
+ occupancy calculator spreadsheet (see [sect:cudaPerfGuideline] at page
+ ). Those values change from kernel to kernel, and depend on the device
+ actually utilized and on a number of other factors like the register
+ pressure or the shared memory utilization. In addition to this
+ analysis, a series of experimentations were performed in order to find
+ the best set of values to achieve best performances. The transition
+ function code may be very thread divergent because of the complexity of
+ the physical simulation. Another example could be the if statement,
+ that limits the execution only to the<EM> active</EM> cells, as talked
+ in section [sect:serialoptimization]. At step
+<!--span class=&quot;math inline&quot;-->
+ \(t\) the lava is not homogeneously distributed among all the cells,
+ and it means that it is possible, for two different threads (i.e.
+ cells) in the same warp, to execute two divergent code paths. In
+ sections [sect:atomicImplementation], [sect:RBBOptimization] and
+ [sect:linearCellAtomic] we discuss some possible solutions in order to
+ mitigate this issue. In listing [code:threadDivergentCode] we show an
+ example of a very thread divergent code within SCIARA-fv3: a multiple <CODE>
+if-else</CODE> inside a loop. Each thread within a warp can execute a
+ different path at each iteration of the loop at line 1, preventing CUDA
+ to fully parallelize this section, and executing in serial the
+ thread’s subsets of the warp in which all the threads share the same
+ divergent path. Each subset is then executed in parallel. In the worst
+ case, when all the threads within a warp execute a different path, the
+ executions is completely serialized<A class="footnoteRef" href="#fn91" id="fnref91">
+<SUP>91</SUP></A>
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide].</P>
+<PRE> <CODE>   for (int i = 1; i &lt; MOORE_NEIGHBORS; i++) {
+	i &lt; VON_NEUMANN_NEIGHBORS ? zc[i] = z[i] : zc[i] = z[0]-(z[0]-z[i])/rad2;
+
+	// ha and he evaluation
+	if (z[0] + hkr + hk[i] + h[0] &lt;= zc[i] + h[i]) {
+		he[i] = 0;
+		ha[i] = h[0];
+	} else if (z[0] + hkr + hk[i] &gt;= zc[i] + h[i]) {
+		he[i] = h[0];
+		ha[i] = 0;
+	} else if (z[0] + hkr + hk[i] + h[0] &gt; zc[i] + h[i]) {
+		he[i] = (z[0] + hkr + hk[i] + h[0])-(zc[i] + h[i]);
+		ha[i] = h[0] - he[i];
+	}
+	i == 0 ? w[i] = 0 : w[i] = Pc;
+	theta[i] = atan(((zc[0]+ha[i]+he[i] / 2.0) - (zc[i]+h[i])) / w[i]);
+	w[i] = w[i] / cos(theta[i]);
+	}</CODE></PRE>
+<P>Regarding the mapping between the data structures and the CUDA
+ memories we followed the CUDA best practice manual
+<!--span class=&quot;citation&quot;-->
+[@CUDACBESTPRACTICE] advices. Substates are arrays whose dimensions are
+ only suitable for global memory memorization whilst for parameters we
+ decided to utilize constant memory (see section [sect:constantmemory]
+ at page ) due to their intrinsically constant nature and their access
+ rate in the code. Moreover, all the constant variables of the automata
+ have been stored in this memory like for instance
+<!--span class=&quot;math inline&quot;-->
+ \(x\) and
+<!--span class=&quot;math inline&quot;-->
+ \(y\) dimension’s sizes of the cellular space which, although not
+ strictly parameters, are constant while the execution of the model,
+ from the beginning to the end of the simulation. In listings
+ [code:constantDeclaration] the declaration of the array stored in
+ constant memory is shown. Note that it is an automatic array, and its
+ dimension has to be known at compile time and so an analysis phase was
+ needed to select all the candidate variable to be stored in that
+ buffer.</P>
+<PRE> <CODE>#define NUM_PARAMS 21
+	enum { EN_Pc1, EN_Pac1, EN_PTsol1, ... ,EN_LX1,EN_LY1};	
+	__constant__ float d_params[NUM_PARAMS];</CODE></PRE>
+<P>The main program and all the kernels are organized in C style manner
+ in the sense that CUDA does not allow C++ features such as classes
+ utilization in its code. Thus, two c-99 structs have been created and
+ combined to recreate the serial SCIARA-fv3 object structure. They store
+ a double copy of all the data, a CPU and GPU version<A class="footnoteRef"
+href="#fn92" id="fnref92"><SUP>92</SUP></A>. The original data
+ structures are first copied into the new CPU data structures in order
+ to be copied and mapped into the GPU buffers.</P>
+<OL>
+<LI>
+<P><CODE>SCIARA_GPU</CODE> : Main struct of the model, in which all the
+ data structures are declared, created and destroyed. It is provided
+ also with a method that allows the initialization of all the buffers
+ from the CPU version of the model (that actually do the reading of all
+ the initial configurations and parameters). It also contains an
+ instance of the structure <CODE>SCALAR_GPU</CODE>, that manages all the
+ scalar values.</P>
+</LI>
+<LI>
+<P><CODE>SCALAR_GPU</CODE>: All the scalar values and methods that are
+ related to them (like truncation or mathematical operations) are stored
+ in this structure. It is enclosed into the main structure of the
+ program and managed by it.</P>
+</LI>
+</OL>
+<P>As stated in section [sect:APOD] the assess phase of the development
+ consists also in locating possible parts of the code that are not very
+ suitable for a parallel implementation, either in terms of possible
+ race-conditions or strategy and algorithms, adopted in the serial
+ version, that could limit the total amount of parallelism that can be
+ achieved. The most evident parallel implementation limitation is
+ related to the bi-dimensional data structures used in the serial
+ version. In the following section [1Dto2Dmemory] we discuss more in
+ detail this issue and its solutions.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="SCIARAfv3profiling.html">Previous</A>
+<A HREF="Migrationfrom2Dmatricestolineararrays.html">Next</A>
+</BODY>
+</HTML>

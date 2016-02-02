@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Serialcodeoverview.html">
+<LINK REL="Next" HREF="Transitionfunctionandelementaryprocesses.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Serialcodeoverview.html">Previous</A>
+<A HREF="Transitionfunctionandelementaryprocesses.html">Next</A>
+<HR NOSHADE>
+<H4 id="memory-organization-and-data-structures"><A NAME="10_3_1_1">
+Memory Organization and data structures</A></H4>
+<P>Working on bi-dimensional cellular automata is not surprising if the
+ underlying representation of the set
+<!--span class=&quot;math inline&quot;-->
+ \(Q\) of substates is bi-dimensional as well (see listing
+ [code:memoryPattern2D]) and hence implemented as:</P>
+<PRE> <CODE>// Substates
+	double **Sz;	//Altitude
+	double **Sh;	//Lava thickness
+	double **nSh;
+	double **ST;	//Lava temperature
+	double **nST;
+	double **SEk;	//Kinetic energy
+	double **nSEk;
+	</CODE></PRE>
+<P>a series of double canonical dynamical C/C++ matrixes for each
+ substate (we’ll see in section [1Dto2Dmemory] that this memory
+ setting is problematic in CUDA), one for reading cell neighbor (<EM>
+updatedCA</EM>) substates and a second for writing the new substate
+ values (<EM>currentCA</EM>).</P>
+<P>Parameters are organized as a series of scalar variables:</P>
+<PRE> <CODE>double Prho;		//density
+	double Pepsilon;	//emissivity
+	double Psigma;		//Stephen-Boltzmann constant
+	double Pcv;			//Specific heat</CODE></PRE>
+<P>while an abstraction of the vent is given by the class <CODE>TVent</CODE>
+ that encapsulates the class <CODE>TEmissionRate</CODE> which store the
+ values, variables and methods to represent a particular vent emission
+ rate. The main function of the vent abstraction class is to give back
+ an amount of produced lava after a certain amount of simulated
+ event’s time. The emission of lava from the vent was discretized into
+ time slot of
+<!--span class=&quot;math inline&quot;-->
+ \(t_e\) and it means that when the simulation time
+<!--span class=&quot;math inline&quot;-->
+ \(t_s\) is such that
+<!--span class=&quot;math inline&quot;-->
+ \(i t_e \leq t_s &lt; (i+1) t_e \) the emitted lava thickness value at the
+ slot number
+<!--span class=&quot;math inline&quot;-->
+ \(i\) is returned.</P>
+<PRE> <CODE>double thickness(double sim_elapsed_time, double Pt,unsigned int emission_time,
+	double Pac) { 
+	unsigned int i = (unsigned int)(sim_elapsed_time/emission_time); 
+	if (i &gt;= _emission_rate.size())
+		return 0;
+	else
+		return _emission_rate[i]/Pac*Pt;
+	}</CODE></PRE>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Serialcodeoverview.html">Previous</A>
+<A HREF="Transitionfunctionandelementaryprocesses.html">Next</A>
+</BODY>
+</HTML>

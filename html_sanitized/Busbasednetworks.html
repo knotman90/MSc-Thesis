@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="NetworkTopologies.html">
+<LINK REL="Next" HREF="Completelyconnectednetworks.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="NetworkTopologies.html">Previous</A>
+<A HREF="Completelyconnectednetworks.html">Next</A>
+<HR NOSHADE>
+<H3 id="bus-based"><A NAME="3_3_1">Bus-based networks</A></H3>
+<P>The most simple family of topologies that give birth to the bus-based
+ networks. Each node is connected to a single shared medium that is
+ common to all the nodes. The most important advantage of bus is that
+ the distance of two nodes is constant<EM> O</EM>(1) and the cost scale
+ linearly as the number of nodes<EM> p</EM><A class="footnoteRef" href="#fn7"
+id="fnref7"><SUP>7</SUP></A>. A message from the source is broadcasted
+ to all machines connected to the bus and every machine ignore the
+ message except for the intended address for the message that accept the
+ data. The low cost of implementing this topology if tradeoff by the
+ difficulties in managing it and plus, because of the bounded bandwidth
+ of buses, typical bus-based machine are limited to dozen of nodes.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="NetworkTopologies.html">Previous</A>
+<A HREF="Completelyconnectednetworks.html">Next</A>
+</BODY>
+</HTML>

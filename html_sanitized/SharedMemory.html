@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ConstantMemory.html">
+<LINK REL="Next" HREF="Registers.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ConstantMemory.html">Previous</A>
+<A HREF="Registers.html">Next</A>
+<HR NOSHADE>
+<H4 id="shareMemory"><A NAME="5_3_3_6">Shared Memory</A></H4>
+<P>Present on each SM. On the Fermi architecture card, there is 64KB of
+ level 1 cache made up of SRAM. SRAM, or static random-access memory, is
+ an expensive type of RAM, that is much faster than DRAM. This cache is
+ divided into two parts: a normal cache and a user managed cache called
+ the shared memory
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide]. Depending on the program, the L1 cache can be set to
+ either be 16 or 48 KB, where the size of shared memory is the
+ remainder. As programmer the keyword<STRONG> __constant__</STRONG> make
+ a variable resident into shared memory. Cuda will create a copy of each
+ variable for each block. Each thread within a block share the<EM>
+ shared memory</EM>, and so, can modify or read whichever address, but
+ it cannot access to any other block’s copy. This provide an excellent
+ mechanism by which threads can communicate and cooperate on
+ computations. It is a on-chip SRAM<A class="footnoteRef" href="#fn32" id="fnref32">
+<SUP>32</SUP></A> and is very fast compared to the<EM> global memory</EM>
+ (30-50 cycles latency) but it is only alive during the kernel call.
+ More in detail, shared memory is divided into multiple banks<A class="footnoteRef"
+href="#fn33" id="fnref33"><SUP>33</SUP></A> (similar to banks in DRAM
+ modules). Each bank can service only one request at a time<A class="footnoteRef"
+href="#fn34" id="fnref34"><SUP>34</SUP></A>. Shared memory banks are
+ organized such that successive 32-bit words are assigned to successive
+ banks and each bank has a bandwidth of 32 bits per clock cycle.
+ Therefore, any memory load or store of n addresses that spans n
+ distinct memory banks can be serviced simultaneously, yielding an
+ effective bandwidth that is n times as high as the bandwidth of a
+ single bank but if multiple addresses of a memory request map to the
+ same memory bank, the accesses are serialized<A class="footnoteRef" href="#fn35"
+id="fnref35"><SUP>35</SUP></A>.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ConstantMemory.html">Previous</A>
+<A HREF="Registers.html">Next</A>
+</BODY>
+</HTML>

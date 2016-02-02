@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="GeneralCCACUDAGPGPUlibraryCuCCAl.html">
+<LINK REL="Next" HREF="2DGPUDynamicsubstatemanagement.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="GeneralCCACUDAGPGPUlibraryCuCCAl.html">Previous</A>
+<A HREF="2DGPUDynamicsubstatemanagement.html">Next</A>
+<HR NOSHADE>
+<H4 id="usage-overview"><A NAME="11_2_2_1">Usage overview</A></H4>
+<P>Listing [code:CuCCAlMain] shows an example of usage of the library.</P>
+<PRE> <CODE>int main() {
+		/*--------START CONFIGURATION AND INITIALIZATION PHASE--------*/
+	
+		CA.setInitialParameters(2,2);
+		CA.initialize();
+	
+		CA.addSubstate(Q,BOOL);
+		CA.addSubstate(Q_NEW,BOOL);
+		
+		CA.registerElementaryProcess(gpuEvolve);
+		CA.registerElementaryProcess(copyBoard);
+		CA.registerStopCondictionCallback(stopCondition);
+	
+		CA.setBlockDimY(16);
+		CA.setBlockdimX(16);
+	
+		if(CA.loadSubstate(Q,&quot;./data/GOL/initialConfiguration.sst&quot;)==ERROR_OPENING_FILE){
+			printDebug(&quot;ERROR opening file&quot;);
+			return -1;
+		}
+	
+		CA.initializeGPUAutomata();
+	
+		/*--------END CONFIGURATION AND INITIALIZATION PHASE--------*/
+		CA.globalTransitionFunction();
+		CA.copyBuffersFromGPU();
+		CA.cleanUpGPUAutomata();
+	
+		CA.cleanup();
+		printf(&quot;\nElapsed Time = %.5f \nEND&quot;,CA.elapsedTime);
+		
+		return 0;
+	}	</CODE></PRE>
+<P>The transition function and name of substates have to be specified in
+ a different file, using a minimal set of CUDA C instructions. <A class="footnoteRef"
+href="#fn111" id="fnref111"><SUP>111</SUP></A> Listing
+ [code:CuCCAlGolDefinition] shows an example of the famous Game of Life
+ Cellular Automaton (see section [sect:GOL] at ) implemented utilizing
+ CuCCAl.</P>
+<PRE> <CODE>#include &quot;config.h&quot;
+	#include &quot;CA.cuh&quot;
+	extern CA CA;
+	
+	__global__ void gpuEvolve(CA_GPU* d_CA){
+		unsigned int col=(threadIdx.x+blockIdx.x*blockDim.x);
+		unsigned int row=(threadIdx.y+blockIdx.y*blockDim.y);
+		unsigned int totRows=d_CA-&gt;scalars-&gt;rows;
+		unsigned int totCols=d_CA-&gt;scalars-&gt;cols;
+		if(row&lt;totRows &amp;&amp; col&lt;totCols){
+			short unsigned int count=0;
+			unsigned int linNeighIdx=0;
+			bool alive=d_CA-&gt;getSubstateValue_BOOL(Q,row,col);
+			for (int neigh = 1; neigh &lt; 9; neigh++) {
+				linNeighIdx=d_CA-&gt;getNeighborIndex_MOORE_Toroidal(row,col,neigh,totRows,totCols);
+				if(d_CA-&gt;getSubstateValue_BOOL(Q,linNeighIdx)==true){
+					count++;
+				}
+			}
+			alive=((!alive &amp;&amp; count==3) || (alive &amp;&amp; ( count==2 || count==3))) ? true : false;
+			d_CA-&gt;setSubstateValue_BOOL(Q_NEW,row,col,alive);
+		}
+	}
+	void __global__ copyBoard(CA_GPU* d_CA){
+		int col=(threadIdx.x+blockIdx.x*blockDim.x);
+		int row=(threadIdx.y+blockIdx.y*blockDim.y);
+		if(row&lt;d_CA-&gt;scalars-&gt;rows &amp;&amp; col&lt;d_CA-&gt;scalars-&gt;cols){
+			d_CA-&gt;setSubstateValue_BOOL(Q,row,col,d_CA-&gt;getSubstateValue_BOOL(Q_NEW,row,col));
+		}
+	}
+	//true means --&gt; STOP THE AUTOMATA
+	bool stopCondition(){
+		if(CA.getSteps()&gt;100){
+			return true;
+		}
+		return false;
+	}
+	</CODE></PRE>
+<P>Substate values can be read and written using the set of get and set
+ APIs (see line 37 in listing [code:CuCCAlMain]).</P>
+<DIV class="figure"> <IMG alt="An example of 2-RBB space partitioning." HEIGHT="990"
+src="MultiRBBExample.png" WIDTH="1264">
+<P class="caption">An example of 2-RBB space partitioning.
+<!--span data-label=&quot;fig:MultiRBBExample&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="GeneralCCACUDAGPGPUlibraryCuCCAl.html">Previous</A>
+<A HREF="2DGPUDynamicsubstatemanagement.html">Next</A>
+</BODY>
+</HTML>

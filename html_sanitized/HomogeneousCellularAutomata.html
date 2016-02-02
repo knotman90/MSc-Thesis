@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="FiniteStateAutomaton.html">
+<LINK REL="Next" HREF="Theoriesandstudies.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="FiniteStateAutomaton.html">Previous</A>
+<A HREF="Theoriesandstudies.html">Next</A>
+<HR NOSHADE>
+
+<H2 id="homogeneousCellularAutomata"><A NAME="7_4">Homogeneous Cellular
+ Automata</A></H2>
+<P>Formally a CA<EM> A</EM> is a quadruple
+<!--span class=&quot;math inline&quot;-->
+ \( A=&lt;Z^d,X,Q,\sigma&gt;\) where:</P>
+<UL>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\mathbb{Z}^d=\{i=(i_1,i_1,\ldots,i_d)\mid i_k \in \mathbb{Z}, \forall
+ k=1,2,\ldots,d \}\) is the set of cells of the d-dimensional Euclidean
+ space.</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(X\) is the neighborhood, or neighborhood template; a set of m
+ d-dimensional vectors (one for each neighbor)
+<!--span class=&quot;math display&quot;-->
+ \[\xi_j=\{\xi_{j1},\xi_{j2},\ldots,\xi_{jd}\} \;,\: 1\leq j \leq m\]
+ that defines the set of the neighbors cells of a generic cell
+<!--span class=&quot;math inline&quot;-->
+ \(i=(i_1,i_1,\ldots,i_d)\)
+<!--span class=&quot;math display&quot;-->
+ \[N(X,i)=\{i+\xi_0,i+\xi_2,\ldots,i+\xi_d\}\] where
+<!--span class=&quot;math inline&quot;-->
+ \(\xi_0\) is the null vector. It means that the cell
+<!--span class=&quot;math inline&quot;-->
+ \(i\) is always in its neighborhood and we refer to it cell as<EM>
+ central cell</EM> (see example below).</P>
+</LI>
+<LI>
+<P>Q is the finite set of states of the elementary automaton EA.</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\sigma=Q^m \rightarrow Q \) is the transition function of the EA.
+<!--span class=&quot;math inline&quot;-->
+ \(\sigma\) must specify
+<!--span class=&quot;math inline&quot;-->
+ \(q_k \in Q \) as successor state of the central cell. If there are
+<!--span class=&quot;math inline&quot;-->
+ \(m\) cells in the neighborhood of the central cell including itself,
+ then there are
+<!--span class=&quot;math inline&quot;-->
+ \({\left\vert{Q}\right\vert}^m\) possible neighborhood’s state
+ configuration. It means that there are
+<!--span class=&quot;math inline&quot;-->
+ \({\left\vert{Q}\right\vert}^{{\left\vert{Q}\right\vert}^m}\) possible
+ transition functions. Plus we can see that the tabular definition of
+ the next-state function is unsuitable for practical purpose. It should
+ have
+<!--span class=&quot;math inline&quot;-->
+ \(\left\vert{\sigma}\right\vert={\left\vert{Q}\right\vert}^m\) entries,
+ an exceedingly large number.</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\tau=C \longrightarrow C \longmapsto \sigma(c(N(X,i)))\) where
+<!--span class=&quot;math inline&quot;-->
+ \(C=\Set*{c}{c \colon Z^d \rightarrow Q}\) is called the set of the
+ possible configuration and
+<!--span class=&quot;math inline&quot;-->
+ \( C(N(X,i)))\) is the set of states of the neighborhood of<EM> i</EM>.</P>
+</LI>
+</UL>
+<P>For example consider a 2D cellular automata with Moore neighborhood
+ and a generic cell c=(10,10) and
+<!--span class=&quot;math inline&quot;-->
+ \({\left\vert{Q}\right\vert}=5\) possible state for each cell .
+<!--span class=&quot;math display&quot;-->
+ \[X=\{\xi_{0},\xi_{1},\xi_{2},\xi_{3},\xi_{4},\xi_{5},\xi_{6},\xi_{7},\xi_{8}\}
+ =\]
+<!--span class=&quot;math display&quot;-->
+\[=\{(0,0),(-1,0),(0,-1),(1,0),(0,1),(-1,-1),(1,-1),(1,1),(-1,1)\}\]
+ Hence the set of the cells belonging to the neighborhood(defined by X)
+ of c=(10,10) is:
+<!--span class=&quot;math inline&quot;-->
+ \(V(X,c)=\{(0,0)+c,(-1,0)+c,(0,-1)+c,(1,0)+c,(0,1)+c,(-1,-1)+c,(1,-1)+c,(1,1)+c,(-1,1)+c\}
+ \)
+<!--span class=&quot;math display&quot;-->
+ \[=\{(10,10),(9,10),(10,9),(11,10),(10,11),(9,9),(11,9),(11,11),(9,11)\}\]
+ and the total number of entries for the tabular definition of the
+ transition-function is
+<!--span class=&quot;math inline&quot;-->
+ \({\left\vert{Q}\right\vert}^{\left\vert{X}\right\vert}= 5^9=1953125\)
+ and the total number of possible transition functions is
+<!--span class=&quot;math inline&quot;-->
+ \({\left\vert{Q}\right\vert}^{{\left\vert{Q}\right\vert}^{\left\vert{X}\right\vert}}=
+ 5^{5^9}=5^{1953125}\).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="FiniteStateAutomaton.html">Previous</A>
+<A HREF="Theoriesandstudies.html">Next</A>
+</BODY>
+</HTML>

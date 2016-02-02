@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Ifdivergencesmitigation.html">
+<LINK REL="Next" HREF="KeplervsFermiperformance.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Ifdivergencesmitigation.html">Previous</A>
+<A HREF="KeplervsFermiperformance.html">Next</A>
+<HR NOSHADE>
+<H2 id="test-validation-and-performances-results"><A NAME="10_12">Test,
+ validation and performances results</A></H2>
+<P>Two devices were adopted for testing different versions of CUDA
+ implementations of the Sciara-fv3 model, the GTX 580 (Fermi
+ architecture) and GTX 680 (Kepler architecture) graphic processors (see
+ section [sect:keplerArch] at page ). In particular, the latter has 1536
+ CUDA cores, 2 GB global memory and 192 GB/s high-bandwidth
+ communication between CPU and GPU, while the former device has 512
+ cores 192 GB/s high-bandwidth. The sequential SCIARA reference version
+ was implemented on a 3.4 GHz Intel Core i7 based desktop computer. As
+ previously stated, the sequential reference CPU version is
+ fully-optimized, where each cell can update neighbour cells directly.
+ At the contrary, parallel versions introduce flow substates with the
+ inevitable addition of overheads. However, an optimization regards both
+ versions: at every step, the CA space array is scrolled and the
+ transition function applied to each cell of the CA only where lava is
+ present, skipping<EM> empty</EM> cells. A first test regarded the
+ simulation of well-known and documented real lava flow event, the Mt.
+ Etna 2006 lava event occurred in July 14, 2006, where the CA space is a
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) two-dimensional grid. Besides, two different memory
+ layouts were considered, by adopting a hybrid shared-global memory as
+ explained in the previous section and all-global version. Simulations
+ were carried out for 370.000<A class="footnoteRef" href="#fn106" id="fnref106">
+<SUP>106</SUP></A> steps and considering two craters for lava flow
+ emission. In order to further stress the efficiency of the GPU version,
+ a further benchmark experiment was performed by considering a
+<!--span class=&quot;math inline&quot;-->
+ \(400^2\) cells flat plane with a central crater. Eventually, some
+ experiments were carried out by adopting CUDA’s intrinsic function
+ (i.e., <CODE>fast_math</CODE> compiler option) feature (
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide]) for single-precision calculations, that permits the
+ use of mathematical functions that CUDA directly maps on-chip and thus
+ are faster versions of the corresponding standard ones, even if less
+ accurate<A class="footnoteRef" href="#fn107" id="fnref107"><SUP>107</SUP>
+</A>. Timings reported for the considered GPU devices (see Tab.
+ [tab:execAHM_LAC] and Tab. [tab:execGM_HM] for the GTX 580 and GTX 680
+ and GTX 480) indicate their full suitability for parallelizing CA
+ models. Even if applied to a complex CA model and considering a fully
+ optimized reference sequential version, performance results show the
+ good computational power of the considered GPU in terms of execution
+ time reduction, significantly (and always) outperforming the CPU
+ (sequential) implementation up to
+<!--span class=&quot;math inline&quot;-->
+ \(31\times\) for the considered datasets.</P>
+<P>[tab:execGM_HM]</P>
+<TABLE><CAPTION> Achieved speedup values of experiments carried out for
+ evaluating the performance the GPU version of the SCIARA-fv3 MCA
+ lava-flow model on the GTX 580 (Fermi architecture) and the GTX 680
+ (Kepler architecture) graphic hardware, using the hybrid memory (HM)
+ and global (GM) memory layouts, fast_math option (HM_FM) and by
+ considering single and double precision variable values. A Intel
+ i7-2600 based hardware was adopted for reference sequential tests. The
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) matrix refers to the 2006 Mt. Etna event.</CAPTION><THEAD>
+</THEAD>
+<TR class="header"><TH align="center"></TH><TH align="center"></TH><TH align="center">
+<EM>GTX 480 - Hybrid Memory</EM></TH><TH align="center"></TH><TH align="center">
+</TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="center">CA dim</TD><TD align="center">HM
+ (float)</TD><TD align="center">HM_FM (float)</TD><TD align="center">HM
+ (double)</TD><TD align="center"></TD></TR>
+<TR class="even"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(517 \times 378 \)</TD><TD align="center">14.29</TD><TD align="center">
+14.2</TD><TD align="center">9.0</TD><TD align="center"></TD></TR>
+<TR class="odd"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(400 \times 400 \)</TD><TD align="center">27.12</TD><TD align="center">
+28.1</TD><TD align="center">19.4</TD><TD align="center"></TD></TR>
+</TABLE>
+<TABLE><CAPTION> Achieved speedup values of experiments carried out for
+ evaluating the performance the GPU version of the SCIARA-fv3 MCA
+ lava-flow model on the GTX 580 (Fermi architecture) and the GTX 680
+ (Kepler architecture) graphic hardware, using the hybrid memory (HM)
+ and global (GM) memory layouts, fast_math option (HM_FM) and by
+ considering single and double precision variable values. A Intel
+ i7-2600 based hardware was adopted for reference sequential tests. The
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) matrix refers to the 2006 Mt. Etna event.</CAPTION><THEAD>
+</THEAD>
+<TR class="header"><TH align="center"></TH><TH align="center"></TH><TH align="center">
+<EM>GTX 480 - Global Memory</EM></TH><TH align="center"></TH><TH align="center">
+</TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="center">CA dim</TD><TD align="center">GM
+ (float)</TD><TD align="center">GM_FM (float)</TD><TD align="center">GM
+ (double)</TD><TD align="center"></TD></TR>
+<TR class="even"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(517 \times 378\)</TD><TD align="center">12.55</TD><TD align="center">
+12.56</TD><TD align="center">8.13</TD><TD align="center"></TD></TR>
+<TR class="odd"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(400 \times 400 \)</TD><TD align="center">23.83</TD><TD align="center">
+24.56</TD><TD align="center">17.41</TD><TD align="center"></TD></TR>
+</TABLE>
+<TABLE><CAPTION> Achieved speedup values of experiments carried out for
+ evaluating the performance the GPU version of the SCIARA-fv3 MCA
+ lava-flow model on the GTX 580 (Fermi architecture) and the GTX 680
+ (Kepler architecture) graphic hardware, using the hybrid memory (HM)
+ and global (GM) memory layouts, fast_math option (HM_FM) and by
+ considering single and double precision variable values. A Intel
+ i7-2600 based hardware was adopted for reference sequential tests. The
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) matrix refers to the 2006 Mt. Etna event.</CAPTION><THEAD>
+</THEAD>
+<TR class="header"><TH align="center"></TH><TH align="center"></TH><TH align="center">
+<EM>GTX 580 - Hybrid Memory</EM></TH><TH align="center"></TH><TH align="center">
+</TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="center">CA dim</TD><TD align="center">HM
+ (float)</TD><TD align="center">HM_FM (float)</TD><TD align="center">HM
+ (double)</TD><TD align="center"></TD></TR>
+<TR class="even"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(517 \times 378 \)</TD><TD align="center">15.6</TD><TD align="center">
+15.8</TD><TD align="center">10</TD><TD align="center"></TD></TR>
+<TR class="odd"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(400 \times 400 \)</TD><TD align="center">29</TD><TD align="center">31</TD><TD
+align="center">21</TD><TD align="center"></TD></TR>
+</TABLE>
+<TABLE><CAPTION> Achieved speedup values of experiments carried out for
+ evaluating the performance the GPU version of the SCIARA-fv3 MCA
+ lava-flow model on the GTX 580 (Fermi architecture) and the GTX 680
+ (Kepler architecture) graphic hardware, using the hybrid memory (HM)
+ and global (GM) memory layouts, fast_math option (HM_FM) and by
+ considering single and double precision variable values. A Intel
+ i7-2600 based hardware was adopted for reference sequential tests. The
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) matrix refers to the 2006 Mt. Etna event.</CAPTION><THEAD>
+</THEAD>
+<TR class="header"><TH align="center"></TH><TH align="center"></TH><TH align="center">
+<EM>GTX 580 - Global Memory</EM></TH><TH align="center"></TH><TH align="center">
+</TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="center">CA dim</TD><TD align="center">GM
+ (float)</TD><TD align="center">GM_FM (float)</TD><TD align="center">GM
+ (double)</TD><TD align="center"></TD></TR>
+<TR class="even"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(517 \times 378\)</TD><TD align="center">13.8</TD><TD align="center">
+13.6</TD><TD align="center">9.3</TD><TD align="center"></TD></TR>
+<TR class="odd"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(400 \times 400 \)</TD><TD align="center">28</TD><TD align="center">29</TD><TD
+align="center">20.4</TD><TD align="center"></TD></TR>
+</TABLE>
+<TABLE><CAPTION> Achieved speedup values of experiments carried out for
+ evaluating the performance the GPU version of the SCIARA-fv3 MCA
+ lava-flow model on the GTX 580 (Fermi architecture) and the GTX 680
+ (Kepler architecture) graphic hardware, using the hybrid memory (HM)
+ and global (GM) memory layouts, fast_math option (HM_FM) and by
+ considering single and double precision variable values. A Intel
+ i7-2600 based hardware was adopted for reference sequential tests. The
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) matrix refers to the 2006 Mt. Etna event.</CAPTION><THEAD>
+</THEAD>
+<TR class="header"><TH align="center"></TH><TH align="center"></TH><TH align="center">
+<EM>GTX 680 - Hybrid Memory</EM></TH><TH align="center"></TH><TH align="center">
+</TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="center">CA dim</TD><TD align="center">HM
+ (float)</TD><TD align="center">HM_FM (float)</TD><TD align="center">HM
+ (double)</TD><TD align="center"></TD></TR>
+<TR class="even"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(517 \times 378\)</TD><TD align="center">8.3</TD><TD align="center">8.3</TD><TD
+align="center">6.6</TD><TD align="center"></TD></TR>
+<TR class="odd"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(400 \times 400 \)</TD><TD align="center">19.5</TD><TD align="center">
+19.3</TD><TD align="center">14</TD><TD align="center"></TD></TR>
+</TABLE>
+<TABLE><CAPTION> Achieved speedup values of experiments carried out for
+ evaluating the performance the GPU version of the SCIARA-fv3 MCA
+ lava-flow model on the GTX 580 (Fermi architecture) and the GTX 680
+ (Kepler architecture) graphic hardware, using the hybrid memory (HM)
+ and global (GM) memory layouts, fast_math option (HM_FM) and by
+ considering single and double precision variable values. A Intel
+ i7-2600 based hardware was adopted for reference sequential tests. The
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378\) matrix refers to the 2006 Mt. Etna event.</CAPTION><THEAD>
+</THEAD>
+<TR class="header"><TH align="center"></TH><TH align="center"></TH><TH align="center">
+<EM>GTX 680 - Global Memory</EM></TH><TH align="center"></TH><TH align="center">
+</TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="center">CA dim</TD><TD align="center">GM
+ (float)</TD><TD align="center">GM_FM (float)</TD><TD align="center">GM
+ (double)</TD><TD align="center"></TD></TR>
+<TR class="even"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(517 \times 378\)</TD><TD align="center">7.3</TD><TD align="center">7.3</TD><TD
+align="center">6.6</TD><TD align="center"></TD></TR>
+<TR class="odd"><TD align="center">
+<!--span class=&quot;math inline&quot;-->
+\(400 \times 400 \)</TD><TD align="center">18.5</TD><TD align="center">
+17.6</TD><TD align="center">12.3</TD><TD align="center"></TD></TR>
+</TABLE>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Ifdivergencesmitigation.html">Previous</A>
+<A HREF="KeplervsFermiperformance.html">Next</A>
+</BODY>
+</HTML>

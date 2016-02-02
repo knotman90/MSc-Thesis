@@ -1,0 +1,424 @@
+
+
+
+
+
+\lstdefinestyle{codeStyleC}{
+language=C++,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\ttfamily,
+    stringstyle=\color{red}\ttfamily,
+    commentstyle=\color{green}\ttfamily,
+    breaklines=true,
+    columns=flexible,
+    gobble=4,
+    xleftmargin=\leftmargini,
+    frame=L,
+    numbers=left,
+    numberstyle=\tiny,
+	belowcaptionskip=2em,
+    belowskip=5em,
+}
+
+\definecolor{darkgreen}{rgb}{0,.5,0}
+\lstdefinestyle{codeStyleCUDA}{
+language=C++,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\ttfamily,
+	keywordstyle=[2]\color{darkgreen},
+    stringstyle=\color{red}\ttfamily,
+    commentstyle=\itshape\color{green},
+    breaklines=true,
+    columns=flexible,
+    gobble=4,
+    xleftmargin=\leftmargini,
+    frame=L,
+    numbers=left,
+    numberstyle=\tiny,
+	keywords=[2]{__global__,__host__,__device__,__synchThreads()},
+	belowcaptionskip=2em,
+    belowskip=5em,
+}
+
+
+\lstdefinestyle{codeStyleFORTRAN}{
+language=FORTRAN,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\ttfamily,
+	keywordstyle=[2]\color{darkgreen},
+    stringstyle=\color{red}\ttfamily,
+    commentstyle=\itshape\color{green},
+    breaklines=true,
+    columns=flexible,
+    gobble=4,
+    xleftmargin=\leftmargini,
+    frame=L,
+    numbers=left,
+    numberstyle=\tiny,
+	keywords=[2]{__global__,__host__,__device__,__synchThreads()},
+	belowcaptionskip=2em,
+    belowskip=5em,
+}
+
+
+\chapter{Code Listings}
+  
+  Commento sul codice
+  \lstset{label={code:kernelInvocation},caption={Cuda kernel invocation and
+  built-in variables example.
+  }, style=codeStyleCUDA }
+    \begin{lstlisting}
+    // Host function definition
+    __host__ void squareArray(float* A,unsigned int dim){
+   	for(int i=0;i<dim;i++)
+    		A[i] = A[i]*A[i];
+  	 }
+    // Kernel Definition
+    __global__ void squareArray(float* A,unsigned int dim){
+   	if(threadIdx.x<dim)
+    	A[threadIdx.x] = A[threadIdx.x]*A[threadIdx.x];
+ 	 }
+    int main(void){
+		// Kernel Invocation with N threads
+    	squareArray<<<1,N>>>(array,N);
+    return 0;
+    }
+    \end{lstlisting} 
+
+ 
+ 
+ In the example \ref{code:dynamicParallelism} the program flow is totally
+ managed by GPU. There is not need of any memmory transfer between CPU and GPU
+ to compute the optimal launch configuration for the kernel B.
+ Moreover kernel C is  recursive and B cannot return before C complete
+ its recursive call stack.
+  \lstset{label={code:dynamicParallelism},caption={Dynamic parallelism feature
+  and recursive kernel call example.}, style=codeStyleCUDA }
+    \begin{lstlisting}
+	__global__ A(void* data, int level){
+	//do some work on data
+		
+	}
+	__global__ B(void* data){
+		//Operate on data
+		C<<<1,N>>>(data,level);
+	}
+	__global__ C(void *data){
+	if(level==0){
+			return;
+		}else{
+			//do some work
+			C<<<1,N>>>(data,level-1);
+		}
+	}
+	
+	__syncthreads();
+	//Operate on data
+	}
+	__global__ programFlowProgram(void* data){
+		A<<<1,N>>(data);
+		/*there's not any garatees about the coherence of the memory seen by
+		parent and A*/
+		 __synchThreads(); /*after here the memory seen by
+		 programFlow kernel is perfectly coherent;
+		we can dynamically choose the kernel launchconfiguration for B*/
+		B<<<1,N>>(data);
+	}
+	 int main(void){
+		// Kernel Invocation with N threads In Host Code
+    	programFlowProgram<<<1,N>>>(array,N);
+    	return 0;
+   	}
+    \end{lstlisting} 
+    
+    
+    
+     The example \ref{code:Thrust} illustrates how to implement the
+     SAXPY\footnote{Single-precision real Alpha X Plus Y. Common vector
+     operation in all BLAS package.} operation
+	 \begin{itemize}
+	   \item 	 \begin{math}Y[i] = a * X[i] + Y[i]\end{math} 
+	 \end{itemize}
+	  using Thrust. Taken from the Thrust
+	  guide\footnote{http://docs.nvidia.com/cuda/thrust/index.html}.
+	  
+     \lstset{label={code:Thrust},caption={Thrust example usage.},
+     style=codeStyleCUDA }
+    \begin{lstlisting}
+	#include <thrust/transform.h>
+	#include <thrust/device_vector.h>
+	#include <thrust/host_vector.h>
+	#include <thrust/functional.h>
+	#include <iostream>
+	#include <iterator>
+	#include <algorithm>
+	struct saxpy_functor : public thrust::binary_function<float,float,float>
+	{
+	    const float a;
+	
+	    saxpy_functor(float _a) : a(_a) {}
+	
+	    __host__ __device__
+	        float operator()(const float& x, const float& y) const {
+	            return a * x + y;
+	        }
+	};
+	void saxpy(float A, thrust::device_vector<float>& X, thrust::device_vector<float>& Y){
+	    // Y <- A * X + Y
+	    thrust::transform(X.begin(), X.end(), Y.begin(), Y.begin(), saxpy_functor(A));
+	}
+	int main(void)
+	{
+	    // initialize host arrays
+	    float x[4] = {1.0, 1.0, 1.0, 1.0};
+	    float y[4] = {1.0, 2.0, 3.0, 4.0};
+	        // transfer to device
+	        thrust::device_vector<float> X(x, x + 4);
+	        thrust::device_vector<float> Y(y, y + 4);
+	        saxpy(2.0, X, Y);
+	    return 0;
+	}
+    \end{lstlisting} 
+    
+    
+    
+    
+    
+         The example \ref{code:openACC_GOL} illustrates a
+         parallel OpenACC implementation of the famous
+         Conway's game of life.
+         The whole computation happens inside a \emph{data} region that garantee
+         that the arrays copied onto device are kept there.
+         The \emph{parallel} region inside the  evolve() function actually
+         lanches the \emph{grid}\footnote{To use a CUDA analogy} of
+        \emph{gangs} and \emph{workers} and the two loops are splitted among
+        them.
+	  
+     \lstset{label={code:openACC_GOL},caption={Thrust example usage.},
+     style=codeStyleCUDA }
+    \begin{lstlisting}
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include<ctime>
+	#include <iostream>
+	#include <fstream>
+	using namespace std;
+	
+	#define GANGS 256
+	#define WORKERS 256
+	#define VECTORS 16
+	const int NUM_STEPS=200;
+	const int DIM=1024;
+	const int ROWS=DIM;
+	const int COLS=DIM;
+	const int probInitialize=10;
+	
+	const size_t sizeBoard = sizeof(bool)*(ROWS*COLS);
+	
+	bool * boardOld;
+	bool * boardNew;
+	void initializeBoard(bool * board){
+		//	srand(time(0));
+		int index =0;
+		for(int i=0;i<ROWS;i++){
+			for(int j=0;j<COLS;j++){
+				index=i*COLS+j;
+				int randomNum= rand()%100;
+				if(randomNum<probInitialize){
+					board[index]=true;//live cell
+				}else{
+					board[index]=false;//otherwise dead
+				}
+			}
+		}
+	}
+	
+	
+	int mod (int m, int n) { return m >= 0 ? m % n : ( n - abs( m%n ) ) % n; }
+	inline int calculateLinearizedToroidalIndex(int row,int col){
+		int index = (((mod(row,ROWS))*COLS)+(mod(col,COLS)));
+		return  index;
+	}
+	
+	void evolve(){
+	#pragma acc parallel num_gangs(GANGS), num_workers(WORKERS) present(boardOld[0:ROWS*COLS],boardNew[0:ROWS*COLS])
+		{
+	#pragma acc loop gang
+			for(int row=0;row<ROWS;row++){
+	#pragma acc loop worker
+				for(int col=0;col<COLS;col++){
+					bool live=false;
+					/*cell evolve*/
+					int index=0;
+					int num_neighbors=0;
+					if(row>0 && row<ROWS-1){
+						//row-1
+						index=calculateLinearizedToroidalIndex((row-1),(col-1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row-1),(col));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row-1),(col+1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						//row
+						index=calculateLinearizedToroidalIndex((row),(col-1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row),(col+1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						//row+1
+						index=calculateLinearizedToroidalIndex((row+1),(col-1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row+1),(col));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row+1),(col+1));
+						if (boardOld[index])
+							num_neighbors++;
+					}
+	
+					index=calculateLinearizedToroidalIndex(row,col);
+					live= (( num_neighbors==3 ) || ( num_neighbors==2 && boardOld[index] ));
+	
+					//				bool live= cellEvolve(row,col);
+					/*end of cell evolve*/
+					boardNew[row*COLS+col]=live;
+				}
+			}
+		}
+	
+	}
+	
+	void swapBoards(){
+	#pragma acc parallel num_gangs(GANGS), num_workers(WORKERS), present(boardOld[0:ROWS*COLS],boardNew[0:ROWS*COLS])
+		{
+	#pragma acc loop gang
+			for(int i=0;i<ROWS;i++){
+	#pragma acc loop worker
+				for(int j=0;j<COLS;j++){
+					boardOld[i*COLS+j]=boardNew[i*COLS+j];
+				}
+			}
+		}
+	}
+	
+	int main(){
+		boardOld = (bool*)malloc(sizeBoard);
+		boardNew = (bool*)malloc(sizeBoard);
+		initializeBoard(boardOld);
+		//printBoard(boardOld);
+	#pragma acc data copy(boardOld[0:ROWS*COLS]),create(boardNew[0:ROWS*COLS])
+		{
+			for(int i=0;i<NUM_STEPS;i++){
+	
+				evolve();
+				swapBoards();
+	
+			}//numSTEPS
+	
+		}//PRAGMA DATA
+		return 0;
+
+}
+    \end{lstlisting} 
+    
+    
+               \lstset{label={code:OpenMPFOR},caption={FORTRAN OpenMP for
+      parallelization}, style=codeStyleFORTRAN}
+     \begin{lstlisting}
+	!$OMP PARALLEL DO 
+ 		do i=1,128 
+ 			b(i) = a(i) + c(i) 
+ 		end do 
+	!$OMP END PARALLEL DO 
+     
+
+    \end{lstlisting} 
+    
+    
+         \lstset{label={code:OpenMPREDUCTION},caption={OpenMP vector sum
+         reduction. Parallel/for/single constructs}, style=codeStyleC }
+     The code above show a naive implementation of a vector sum reduction with
+     OpenMP. It allow to create work sharing threads and split the work (a for
+     for example among them). The ``parallel'' pragma starts the work sharing
+     section and the ``for'' directive split the underlying N cycles loop among
+     the threads.
+     
+    \begin{lstlisting}
+
+	    /* 
+	   OpenMP example program which computes the dot product of two arrays a and b
+	   (that is sum(a[i]*b[i]) ) using a sum reduction.
+	   Compile with gcc -O3 -fopenmp omp_reduction.c -o omp_reduction
+	   */
+	
+	#include <omp.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	
+	#define N 1000
+	
+	int main (int argc, char *argv[]) {
+	  
+	  double a[N];
+	  double sum = 0.0;
+	  int i, n, tid;
+	  /* Start a number of threads */
+	#pragma omp parallel shared(a) private(i) 
+	  {
+	    tid = omp_get_thread_num();
+	    /* Only one of the threads do this */
+	#pragma omp single
+	    {
+	      n = omp_get_num_threads();
+	      printf("Number of threads = %d\n", n);
+	    }
+	    /* Initialize a */
+	#pragma omp for 
+	    for (i=0; i < N; i++) {
+	      a[i] = 1.0;
+	    }
+	    /* Parallel for loop computing the sum of a[i] */
+	#pragma omp for reduction(+:sum)
+	    for (i=0; i < N; i++) {
+	      sum = sum + (a[i]);
+	    }
+	  } /* End of parallel region */
+	  printf("   Sum = %2.1f\n",sum);
+	  exit(0);
+	}
+
+    \end{lstlisting} 
+    
+    
+    
+    
+\lstset{label={code:doubleAtomic},caption={Double Precision
+             atomic operation.}, style=codeStyleC }
+\begin{lstlisting}
+	__device__ double atomicAdd(double* address, double val)
+	{
+	    unsigned long long int* address_as_ull =
+	                          (unsigned long long int*)address;
+	    unsigned long long int old = *address_as_ull, assumed;
+	    do {
+	        assumed = old;
+	            old = atomicCAS(address_as_ull, assumed,__double_as_longlong(val +
+	                               __longlong_as_double(assumed)));
+	    } while (assumed != old);
+	    return __longlong_as_double(old);
+	}
+\end{lstlisting} 
+    
+    

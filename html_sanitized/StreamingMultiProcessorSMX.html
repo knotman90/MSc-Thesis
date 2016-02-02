@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="KeplerArchitecture.html">
+<LINK REL="Next" HREF="CUDAProgrammingmodel.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="KeplerArchitecture.html">Previous</A>
+<A HREF="CUDAProgrammingmodel.html">Next</A>
+<HR NOSHADE>
+<H4 id="streaming-multiprocessor-smx"><A NAME="5_2_2_1">Streaming
+ MultiProcessor-SMX</A></H4>
+<P>The SM is the heart of NVIDIA unified GPU architecture. Most of the
+ key hardware units for graphics processing reside in the SM. The SM
+ CUDA cores perform pixel/vertex/geometry shading and physics/compute
+ calculations. Texture units perform texture filtering and load/store
+ units fetch and save data to memory. Special Function Units (SFUs)
+ handle transcendental and graphics interpolation instructions. There
+ are eight SMX in GeForce GTX 680 instead of sixteen as in the GTX580).</P>
+<P>
+<!--span-->
+r
+<!--span-->
+0.45 <IMG alt="image" src="gtx680_SMX.png"></P>
+<P>To feed the execution resources of SMX, each unit contains four warp
+ schedulers, and each warp scheduler is capable of dispatching two
+ instructions per warp every clock. More importantly, the scheduling
+ functions have been redesigned with a focus on power efficiency. For
+ example: Both Kepler and Fermi schedulers contain similar hardware
+ units to handle scheduling functions, including, (a) register score
+ boarding for long latency operations (texture and load), (b) inter-
+ warp scheduling decisions (e.g., pick the best warp to go next among
+ eligible candidates), and (c) thread block level scheduling (e.g., the
+ GigaThread engine); The SMX schedules threads in groups of 32 parallel
+ threads called warps. Each SMX features four warp schedulers and eight
+ instruction dispatch units, allowing four warps to be issued and
+ executed concurrently. Kepler’s quad warp scheduler selects four
+ warps, and two independent instructions per warp can be dispatched each
+ cycle. All cores in a multiprocessor have on-chip shared resources,
+ including 255 local 32- bit registers per thread and one on-chip fast
+ memory of size 64Kbyte, which enable threads cooperation and
+ transparent caching<A class="footnoteRef" href="#fn20" id="fnref20"><SUP>
+20</SUP></A>. Threads variables typically reside in live registers. The
+ on-chip shared memory has very low access latency and high bandwidth
+ similar to an L1 cache; it holds CUDA variables for the active thread
+ blocks. The shared memory allows the parallel threads run on the cores
+ in a MP to share data without sending it over the system memory bus.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="KeplerArchitecture.html">Previous</A>
+<A HREF="CUDAProgrammingmodel.html">Next</A>
+</BODY>
+</HTML>

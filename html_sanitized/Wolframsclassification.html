@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Wolframscode.html">
+<LINK REL="Next" HREF="AttheedgeofChaos.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Wolframscode.html">Previous</A>
+<A HREF="AttheedgeofChaos.html">Next</A>
+<HR NOSHADE>
+<H3 id="wolframs-classification"><A NAME="7_5_2">Wolfram’s
+ classification</A></H3>
+<P>Mathematical analysis of CA may be not so straightforward despite
+ their simple definition. A first attempt to classify CA was attempted
+ by Wolfram
+<!--span class=&quot;citation&quot;-->
+[@wolfram2002]. He proposed a set of four classes for CA classification
+ that are the most popular method of CA classification, but they suffer
+ from a degree of subjectivity. Classification is based only on visual
+ valuations, that are obviously subjective. A more rigorous definition
+ of these classes is given in <A class="footnoteRef" href="#fn71" id="fnref71">
+<SUP>71</SUP></A>
+<!--span class=&quot;citation&quot;-->
+[@culik1998]. Here the four Wolfram’s classes.</P>
+<OL>
+<LI>
+<P>these CA have the simplest behavior; almost all initial conditions
+ result in the same uniform initial state (homogeneous state).</P>
+</LI>
+<LI>
+<P>different initial conditions yield different final patterns, but
+ these different patterns consist of an arrangement of a certain set of
+ structures, which stays the same forever or repeats itself within a few
+ steps(periodic structures).</P>
+</LI>
+<LI>
+<P>behavior is more complicated and appears random, but some repeated
+ patterns are usually present (often in the form of triangles)(chaotic
+ pattern).</P>
+</LI>
+<LI>
+<P>in some respects these are the most complicated class; these behave
+ in a manner somewhere in between Class II and III, exhibiting sections
+ both of predictable patterns and of randomness in their pattern
+ formation(complex structures).</P>
+</LI>
+</OL>
+<P>He observed that the behavior of a meaningful class of Cellular
+ Automata by performing computer simulations of the evolution of the
+ automata starting from random configurations. Wolfram suggested that
+ the different behavior of automata in his classes seems to be related
+ to the presence of different types of attractors.</P>
+<P>In figures [class12] and [class34] some elementary automata divided
+ in their classes.<A class="footnoteRef" href="#fn72" id="fnref72"><SUP>
+72</SUP></A></P>
+<P>
+<BR></P>
+<P>We can well see from these examples that automata from class 1 have
+ all cells ending up very quickly with the same value, in a homogeneous
+ state and automata from class 2 with a simple final periodic patterns.
+ Class 3 appear to be chaotic and non-periodic and automata from class 4
+ have a mixed behaviour, complex-chaotic structures are locally
+ propagated.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Wolframscode.html">Previous</A>
+<A HREF="AttheedgeofChaos.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Externalinfluences.html">
+<LINK REL="Next" HREF="SCIARAfv3ModelFormalization.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Externalinfluences.html">Previous</A>
+<A HREF="SCIARAfv3ModelFormalization.html">Next</A>
+<HR NOSHADE>
+<H2 id="mcaFormal"><A NAME="8_4">CCA - a formal definition</A></H2>
+<P>Formally a Complex cellular automata CCA A is :
+<!--span class=&quot;math display&quot;-->
+ \[A=&lt;\mathbb{Z}^d,Q,P,X,\sigma,E,\gamma&gt;\] where:</P>
+<UL>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\mathbb{Z}^d=\{i=(i_1,i_1,\ldots,i_d)\mid i_k \in \mathbb{Z}, \forall
+ k=1,2,\ldots,d \}\) is the set of cells of the d-dimensional Euclidean
+ space.</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(Q=Q_1 \times Q_2 \times \ldots \times Q_n \) is the finite set of the
+ finite state automaton and is the cartesian product of all the
+ substates
+<!--span class=&quot;math inline&quot;-->
+ \(Q_1, Q_2, \ldots ,Q_n \).</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\( P=p_1, p_2, \ldots ,p_l \) is the finite set of the parameters</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(X\) is the neighborhood, or neighborhood template; a set of m
+<!--span class=&quot;math inline&quot;-->
+ \(d\)-dimensional
+<!--span class=&quot;math display&quot;-->
+ \[\xi_j=\{\xi_{j1},\xi_{j2},\ldots,\xi_{jd}\} \;,\: 1\leq j \leq m\]
+ that defines the set of the neighbors cells of a generic cell
+<!--span class=&quot;math inline&quot;-->
+ \(i=(i_1,i_1,\ldots,i_d)\)
+<!--span class=&quot;math display&quot;-->
+ \[N(X,i)=\{i+\xi_0,i+\xi_2,\ldots,i+\xi_d\}\] where
+<!--span class=&quot;math inline&quot;-->
+ \(\xi_0\) is the null vector.</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\sigma=Q^m \rightarrow Q \) is the transition function of the
+ cells’s finite state automaton . It is divided as specified before
+ (see section [elementaryProcesses]) in internal transformation,
+<!--span class=&quot;math inline&quot;-->
+\(\sigma_{T_{1}},\sigma_{T_{1}},\ldots,\sigma_{T_{p}}\), and local
+ interactions,
+<!--span class=&quot;math inline&quot;-->
+ \(\sigma_{I_{1}},\sigma_{I_{1}},\ldots,\sigma_{I_{o}}\). For each local
+ interaction is possible to adopt a particular neighborhood template
+<!--span class=&quot;math inline&quot;-->
+ \(X_{I_k} \;,\; 1 \leq k \leq o \) and the general neighborhood
+ template would be :
+<!--span class=&quot;math display&quot;-->
+ \[D=\bigcup_{i=1}^{o}\{X_{I_k}\}\]</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(E=\bigcup_{i=1}^{s}\{E_i\} \) is the set of the cells affected by
+ external influences.</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\gamma=\{\gamma_1,\gamma_2,\ldots,\gamma_w\}\) is the set of the
+ functions that define external influences.
+<!--span class=&quot;math display&quot;-->
+ \[\gamma_i= \mathbb{N} \times E_i \times Q \rightarrow Q \;,\; 1 \leq i
+ \leq w\] where
+<!--span class=&quot;math inline&quot;-->
+ \(\mathbb{N}\) is the set of natural number, representing the current
+ step of the CCA.</P>
+</LI>
+</UL>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Externalinfluences.html">Previous</A>
+<A HREF="SCIARAfv3ModelFormalization.html">Next</A>
+</BODY>
+</HTML>

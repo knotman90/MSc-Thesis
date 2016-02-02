@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="GPGPUHistoryAndMotivation.html">
+<LINK REL="Next" HREF="WhyGPUcomputing.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="GPGPUHistoryAndMotivation.html">Previous</A>
+<A HREF="WhyGPUcomputing.html">Next</A>
+<HR NOSHADE>
+<H2 id="introduction-1"><A NAME="4_1">Introduction</A></H2>
+<P>GPGPU, acronym for General-purpose computing on graphics processing
+ units, is a recent phenomenon wich consist in the utilization of a
+ graphics processing unit (GPU<A class="footnoteRef" href="#fn9" id="fnref9">
+<SUP>9</SUP></A>), which typically handles computation only for computer
+ graphics and was optimized for a small set of graphic operation, to
+ perform computation in applications traditionally handled by the
+ central processing unit (CPU). Those operations (generation of 3D
+ images) are intrinsically parallel, so, is not surprising if the
+ underlying hardware has evolved into a highly parallel, multithreaded,
+ and many-core processor. The GPU excels at fine grained, data-parallel
+ workloads consisting of thousands of independent threads executing
+ vertex, geometry, and pixel-shader program threads concurrently.
+ Nowadays, the GPUs are not limited to its use as a graphics engine;
+ there is a rapidly growing interest in using these units as parallel
+ computing architecture due to the tremendous performance available in
+ them. Currently, GPUs outperform CPUs on floating point performance and
+ memory bandwidth, both by a factor of roughly 100
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide], easily reaching computational powers in the order of
+ teraFLOPS. GPU works alongside the CPU providing an heterogeneous
+ computation, simply offloading compute-data-intensive portion of
+ program on GPU using it as co-processor highly specialized in parallel
+ tasks. Plus since 2006, date when Nvidia has introduced CUDA, is
+ extremely simple to program these kind of devices for general purpose
+ tasks, although before that date this goal was achieved dealing
+ directly with the graphic API using shaders with all the related
+ constraints such as lack of integers or bit operations.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="GPGPUHistoryAndMotivation.html">Previous</A>
+<A HREF="WhyGPUcomputing.html">Next</A>
+</BODY>
+</HTML>

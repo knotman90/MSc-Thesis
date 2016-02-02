@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Deploy.html">
+<LINK REL="Next" HREF="Serialcodeoverview.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Deploy.html">Previous</A>
+<A HREF="Serialcodeoverview.html">Next</A>
+<HR NOSHADE>
+<H2 id="analysysserialCode"><A NAME="10_3">Analysis of the serial code</A>
+</H2>
+<P>Undoubtedly, a solid theoretical understanding of the mathematical
+ model and of the program that actually implements that model (if
+ already exists) are the very first crucial steps in the process of
+ porting any parallel software. If the parallelization work starts from
+ an existing code, an analysis phase of the code itself is fundamental,
+ the reason why this work started from this point. Cellular automata are
+ well suitable for parallelization, even on GPUs, so the purpose of this
+ phase is not to determine whether or not the problem is one that can
+ actually be parallelized but, to identify the program’s<STRONG><EM>
+ hotspots</EM></STRONG>, portions of code where most of the work take
+ place <A class="footnoteRef" href="#fn83" id="fnref83"><SUP>83</SUP></A>
+ and hence concentrates on parallelizing these hotspots, “ignoring”
+ those section of the program that are not compute intensive in terms of
+ FLOPS. Another important phase is to identify bottlenecks, areas that
+ could cause parallelizable work to halt or slowdown (I/O operation are
+ usually something that prevent a full exploiting of the parallelism, or
+ data dependences), and to possibly restructure those sections using new
+ approaches, or different algorithms to reduce or eliminate those
+ bottlenecks.</P>
+<P>For example, the problem of calculating the Fibonacci series<A class="footnoteRef"
+href="#fn84" id="fnref84"><SUP>84</SUP></A> defined as:
+<!--span class=&quot;math display&quot;-->
+ \[F(n)= F(n-1)+F(n-2), \:\: s.t. \: F(0)=0\;,F(1)=1\]
+<!--span class=&quot;math display&quot;-->
+ \[F(0)\ldots F(17):0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233,
+ 377, 610, 987, ...\] is a good example of how an algorithm can deny the
+ parallelization of a problem. We can see that this approach exposes a
+ too strong data dependence condition among the values of the series
+ that disallow any possible parallel implementation because each
+<!--span class=&quot;math inline&quot;-->
+ \(F(n)\) cannot be calculated independently, and indeed depends of the
+ previous two calculated values. For example :
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \( F(4) = F(4-1)+F(4-2) = (F(4-2)+F(4-3))+(F(4-3)+F(4-4))=
+ F(4-3)+F(4-4)+F(1)+F(1)+F(0)=F(1)+F(0)+F(1)+F(1)+F(0)=1+0+1+1+0=3 \) to
+ calculate the
+<!--span class=&quot;math inline&quot;-->
+ \(4\)th element of the series this algorithm needs the 3th and the 2th
+ value. They recurrently need the 2th the 1th, the 0th and so on. It is
+ worth to note that it could be convenient in this case to change the
+ computation algorithm and using instead of a recurrent function, a
+ closed formula like the Binet’s Fibonacci numbers formula :
+<!--span class=&quot;math display&quot;-->
+ \[F(n)=\frac{{(1+\sqrt{5})}^n-{(1-\sqrt{5})}^n}{2^n\sqrt{5}}\] or one
+ that use golden ration
+<!--span class=&quot;math inline&quot;-->
+ \(\phi\)
+<!--span class=&quot;citation&quot;-->
+ [@Wells1986]:
+<!--span class=&quot;math display&quot;-->
+ \[F(n)= \begin{bmatrix} \frac{\phi^n}{\sqrt{5}} \end{bmatrix}\] that
+ enables a fully parallelized implementation to take place, enabling two
+ or more processor to calculate in parallel chunks of the series.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Deploy.html">Previous</A>
+<A HREF="Serialcodeoverview.html">Next</A>
+</BODY>
+</HTML>

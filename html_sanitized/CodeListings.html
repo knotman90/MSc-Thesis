@@ -1,0 +1,945 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Publications.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Publications.html">Previous</A>
+<HR NOSHADE>
+<H1 id="code-listings"><A NAME="12">Code Listings</A></H1>
+<P>Commento sul codice</P>
+<PRE> <CODE>   // Host function definition
+    __host__ void squareArray(float* A,unsigned int dim){
+   	for(int i=0;i&lt;dim;i++)
+    		A[i] = A[i]*A[i];
+  	 }
+    // Kernel Definition
+    __global__ void squareArray(float* A,unsigned int dim){
+   	if(threadIdx.x&lt;dim)
+    	A[threadIdx.x] = A[threadIdx.x]*A[threadIdx.x];
+ 	 }
+    int main(void){
+		// Kernel Invocation with N threads
+    	squareArray&lt;&lt;&lt;1,N&gt;&gt;&gt;(array,N);
+    return 0;
+    }
+    </CODE></PRE>
+<P>In the example [code:dynamicParallelism] the program flow is totally
+ managed by GPU. There is not need of any memmory transfer between CPU
+ and GPU to compute the optimal launch configuration for the kernel B.
+ Moreover kernel C is recursive and B cannot return before C complete
+ its recursive call stack.</P>
+<PRE> <CODE>__global__ A(void* data, int level){
+	//do some work on data
+		
+	}
+	__global__ B(void* data){
+		//Operate on data
+		C&lt;&lt;&lt;1,N&gt;&gt;&gt;(data,level);
+	}
+	__global__ C(void *data){
+	if(level==0){
+			return;
+		}else{
+			//do some work
+			C&lt;&lt;&lt;1,N&gt;&gt;&gt;(data,level-1);
+		}
+	}
+	
+	__syncthreads();
+	//Operate on data
+	}
+	__global__ programFlowProgram(void* data){
+		A&lt;&lt;&lt;1,N&gt;&gt;(data);
+		/*there's not any garatees about the coherence of the memory seen by
+		parent and A*/
+		 __synchThreads(); /*after here the memory seen by
+		 programFlow kernel is perfectly coherent;
+		we can dynamically choose the kernel launchconfiguration for B*/
+		B&lt;&lt;&lt;1,N&gt;&gt;(data);
+	}
+	 int main(void){
+		// Kernel Invocation with N threads In Host Code
+    	programFlowProgram&lt;&lt;&lt;1,N&gt;&gt;&gt;(array,N);
+    	return 0;
+   	}
+    </CODE></PRE>
+<P>The example [code:Thrust] illustrates how to implement the SAXPY<A class="footnoteRef"
+href="#fn112" id="fnref112"><SUP>112</SUP></A> operation</P>
+<UL>
+<LI>
+<P>Y[i] = a * X[i] + Y[i]</P>
+</LI>
+</UL>
+<P>using Thrust. Taken from the Thrust guide<A class="footnoteRef" href="#fn113"
+id="fnref113"><SUP>113</SUP></A>.</P>
+<PRE> <CODE>#include &lt;thrust/transform.h&gt;
+	#include &lt;thrust/device_vector.h&gt;
+	#include &lt;thrust/host_vector.h&gt;
+	#include &lt;thrust/functional.h&gt;
+	#include &lt;iostream&gt;
+	#include &lt;iterator&gt;
+	#include &lt;algorithm&gt;
+	struct saxpy_functor : public thrust::binary_function&lt;float,float,float&gt;
+	{
+	    const float a;
+	
+	    saxpy_functor(float _a) : a(_a) {}
+	
+	    __host__ __device__
+	        float operator()(const float&amp; x, const float&amp; y) const {
+	            return a * x + y;
+	        }
+	};
+	void saxpy(float A, thrust::device_vector&lt;float&gt;&amp; X, thrust::device_vector&lt;float&gt;&amp; Y){
+	    // Y &lt;- A * X + Y
+	    thrust::transform(X.begin(), X.end(), Y.begin(), Y.begin(), saxpy_functor(A));
+	}
+	int main(void)
+	{
+	    // initialize host arrays
+	    float x[4] = {1.0, 1.0, 1.0, 1.0};
+	    float y[4] = {1.0, 2.0, 3.0, 4.0};
+	        // transfer to device
+	        thrust::device_vector&lt;float&gt; X(x, x + 4);
+	        thrust::device_vector&lt;float&gt; Y(y, y + 4);
+	        saxpy(2.0, X, Y);
+	    return 0;
+	}
+    </CODE></PRE>
+<P>The example [code:openACC_GOL] illustrates a parallel OpenACC
+ implementation of the famous Conway‚Äôs game of life. The whole
+ computation happens inside a<EM> data</EM> region that garantee that
+ the arrays copied onto device are kept there. The<EM> parallel</EM>
+ region inside the evolve() function actually lanches the<EM> grid</EM><A
+class="footnoteRef" href="#fn114" id="fnref114"><SUP>114</SUP></A> of<EM>
+ gangs</EM> and<EM> workers</EM> and the two loops are splitted among
+ them.</P>
+<PRE> <CODE>#include &lt;stdio.h&gt;
+	#include &lt;stdlib.h&gt;
+	#include&lt;ctime&gt;
+	#include &lt;iostream&gt;
+	#include &lt;fstream&gt;
+	using namespace std;
+	
+	#define GANGS 256
+	#define WORKERS 256
+	#define VECTORS 16
+	const int NUM_STEPS=200;
+	const int DIM=1024;
+	const int ROWS=DIM;
+	const int COLS=DIM;
+	const int probInitialize=10;
+	
+	const size_t sizeBoard = sizeof(bool)*(ROWS*COLS);
+	
+	bool * boardOld;
+	bool * boardNew;
+	void initializeBoard(bool * board){
+		//	srand(time(0));
+		int index =0;
+		for(int i=0;i&lt;ROWS;i++){
+			for(int j=0;j&lt;COLS;j++){
+				index=i*COLS+j;
+				int randomNum= rand()%100;
+				if(randomNum&lt;probInitialize){
+					board[index]=true;//live cell
+				}else{
+					board[index]=false;//otherwise dead
+				}
+			}
+		}
+	}
+	
+	
+	int mod (int m, int n) { return m &gt;= 0 ? m % n : ( n - abs( m%n ) ) % n; }
+	inline int calculateLinearizedToroidalIndex(int row,int col){
+		int index = (((mod(row,ROWS))*COLS)+(mod(col,COLS)));
+		return  index;
+	}
+	
+	void evolve(){
+	#pragma acc parallel num_gangs(GANGS), num_workers(WORKERS) present(boardOld[0:ROWS*COLS],boardNew[0:ROWS*COLS])
+		{
+	#pragma acc loop gang
+			for(int row=0;row&lt;ROWS;row++){
+	#pragma acc loop worker
+				for(int col=0;col&lt;COLS;col++){
+					bool live=false;
+					/*cell evolve*/
+					int index=0;
+					int num_neighbors=0;
+					if(row&gt;0 &amp;&amp; row&lt;ROWS-1){
+						//row-1
+						index=calculateLinearizedToroidalIndex((row-1),(col-1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row-1),(col));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row-1),(col+1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						//row
+						index=calculateLinearizedToroidalIndex((row),(col-1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row),(col+1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						//row+1
+						index=calculateLinearizedToroidalIndex((row+1),(col-1));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row+1),(col));
+						if (boardOld[index])
+							num_neighbors++;
+	
+						index=calculateLinearizedToroidalIndex((row+1),(col+1));
+						if (boardOld[index])
+							num_neighbors++;
+					}
+	
+					index=calculateLinearizedToroidalIndex(row,col);
+					live= (( num_neighbors==3 ) || ( num_neighbors==2 &amp;&amp; boardOld[index] ));
+	
+					//				bool live= cellEvolve(row,col);
+					/*end of cell evolve*/
+					boardNew[row*COLS+col]=live;
+				}
+			}
+		}
+	
+	}
+	
+	void swapBoards(){
+	#pragma acc parallel num_gangs(GANGS), num_workers(WORKERS), present(boardOld[0:ROWS*COLS],boardNew[0:ROWS*COLS])
+		{
+	#pragma acc loop gang
+			for(int i=0;i&lt;ROWS;i++){
+	#pragma acc loop worker
+				for(int j=0;j&lt;COLS;j++){
+					boardOld[i*COLS+j]=boardNew[i*COLS+j];
+				}
+			}
+		}
+	}
+	
+	int main(){
+		boardOld = (bool*)malloc(sizeBoard);
+		boardNew = (bool*)malloc(sizeBoard);
+		initializeBoard(boardOld);
+		//printBoard(boardOld);
+	#pragma acc data copy(boardOld[0:ROWS*COLS]),create(boardNew[0:ROWS*COLS])
+		{
+			for(int i=0;i&lt;NUM_STEPS;i++){
+	
+				evolve();
+				swapBoards();
+	
+			}//numSTEPS
+	
+		}//PRAGMA DATA
+		return 0;
+
+}
+    </CODE></PRE>
+<PRE> <CODE>!$OMP PARALLEL DO 
+ 		do i=1,128 
+ 			b(i) = a(i) + c(i) 
+ 		end do 
+	!$OMP END PARALLEL DO 
+     
+
+    </CODE></PRE>
+<P>The code above show a naive implementation of a vector sum reduction
+ with OpenMP. It allow to create work sharing threads and split the work
+ (a for for example among them). The ‚Äúparallel‚Äù pragma starts the
+ work sharing section and the ‚Äúfor‚Äù directive split the underlying N
+ cycles loop among the threads.</P>
+<PRE> <CODE>	    /* 
+	   OpenMP example program which computes the dot product of two arrays a and b
+	   (that is sum(a[i]*b[i]) ) using a sum reduction.
+	   Compile with gcc -O3 -fopenmp omp_reduction.c -o omp_reduction
+	   */
+	
+	#include &lt;omp.h&gt;
+	#include &lt;stdio.h&gt;
+	#include &lt;stdlib.h&gt;
+	
+	#define N 1000
+	
+	int main (int argc, char *argv[]) {
+	  
+	  double a[N];
+	  double sum = 0.0;
+	  int i, n, tid;
+	  /* Start a number of threads */
+	#pragma omp parallel shared(a) private(i) 
+	  {
+	    tid = omp_get_thread_num();
+	    /* Only one of the threads do this */
+	#pragma omp single
+	    {
+	      n = omp_get_num_threads();
+	      printf(&quot;Number of threads = %d\n&quot;, n);
+	    }
+	    /* Initialize a */
+	#pragma omp for 
+	    for (i=0; i &lt; N; i++) {
+	      a[i] = 1.0;
+	    }
+	    /* Parallel for loop computing the sum of a[i] */
+	#pragma omp for reduction(+:sum)
+	    for (i=0; i &lt; N; i++) {
+	      sum = sum + (a[i]);
+	    }
+	  } /* End of parallel region */
+	  printf(&quot;   Sum = %2.1f\n&quot;,sum);
+	  exit(0);
+	}
+
+    </CODE></PRE>
+<PRE> <CODE>__device__ double atomicAdd(double* address, double val)
+	{
+	    unsigned long long int* address_as_ull =
+	                          (unsigned long long int*)address;
+	    unsigned long long int old = *address_as_ull, assumed;
+	    do {
+	        assumed = old;
+	            old = atomicCAS(address_as_ull, assumed,__double_as_longlong(val +
+	                               __longlong_as_double(assumed)));
+	    } while (assumed != old);
+	    return __longlong_as_double(old);
+	}</CODE></PRE>
+<DIV class="footnotes">
+<HR>
+<OL>
+<LI id="fn1">
+<P>The fraction of the data satisfied by the cache is called<EM><STRONG>
+ hit rate</STRONG></EM>.<A href="#fnref1">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn2">
+<P>Vector processing is performed on an SIMD machine by distributing
+ elements of vectors across all data memories.<A href="#fnref2">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn3">
+<P>Group of processors connected via buses. Usually they consist of not
+ more than 32 processors.<A href="#fnref3">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn4">
+<P>Built on top of pthreads<A href="#fnref4">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn5">
+<P>MPI is the<EM> de facto</EM> industry standard for message passing.
+ Visit <A class="uri" href="http://www.mpi-forum.org/">
+http://www.mpi-forum.org/</A><A href="#fnref5">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn6">
+<P>Links may have different characteristics depending on the material
+ they are made of that can limit speed propagation of the signals or the
+ maximum length of the wire itself<A href="#fnref6">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn7">
+<P>The cost is usually associated with the bus interface coupled with
+ each node and is inexpensive to implement compared to other topologies<A
+href="#fnref7">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn8">
+<P>If the branching factor is
+<!--span class=&quot;math inline&quot;-->
+ \(1\) the topology is called linear.<A href="#fnref8">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn9">
+<P>Graphic processing unit, term conied by Nvidia in the mid-nineties,
+ and now the most common acronym used.<A href="#fnref9">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn10">
+<P><A class="uri" href="http://www.top500.org/statistics/list/">
+http://www.top500.org/statistics/list/</A><A href="#fnref10">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn11">
+<P>
+http://duriansoftware.com/joe/An-intro-to-modern-OpenGL.-Chapter-1:-The-Graphics-Pipeline.html
+<A href="#fnref11">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn12">
+<P>A buffer in GPU memory which is similar to a frame-buffer.<A href="#fnref12">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn13">
+<P>Single Instruction, Multiple Data: elements of short vectors are
+ processed in parallel. To be clear CUDA paradigm is SIMT: Single
+ Instruction, Multiple Threads<A href="#fnref13">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn14">
+<P>Parallel random-access machine in which each thread can read or write
+ a memory cell.<A href="#fnref14">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn15">
+<P>e.g. OpenACC that proved to be unsuitable to the parallelization of
+ SCIARA-fv3<A href="#fnref15">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn16">
+<P>For example CUFFT provides an interface for computing Fast Fourier
+ Transform up to 10x faster than CPU (<A class="uri" href="https://developer.nvidia.com/gpu-accelerated-libraries">
+https://developer.nvidia.com/gpu-accelerated-libraries</A>).<A href="#fnref16">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn17">
+<P>For example GeForce GT 620M and Kepler K20x are respectively a laptop
+ and a dedicated numerical computation CUDA capable device.<A href="#fnref17">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn18">
+<P>The SP cores are also called<EM> CUDA cores</EM> and the number of
+ them depends on the compute capability (See section
+ [computeCapability]) of the device. For example v3.5 CUDA capability
+ GPUs SM consists of 192 SPs. For v2.1 this number is 48, and for the
+ old v1.x it is 8.<A href="#fnref18">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn19">
+<P>Here the table full specification and features per Compute
+ Capability: <A class="uri" href="http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capabilities">
+http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capabilities
+</A><A href="#fnref19">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn20">
+<P>it is possible to use as user managed cache max of 48kb. There are
+ two shared memory configuration available per kernel. 16kb cache and
+ 48kb user managed or viceversa.<A href="#fnref20">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn21">
+<P>For example GCC on Unix or Visual C++ on Windows systems.<A href="#fnref21">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn22">
+<P>E.g. In a parallel matrix summation algorithm we can assign a unique
+ pair of matrix‚Äôs cells to be summed to each thread, and them could
+ retrieve the correct pair just using their global ID.<A href="#fnref22">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn23">
+<P>Blocks of
+<!--span class=&quot;math inline&quot;-->
+ \(32\times32\) threads are allowed as well as
+<!--span class=&quot;math inline&quot;-->
+ \(16\times16\times2\). Blocks of
+<!--span class=&quot;math inline&quot;-->
+ \(2\times2\times128=512\) threads are not allowed because zDim is
+ greater than zDim‚Äôs limit(64).
+<!--span class=&quot;math inline&quot;-->
+ \(16\times16\times16=4096\) is not allowed because 4096 is greater than
+ the maximum permitted number of thread per block.<A href="#fnref23">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn24">
+<P>The scheduler(one or more per SM) select threads for execution in
+ granularity of warps. Hence the name of<EM> warp scheduler</EM>.<A href="#fnref24">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn25">
+<P>A common situation that cause divergence involves branch condition
+ that are function of the thread id and the branch granularity is not a
+ whole multiple of the warp size, and so not all the threads in the same
+ warp follow the same path. E.g.:
+<!--span class=&quot;math inline&quot;-->
+ \(if (threadIdx.x \ge 5)\) is divergent code instead of
+<!--span class=&quot;math inline&quot;-->
+ \(if (threadIdx.x / WARP\_SIZE &gt; 2)\) that avoid divergence unless it
+ has a branch condition dependent on thread id.<A href="#fnref25">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn26">
+<P>Within the same application.<A href="#fnref26">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn27">
+<P>New devices are equipped with L2 cache (in Kepler 1.5MB), that helps
+ to mitigate this problem serving either load and write operations.<A href="#fnref27">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn28">
+<P>Half warp for devices of compute capability 1.x)<A href="#fnref28">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn29">
+<P>Depending on Compute capability, access requirements are different
+ and usually less constrained with newer devices.<A href="#fnref29">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn30">
+<P>128B aligned memory<A href="#fnref30">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn31">
+<P>A texture has 2-dimensions, so it‚Äôs not surprising if this kind of
+ memory is optimized for 2D accesses.<A href="#fnref31">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn32">
+<P>Static random-access memory, more expensive and less dense than DRAM.<A
+href="#fnref32">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn33">
+<P>That number is fixed and depends on cc of the device; 16 on 1.x and
+ 32 on 2.x for instance.<A href="#fnref33">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn34">
+<P>Except when all thread within a warp access the same address. In that
+ case a broadcast operation is performed with no performance decrease or
+ superfluous memory accesses.<A href="#fnref34">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn35">
+<P>Situation knows as bank conflict.
+ http://cuda-programming.blogspot.co.uk/2013/02/bank-conflicts-in-shared-memory-in-cuda.html
+<A href="#fnref35">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn36">
+<P>A portion of device memory devoted to the storage of local private
+ per thread variables that do not fit into registers.<A href="#fnref36">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn37">
+<P>It means 63 32-bit variable per thread for device with cc2.x and 3.0,
+ but that number was increased to 255 in cc 3.5.<A href="#fnref37">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn38">
+<P>On Fermi architecture, Volkov
+ http://www.cs.berkeley.edu/&Acirc;&nbsp;volkov/volkov10-GTC.pdf. In device with cc
+ 1.x that gap was not so big.<A href="#fnref38">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn39">
+<P>Only supported by devices with compute capability 3.5 and higher.<A href="#fnref39">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn40">
+<P>To a depth of 24 on Kepler architecture.<A href="#fnref40">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn41">
+<P>A CUDA stream is a sequence of operation that execute in issue order
+ on GPU.<A href="#fnref41">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn42">
+<P>It can be found here: <A class="uri" href="http://developer.download.nvidia.com/compute/cuda/CUDA_Occupancy_calculator.xls">
+http://developer.download.nvidia.com/compute/cuda/CUDA_Occupancy_calculator.xls
+</A><A href="#fnref42">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn43">
+<P>This pattern is more important because the non-optimal global memory
+ accesses have a higher impact on performance.<A href="#fnref43">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn44">
+<P>Less accurate but faster function directly mapped to fewer with
+ native instruction. They are prefixed with<EM> __</EM>. The compiler
+ provide an option (<EM>-use-fast_math</EM>) that convert automatically
+ each function to an intrinsic one, obviously only those for which an
+ equivalent intrinsic exist.<A href="#fnref44">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn45">
+<P>Only when precision does not affect the end of the result. As we will
+ se in this work, precision is very important.<A href="#fnref45">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn46">
+<P>For a full list of this operations see CUDA programming guide :<A class="uri"
+href="http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#maximize-instruction-throughput">
+http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#maximize-instruction-throughput
+</A><A href="#fnref46">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn47">
+<P>For the complete list
+ :https://developer.nvidia.com/technologies/Libraries.<A href="#fnref47">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn48">
+<P>A standards consortium.<A href="#fnref48">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn49">
+<P>One of the most important supporter of OpenCL is ATI<A href="#fnref49">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn50">
+<P>Obviously in the same source code one can define more than on kernel.<A
+href="#fnref50">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn51">
+<P>Release 1.0 in November 2011.<A href="#fnref51">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn52">
+<P>A pragma is a form of code annotation that informs the compiler of
+ something about the code.<A href="#fnref52">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn53">
+<P>The is a well-known and widely supported standard, born in 1997, that
+ defines pragmas programmers have used since 1997 to parallelize
+ applications on shared memory multicore processor<A href="#fnref53">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn54">
+<P>PGI, Cray, and NVIDIA with support from CAPS<A href="#fnref54">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn55">
+<P>We don‚Äôt talk of GPU because here, accelerator is referred to the
+ category of accelerating co-processors in general, which the GPU
+ certainly belong to.<A href="#fnref55">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn56">
+<P>For a complete list of directive, constructs and pragmas consult the
+ official documentation here : <A class="uri" href="http://www.openacc.org/sites/default/files/OpenACC.1.0_0.pdf">
+http://www.openacc.org/sites/default/files/OpenACC.1.0_0.pdf</A><A href="#fnref56">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn57">
+<P>GeForce 9600M with compute capability 1.1 (that‚Äôs indeed very low
+ computational power equipped compared to the new ones).<A href="#fnref57">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn58">
+<P>For additional C++ AMP resources, visit the C++ AMP team blog (<A class="uri"
+href="http://blogs.msdn.com/b/nativeconcurrency/">
+http://blogs.msdn.com/b/nativeconcurrency/</A>).<A href="#fnref58">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn59">
+<P>Some electro-magnetism phenomena, for instance, can be described by
+ linear differential equations.<A href="#fnref59">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn60">
+<P>Conventionally described by Navier-Strokes differential equation.<A href="#fnref60">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn61">
+<P>CA is capable of simulating a Turing machine, so, in theory is
+ capable of computing every computable problems(Church-Turing thesis).
+ Game of life, for example was proved to be capable of simulating
+ logical gates (with special patterns as<EM> gliders</EM> and<EM> guns</EM>
+)<A href="#fnref61">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn62">
+<P>A simple and well know computational model. It has inputs, outputs
+ and a finite number of states (hence a finite amount of memory); An
+ automata changes state at regular time-steps.<A href="#fnref62">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn63">
+<P>Each cell could be easily mapped onto a pixel.<A href="#fnref63">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn64">
+<P>The HPP model for fluid simulation was highly anisotropyc due to the
+ squared tessellation.<A href="#fnref64">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn65">
+<P>Otherwise the dimension of that table would be enormous because the
+ number of entries is exponential in the number of states.<A href="#fnref65">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn66">
+<P>Language recognition problem solvers.<A href="#fnref66">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn67">
+<P>For example we can show that is not possible for an automaton to
+ determine whether the input consist of a prime number of symbols.<A href="#fnref67">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn68">
+<P>Languages defined by regular expressions and generated by regular
+ grammar, Class 3 in Chomsky classification. We can prove that for each
+ language L accepted by a DFA exists a grammar
+<!--span class=&quot;math inline&quot;-->
+ \(L_G \) s.t.
+<!--span class=&quot;math inline&quot;-->
+ \( L=L_G\)<A href="#fnref68">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn69">
+<P>Graph representation is the most common way to define and design DFA.
+ Nodes are the states, and the labelled edges are the possible states
+ transition from a state<EM> u</EM> to a state<EM> w</EM> given a
+ certain input. Note that, because the automaton is deterministic is not
+ possible for two edges to point to two different nodes if same
+ labelled.<A href="#fnref69">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn70">
+<P>Previously we stated that F was a set but we can assume that there is
+ only one final state (
+<!--span class=&quot;math inline&quot;-->
+\(\left\vert{F}\right\vert=1\)), because it is easy prove that exist a
+ DFA with only one final state given a generic DFA (
+<!--span class=&quot;math inline&quot;-->
+\(\left\vert{F}\right\vert \geq 1\)). We add one more state
+<!--span class=&quot;math inline&quot;-->
+ \(q_f\) and for each final state
+<!--span class=&quot;math inline&quot;-->
+ \(q_i \in F\) we define new rules of the type
+<!--span class=&quot;math inline&quot;-->
+ \(\delta(q_i,*)=q_f, * \in I \).<A href="#fnref70">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn71">
+<P>They prove that decide the class(from the wolfram‚Äôs four one) of
+ membership of a generic CA is an undecidable problem. Is not possible
+ to design an algorithm that solve this problem.<A href="#fnref71">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn72">
+<P>Images courtesy of <A class="uri" href="http://plato.stanford.edu/entries/cellular-automata/">
+http://plato.stanford.edu/entries/cellular-automata/</A><A href="#fnref72">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn73">
+<P>A totalistic cellular automaton is a cellular automata in which the
+ rules depend only on the total (or equivalently, the average) of the
+ values of the cells in a neighborhood.<A href="#fnref73">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn74">
+<P>There can not be any algorithm to decide whether, given an input, a
+ Turing machine will accept or not.<A href="#fnref74">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn75">
+<P>Is a computational lattice-based model to simulate the collective
+ behavior of cellular structures.<A href="#fnref75">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn76">
+<P>Name for the Russian mathematician Andrey Markov best known for his
+ work on stochastic processes.<A href="#fnref76">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn77">
+<P>Also called Markov property.<A href="#fnref77">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn78">
+<P>Two event
+<!--span class=&quot;math inline&quot;-->
+ \(A\) and
+<!--span class=&quot;math inline&quot;-->
+ \(B\) are independent if
+<!--span class=&quot;math inline&quot;-->
+ \(P(A B)=P(A)P(B)\) or in other words that the conditional probability
+<!--span class=&quot;math inline&quot;-->
+ \(P(A|B)=P(A)\).<A href="#fnref78">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn79">
+<P>Topographical maps are usually discrete altitude value grid of square
+ cell not less distant than one or two meters from each other. They are
+ also called DEM, acronym for Digital Elevation Model<A href="#fnref79">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn80">
+<P>In terms of cell side or apothem in case respectively of square or
+ hexagonal cell grid.<A href="#fnref80">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn81">
+<P>Continuous quantities might be approximated by discretizing them.
+ Note that on a computer that is not a problem because floating point
+ computer representations are already discretized<A href="#fnref81">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn82">
+<P>A computational model proven to be very suitable for GPU
+ parallelization.<A href="#fnref82">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn83">
+<P>Usually scientific and technical programs accomplish most part of the
+ work, in terms of execution time, is concentrated in few procedures,
+ and constitute a tiny amount of the whole source code.<A href="#fnref83">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn84">
+<P>A particular case of the Fibonacci polynomials F_n(x)=xF_
+<!--span-->
+n-1(x)+F_
+<!--span-->
+n-2(x) s.t.
+<!--span class=&quot;math inline&quot;-->
+ \(x=1\) The famous sequence starts with the number 0 and 1 and each
+ subsequent number is the sum of the previous two.<A href="#fnref84">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn85">
+<P><A class="uri" href="https://lists.gnu.org/archive/html/info-gnu/2011-10/msg00010.html">
+https://lists.gnu.org/archive/html/info-gnu/2011-10/msg00010.html</A><A href="#fnref85">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn86">
+<P><A class="uri" href="http://www.gson.org/egypt/">
+http://www.gson.org/egypt/</A><A href="#fnref86">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn87">
+<P>Gprof can be used only with compatible compilers like G++<A href="#fnref87">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn88">
+<P>This function may not be thread safe in some implementation, so can
+ produce incorrect results.<A href="#fnref88">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn89">
+<P>The stack call image was obtained using the script GProf2Dot that
+ convert profiling output from Gprof to a dot graph. <A class="uri" href="https://code.google.com/p/jrfonseca/wiki/Gprof2Dot">
+https://code.google.com/p/jrfonseca/wiki/Gprof2Dot</A><A href="#fnref89">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn90">
+<P>We can easily see from the same figure that the most computationally
+ expensive, among them, is the calculation of the outflows called 9
+ times for each cell and computational step.<A href="#fnref90">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn91">
+<P>CUDA is SIMT because allow divergent execution path, but, it does not
+ come for free. A certain amount of serialization is the price to relax
+ the strict SIMD programming rules, and hence, a good CUDA programmer
+ should avoid as much as possible those divergent execution paths.<A href="#fnref91">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn92">
+<P>Note that those double copies are different from the pair of buffers
+ that are needed for updating the next CA configuration at each step.
+ Here we are referring to a mirror copy of each variable we find in GPU
+ device memory, because at the beginning, at the end and sometimes in
+ the middle of the execution we need to perform some buffers copies that
+ require a CPU version of the buffers.<A href="#fnref92">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn93">
+<P>Row-major is the internal memory representation adopted in C/C++
+ languages to store automatic matrix that are stored in a linear e
+ continuous space in memory. Dynamic matrices are usually managed
+ allocating vector of pointers each representing a row. This approach
+ only store the data within a row in contiguous space, but spread the
+ rows into the heap space<A href="#fnref93">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn94">
+<P>To be precise
+<!--span class=&quot;math inline&quot;-->
+ \(201 \cdot sizeof(data type)\) bytes after the pointer to the buffer.<A
+href="#fnref94">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn95">
+<P>Optimization that is related also with the SCIARA-fv3 CA sequential
+ version
+<!--span class=&quot;citation&quot;-->
+ [@Walter2004]<A href="#fnref95">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn96">
+<P>On 14 July 2006 at 2330 hr a fissure opened on the east flank of the
+ Southeast Crater. Two vents along the fissure produced a lava flow
+ which spread 3 km east to the Valle del Bove. The eruption ended on 24
+ July.<A href="#fnref96">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn97">
+<P>This is not the case when the lava spreads homogeneously in a square
+ pattern, which usually does not hold for real events.<A href="#fnref97">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn98">
+<P>Even the C/C++ construct <CODE>foo++</CODE> looks like a single
+ operation, but in reality, the hardware might carry out three separate
+ steps when performing the increment:</P>
+<P>fetch foo into a register,</P>
+<P>increment the register by one, and</P>
+<P>write the register back to foo in global memory. Without a lock, two
+ or more parallel threads might simultaneously read foo into a register
+ at the same time, which means they would be unaware of the increment in
+ progress by the other threads<A href="#fnref98">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn99">
+<P>NVIDIA SDK histogram example
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide], at <A class="uri" href="http://docs.nvidia.com/cuda/cuda-samples/#cuda-histogram">
+http://docs.nvidia.com/cuda/cuda-samples/#cuda-histogram</A>,
+ demonstrated a form of low-wait algorithm via the use of a vector of
+ counters that are incremented with <CODE>atomicAdd()</CODE> operations.<A
+href="#fnref99">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn100">
+<P>An alternative solution for double precision atomic addition exists
+ and were tested as well despite the well-known related performance
+ issue. Code in listing [code:doubleAtomic] at page .<A href="#fnref100">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn101">
+<P>Throughput of global memory atomic operations on Kepler is
+ substantially improved compared to the Fermi generation by 9x to one
+ operation per clock throughput to independent global addresses is also
+ significantly accelerated, and logic to handle address conflicts has
+ been made more efficient as well. This speed increase makes atomics
+ fast enough to use frequently within kernel inner loops, eliminating
+ the separate reduction passes that were previously required by some
+ algorithms to consolidate results. Kepler GPUs also expands the native
+ support for 64-bit (double precision) atomic operations in global
+ memory.<A href="#fnref101">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn102">
+<P>Finding the right tradeoff between the cost of ordering and resulting
+ coalescence benefits is a key concept here.<A href="#fnref102">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn103">
+<P>In reference to the previous example:
+<!--span class=&quot;math inline&quot;-->
+ \((T(0),LAC(0)=i),(T(1),LAC(1)=i-3),(T(2),LAC(2)=i+2)\ldots\)<A href="#fnref103">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn104">
+<P>As known, access to a location in shared memory of each
+ multiprocessor has a much lower latency than that carried out on the
+ global device memory, see section [shareMemory]<A href="#fnref104">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn105">
+<P>Considering that using shared memory implies its management, and thus
+ two global memory accesses (initialization from, and write back to
+ global memory).<A href="#fnref105">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn106">
+<P>At this step the simulation is almost completed, it means that all
+ the emitted lava has been solidified.<A href="#fnref106">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn107">
+<P>Only available for single-precision variable and operations.<A href="#fnref107">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn108">
+<P>Small amounts of lava that flow from one cell to another, summed to
+ the one already present, that is much greater.<A href="#fnref108">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn109">
+<P>An alpha version has been already released.<A href="#fnref109">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn110">
+<P>In next versions these operations may be automated as well, requiring
+ only a configuration file that lists substates and parameters.<A href="#fnref110">
+&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn111">
+<P>Programmer has only to know how the blocks are organized and threads
+ labeled.<A href="#fnref111">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn112">
+<P>Single-precision real Alpha X Plus Y. Common vector operation in all
+ BLAS package.<A href="#fnref112">&acirc;Ü&copy;</A></P>
+</LI>
+<LI id="fn113">
+<P>http://docs.nvidia.com/cuda/thrust/index.html<A href="#fnref113">&acirc;Ü&copy;</A>
+</P>
+</LI>
+<LI id="fn114">
+<P>To use a CUDA analogy<A href="#fnref114">&acirc;Ü&copy;</A></P>
+</LI>
+</OL>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Publications.html">Previous</A>
+</BODY>
+</HTML>

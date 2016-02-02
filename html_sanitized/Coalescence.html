@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="GlobalMemory.html">
+<LINK REL="Next" HREF="TextureMemory.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="GlobalMemory.html">Previous</A>
+<A HREF="TextureMemory.html">Next</A>
+<HR NOSHADE>
+<H4 id="coalescence"><A NAME="5_3_3_3">Coalescence</A></H4>
+<P>Coalescence is the capability of the device of grouping global memory
+ accesses of threads whithin a warp. Global memory loads and stores by
+ threads of a warp <A class="footnoteRef" href="#fn28" id="fnref28"><SUP>
+28</SUP></A> are coalesced by the device into as few as one transaction
+ when certain access requirements are met. Remanding that c.c. 3.5
+ global memory is only L2 cached, while for devices with c.c. 2.x the
+ concurrent accesses of the threads of a warp will coalesce into a
+ number of transactions equal to the number of cache lines necessary to
+ service all of the threads of the warp. By default, all accesses are
+ cached through L1, which has 128-byte lines. For scattered access
+ patterns, to reduce overfetch, it can sometimes be useful to cache only
+ in L2, which caches shorter 32-byte segments</P>
+<P>In order to achieve coalescence there should be some coherence<A class="footnoteRef"
+href="#fn29" id="fnref29"><SUP>29</SUP></A> in memory access by adjacent
+ threads running on the device. Certain memory access patterns enable
+ the hardware to coalesce groups of reads or writes of multiple data
+ items into one operation. Data that cannot be laid out so as to enable
+ coalescing (in general case) and, application that do not exploit this
+ feature will tend to see lesser speedups when used in computations on
+ CUDA. Assuming compute capability 2.x the very first pattern that
+ enable coalescence is when the
+<!--span class=&quot;math inline&quot;-->
+ \(k-th\) accesses the
+<!--span class=&quot;math inline&quot;-->
+ \(k-th\) word in a cache line<A class="footnoteRef" href="#fn30" id="fnref30">
+<SUP>30</SUP></A> (not all threads need to partecipate). Morever if the
+ same scenario of sequential access happens, but on misaligned with the
+ cache line, two 128B loads are required in order to fill the L1 cache
+ or even more if L2 is used (see figure [fig:misaligedCoalescence], in
+ red loaded memory portions).</P>
+<DIV class="figure"> <IMG alt="Parent Child Synchronization." HEIGHT="68"
+src="unaligned-sequential-addresses.png" WIDTH="341">
+<P class="caption">Parent Child Synchronization.
+<!--span data-label=&quot;fig:misaligedCoalescence&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="GlobalMemory.html">Previous</A>
+<A HREF="TextureMemory.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="StreamingMultiProcessorSMX.html">
+<LINK REL="Next" HREF="HostandDevice.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="StreamingMultiProcessorSMX.html">Previous</A>
+<A HREF="HostandDevice.html">Next</A>
+<HR NOSHADE>
+<H2 id="cudaProgrammingModel"><A NAME="5_3">CUDA Programming model</A></H2>
+<P>CUDA programming model is designed to fully expose parallel
+ capabilities of NVIDIA GPUs. Even though the language is devoted to
+ general purpose computing, it still requires the programmer to follow a
+ set of paradigms arising from the GPU architecture. CUDA provides a few
+ easily understood abstractions that allow the programmer to focus on
+ algorithmic efficiency and develop scalable parallel applications by
+ expressing the parallelism explicitly. It provides three key
+ abstractions as hierarchy of thread groups, shared memories, and
+ synchronization barrier that provide a clear parallel structure to
+ conventional C code for one thread of the hierarchy.</P>
+<P>
+<!--span-->
+l
+<!--span-->
+0.55 <IMG alt="image" HEIGHT="333" src="automatic-scalability.png" WIDTH="356">
+</P>
+<P>The abstractions guide the programmer to partition the problem into
+ coarse sub-problems that can be solved independently in parallel, and
+ then into finer pieces that can be solved cooperatively in parallel.
+ The programming model scales transparently to large numbers of
+ processor cores: a compiled CUDA program executes on any number of
+ processors, and only the runtime system needs to know the physical
+ processor count (See figure [automatic-scalability]).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="StreamingMultiProcessorSMX.html">Previous</A>
+<A HREF="HostandDevice.html">Next</A>
+</BODY>
+</HTML>

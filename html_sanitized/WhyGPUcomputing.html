@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Introduction1.html">
+<LINK REL="Next" HREF="FromGraphicstoGeneralPurposeComputing.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Introduction1.html">Previous</A>
+<A HREF="FromGraphicstoGeneralPurposeComputing.html">Next</A>
+<HR NOSHADE>
+<H2 id="why-gpu-computing"><A NAME="4_2">Why GPU computing?</A></H2>
+<P>Traditionally performance improvements in computer architecture have
+ come from cramming ever more functional units onto silicon, increasing
+ clock speeds and transistors number. Moores law
+<!--span class=&quot;citation&quot;-->
+[@mooreLaw1965] states that the number of transistors that can be placed
+ inexpensively on an integrated circuit will double approximately every
+ two years.</P>
+<DIV class="figure"> <IMG alt="Moore’s Law and intel family CPU transistors number history."
+HEIGHT="1040" src="moore_law_large.png" WIDTH="1350">
+<P class="caption">Moore’s Law and intel family CPU transistors number
+ history.
+<!--span data-label=&quot;mooreLaw&quot;-->
+</P>
+</DIV>
+<P>Coupled with increasing clock speeds CPU performance has until
+ recently scaled likewise. But this trend cannot be sustained
+ indefinitely or forever. Increased clock speed and transistor number
+ require more power and generate more heat. Although the trend for
+ transistor densities has continued to steadily increase, clock speeds
+ began slowing circa 2003 at 3 GHz. If we apply Moore’s law type
+ thinking to clock-speed performance, we should be able to buy at least
+ 10 GHz CPUs. However, the fastest CPU available today is 3.80 GHz At
+ same point the performance increase fails to increase proportionally
+ with the added effort in terms of transistors or clock speed because
+ efficient heat dissipation and increasing transistor resolution on a
+ wafer becomes more important and challenging (there will be still the
+ physical limit of dimension for each transistor, the atom). The heat
+ emitted from the modern processor, measured in power density</P>
+<P>()</P>
+<P>rivals the heat of a nuclear reactor core
+<!--span class=&quot;citation&quot;-->
+[@Gelsinger2004].</P>
+<DIV class="figure"> <IMG alt="Temperature CPUs" src="temperatureCPU.png">
+<P class="caption">Temperature CPUs
+<!--span data-label=&quot;tempCPU&quot;-->
+</P>
+</DIV>
+<P>But the power demand did not stop in these year, here the necessity
+ of switching on parallel architectures, so today the dominating trend
+ in commodity CPU architectures is multiple processing cores mounted on
+ a single die operating at reduced clock speeds and sharing some
+ resources. Today is normal to use the so-called multi-core (2,4,8,12)
+ CPUs on a desktop PC at home.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Introduction1.html">Previous</A>
+<A HREF="FromGraphicstoGeneralPurposeComputing.html">Next</A>
+</BODY>
+</HTML>

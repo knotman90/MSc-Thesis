@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="CUDAHardwaremodel.html">
+<LINK REL="Next" HREF="KeplerArchitecture.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="CUDAHardwaremodel.html">Previous</A>
+<A HREF="KeplerArchitecture.html">Next</A>
+<HR NOSHADE>
+<H3 id="computeCapability"><A NAME="5_2_1">Compute Capability</A></H3>
+<P>Each device comes with a revision number which defines the<EM>
+ compute capability</EM> of the device, and it determines the set of
+ features that can be used for programming and the configuration in
+ processors and memory. The compute capability of a device is defined by
+ a major revision number and a minor revision number. Devices with the
+ same major revision number are of the same core architecture. The major
+ revision number is 3 for devices based on the Kepler architecture, 2
+ for devices based on the Fermi architecture, and 1 for devices based on
+ the Tesla architecture. The minor revision number corresponds to an
+ incremental improvement to the core architecture, possibly including
+ new features<A class="footnoteRef" href="#fn19" id="fnref19"><SUP>19</SUP>
+</A>. Furthermore, properties and features support can be queried using
+ the runtime API. Accelerators with capability 3.5, for example, were
+ enhanced by dynamic parallelism(See section [DynamicParallelism]).</P>
+<P>For this work we used as hardware test the Nvidia GeForce GTX 780 a
+ GeForce GTX 680 respectively with compute capability 3.0 and 3.5 Kepler
+ architecture and a GeForce GTX 480 and GeForce GTX 580 both compute
+ capability 2.0, Fermi architecture. For brevity purpose we are going to
+ see in detail just the new Kepler architecture.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="CUDAHardwaremodel.html">Previous</A>
+<A HREF="KeplerArchitecture.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="SCIARAfv3ModelFormalization.html">
+<LINK REL="Next" HREF="Elementaryprocess.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="SCIARAfv3ModelFormalization.html">Previous</A>
+<A HREF="Elementaryprocess.html">Next</A>
+<HR NOSHADE>
+<H2 id="model-overview"><A NAME="9_1">Model Overview</A></H2>
+<P>Sciara-fv3 is the latest release of the Sciara family of Complex
+ Cellular Automata Models for simulating basaltic lava flows. As its
+ predecessor, Sciara-fv2, it is based on a Bingham-like rheology.
+ However, unlike fv2, it explicitly computes the flow momentum and the
+ time corresponding to the computational step (CA clock). In formal
+ terms, it is defined as:
+<!--span class=&quot;math display&quot;-->
+ \[SCIARA-fv3=&lt;R,X,Q,P,\tau,L,\gamma&gt;\]</P>
+<P>where:</P>
+<OL>
+<LI>
+<P>R is the cellular space, the set of square cells that define the
+ bi-dimensional finite region where the phenomenon evolves.</P>
+</LI>
+<LI>
+<P>X is the pattern of cells belonging to the Moore neighborhood that
+ influence the cell state change (see fig. [fig:mooreNeighModel])</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(Q= Q_z \times Q_h \times Q_T \times Q_{\overrightarrow{p}} \times
+ Q_f^9 \times Q_{\overrightarrow{vf}}^9 \) is the finite set of states,
+ considered as Cartesian product of substates. Their meanings are: cell
+ altitude a.s.l., cell lava thickness, cell lava temperature, momentum
+ (both x and y components), lava thickness outflows (from the central
+ cell toward the adjacent cells) and flows velocities (both x and y
+ components), respec- tively;</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(P = w,t_0, P_T,P_d,P_{hc},\delta,\rho,\epsilon,\sigma,c_v\) is the
+ finite set of parameters (invariant in time and space), whose meaning
+ is illustrated in Tab. [tab:parameters]; note that
+<!--span class=&quot;math inline&quot;-->
+ \(P_T , P_d\) , and
+<!--span class=&quot;math inline&quot;-->
+ \(P_{hc}\) are set of parameters;</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\tau : Q^9 \longmapsto Q\) is the cell deterministic transition
+ function; it is splitted in<EM> “elementary processes”</EM> which,
+ are described in section [sect:ElementaryProcesses];</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(L \subseteq R \) specifies the emitted lava thickness from the source
+ cells (i.e. craters);</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\gamma : Q_h \times \mathbb{N} \longmapsto Q_h\) specifies the emitted
+ lava thickness from the source cells at each step
+<!--span class=&quot;math inline&quot;-->
+ \(k \in \mathbb{N}\)</P>
+</LI>
+</OL>
+<DIV class="figure"> <IMG alt="Example of Moore neighborhood and decomposition of momentum along the cellular space directions. Cells are indexes from 0 (the central cell, in grey) to 8. Cells integer coordinates are omitted for a better readability."
+HEIGHT="613" src="mooreNeighSciaraModel.png" WIDTH="662">
+<P class="caption">Example of Moore neighborhood and decomposition of
+ momentum along the cellular space directions. Cells are indexes from 0
+ (the central cell, in grey) to 8. Cells integer coordinates are omitted
+ for a better readability.
+<!--span data-label=&quot;fig:mooreNeighModel&quot;-->
+</P>
+</DIV>
+<TABLE><CAPTION> List of parameters of SCIARA-fv3 with values considered
+ for the simulation of the 2006 Etnean lava flow.
+<!--span data-label=&quot;tab:parameters&quot;-->
+</CAPTION><THEAD></THEAD>
+<TR class="header"><TH align="left">Parameter</TH><TH align="left">
+Meaning</TH><TH align="left">Unit</TH><TH align="left">Best value</TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(w\)</TD><TD align="left">Cell side</TD><TD align="left">[m]</TD><TD align="left">
+10</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(t_0\)</TD><TD align="left">Initial CA clock</TD><TD align="left">[s]</TD><TD
+align="left">1</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(t_{\max}\)</TD><TD align="left">Upper value for the CA clock</TD><TD align="left">
+[s]</TD><TD align="left">120</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(P_T\)</TD><TD align="left"></TD><TD align="left"></TD><TD align="left">
+</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\;\;\: T_{sol}\)</TD><TD align="left">Temperature of solidification</TD><TD
+align="left">[K]</TD><TD align="left">1143</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\;\;\: T_{vent}\)</TD><TD align="left">Temperature of extrusion</TD><TD
+align="left">[K]</TD><TD align="left">1360</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(P_d\)</TD><TD align="left"></TD><TD align="left"></TD><TD align="left">
+</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\;\;\: dP_{T_{sol}}\)</TD><TD align="left">Dissipation factor at
+ solidification</TD><TD align="left">-</TD><TD align="left">0.5</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\;\;\: dP_{{T_vent}}\)</TD><TD align="left">Dissipation at extrusion</TD><TD
+align="left">-</TD><TD align="left">0.315</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(P_{hc}\)</TD><TD align="left"></TD><TD align="left"></TD><TD align="left">
+</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\;\;\: hc_{T_{sol}}\)</TD><TD align="left">Critical height at
+ solidification</TD><TD align="left">[m]</TD><TD align="left">23.066</TD>
+</TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\;\;\: hc_{{T_{vent}}}\)</TD><TD align="left">Critical height at
+ extrusion</TD><TD align="left">[m]</TD><TD align="left">1.014</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(r\)</TD><TD align="left">Relaxation rate</TD><TD align="left">-</TD><TD
+align="left">0.5</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\delta\)</TD><TD align="left">Cooling parameter</TD><TD align="left">-</TD><TD
+align="left">1.5070</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\rho\)</TD><TD align="left">Lava density</TD><TD align="left">[Kg m
+<!--span class=&quot;math inline&quot;-->
+\(^{-3}\)]</TD><TD align="left">2600</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(\epsilon\)</TD><TD align="left">Lava emissivity</TD><TD align="left">-</TD><TD
+align="left">0.9</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(c_v\)</TD><TD align="left">Specific heat</TD><TD align="left">[J kg
+<!--span class=&quot;math inline&quot;-->
+\(^{-1}\) K
+<!--span class=&quot;math inline&quot;-->
+\(^{-1}\)]</TD><TD align="left">1150</TD></TR>
+</TABLE>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="SCIARAfv3ModelFormalization.html">Previous</A>
+<A HREF="Elementaryprocess.html">Next</A>
+</BODY>
+</HTML>

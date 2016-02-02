@@ -1,0 +1,130 @@
+%pla% -*- Mode:TeX -*-
+
+%% IMPORTANT: The official thesis specifications are available at:
+%%            http://libraries.mit.edu/archives/thesis-specs/
+%%
+%%            Please verify your thesis' formatting and copyright
+%%            assignment before submission.  If you notice any
+%%            discrepancies between these templates and the 
+%%            MIT Libraries' specs, please let us know
+%%            by e-mailing thesis@mit.edu
+
+%% The documentclass options along with the pagestyle can be used to generate
+%% a technical report, a draft copy, or a regular thesis.  You may need to
+%% re-specify the pagestyle after you \include  cover.tex.  For more
+%% information, see the first few lines of mitthesis.cls. 
+
+%\documentclass[12pt,vi,twoside]{mitthesis}
+%%
+%%  If you want your thesis copyright to you instead of MIT, use the
+%%  ``vi'' option, as above.
+%%
+%\documentclass[12pt,twoside,leftblank]{mitthesis}
+%%
+%% If you want blank pages before new chapters to be labelled ``This
+%% Page Intentionally Left Blank'', use the ``leftblank'' option, as
+%% above. 	
+
+\documentclass[12pt,doublespacing]{mitthesis}
+\usepackage{setspace}
+\usepackage{lgrind}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{cite}
+\usepackage[utf8x]{inputenc}
+\usepackage{wrapfig}
+\usepackage{amsmath,varwidth,array,ragged2e}
+\usepackage{amsbsy}
+\usepackage{paralist}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{epigraph}
+\usepackage{quotchap}
+\usepackage{color}
+\usepackage{url}
+\usepackage{mdframed}
+\usepackage{color}
+\usepackage{hyperref}
+\pagestyle{plain}
+\usepackage{paralist}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[cmtip,all]{xy}
+\usepackage{mathtools}
+\usepackage{graphicx, subfigure}
+\usepackage{cases}
+\usepackage{fullpage}
+\usepackage{subfigure}
+\usepackage{placeins}
+\usepackage{tikz}
+\usepackage{calligra} % for dedication
+\usepackage[percent]{overpic}
+\usepackage[english]{babel}
+\usepackage{wrapfig,lipsum,booktabs}
+\usepackage{colortbl}
+\usepackage{tocvsec2}
+\usepackage{multirow}
+\usepackage{longtable}
+\definecolor{Gray}{gray}{0.85}
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+
+
+
+
+%\onehalfspacing
+%% This bit allows you to either specify only the files which you wish to
+%% process, or `all' to process all files which you \include.
+%% Krishna Sethuraman (1990).
+\usepackage{tikz}
+\usetikzlibrary{matrix}
+\usepackage[nottoc]{tocbibind}
+\usepackage[left=3.5cm,top=2.5cm,right=2.2cm,bottom=3.1cm,bindingoffset=0.5cm]{geometry}
+ 
+
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\begin{document}
+
+
+\include{cover}
+% Some departments (e.g. 5) require an additional signature page.  See
+% signature.tex for more information and uncomment the following line if
+% applicable.
+
+\pagestyle{plain}
+\setcounter{tocdepth}{5}
+\setstretch{1.05}
+
+%\addcontentsline{toc}{section}{\listfigurename}
+%\addcontentsline{toc}{section}{\listtablename}
+\tableofcontents
+
+
+
+\newpage
+\include{parallelComputing_architectures}
+\include{GPGPUMotivation}
+\include{CUDA}
+\include{AlternativesCUDA}
+\include{CellularAutomata}
+\include{ComplexCA}
+\include{SciaraModel}
+\include{CUDAimplementation}
+\include{Conclusions}
+
+\appendix
+
+\listoffigures
+\listoftables
+
+
+
+\include{appc_code}
+%\include{appb}
+\include{biblio}
+
+
+\end{document}

@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="InformalDefinition.html">
+<LINK REL="Next" HREF="Neighborhood.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="InformalDefinition.html">Previous</A>
+<A HREF="Neighborhood.html">Next</A>
+<HR NOSHADE>
+<H3 id="cellular-space-dimension-and-geometry"><A NAME="7_2_1">Cellular
+ space dimension and geometry</A></H3>
+<P>The cellular space is a<EM> discrete</EM> d-dimensional lattice of
+ sites (see figure [spazioCellulare]). For 1-D automaton the only way to
+ discretize the space is in a one-dimensional grid. For automaton with
+ dimensionality higher than 1 the shape of each cell can be different
+ than squared. In 2D tessellation for example each cell can be hexagonal
+ or triangular instead of squared. Each tessellation present advantages
+ and disadvantages. For instance the squared one does not give any
+ graphical representation problem<A class="footnoteRef" href="#fn63" id="fnref63">
+<SUP>63</SUP></A>, but present problems of anisotropy for some kind of
+ simulations<A class="footnoteRef" href="#fn64" id="fnref64"><SUP>64</SUP>
+</A>
+<!--span class=&quot;citation&quot;-->
+[@Frisch1986]. An Hexagonal tessellation can solve the anisotropy
+ problem
+<!--span class=&quot;citation&quot;-->
+[@wolfram1986] but presents obvious graphical issues. Often, to avoid
+ complications due to a boundary, periodic boundary conditions are used,
+ so that a two-dimensional grid is the surface of a torus (see picture
+ [torus]).</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="InformalDefinition.html">Previous</A>
+<A HREF="Neighborhood.html">Next</A>
+</BODY>
+</HTML>

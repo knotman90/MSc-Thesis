@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Coalescence.html">
+<LINK REL="Next" HREF="ConstantMemory.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Coalescence.html">Previous</A>
+<A HREF="ConstantMemory.html">Next</A>
+<HR NOSHADE>
+
+<H4 id="texture-memory"><A NAME="5_3_3_4">Texture Memory</A></H4>
+<P>As its name suggests, texture memory is used for storing textures.
+ Although this memory was designed for the classical openGL and DirectX
+ graphic pipeline (see section [graphicPipeline]) it can be used
+ successfully in some scenario to accelerate the application especially
+ when the memory access pattern exhibit 2D-spatial <A class="footnoteRef"
+href="#fn31" id="fnref31"><SUP>31</SUP></A> locality it will give higher
+ memory bandwidth by reducing requests to the off-chip DRAM. Threads of
+ the same warp that read texture addresses that are close together, will
+ achieve better performance using the texture cache
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide].</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Coalescence.html">Previous</A>
+<A HREF="ConstantMemory.html">Next</A>
+</BODY>
+</HTML>

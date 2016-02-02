@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Testvalidationandperformancesresults.html">
+<LINK REL="Next" HREF="FloatDoubleprecisionconsiderations.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Testvalidationandperformancesresults.html">Previous</A>
+<A HREF="FloatDoubleprecisionconsiderations.html">Next</A>
+<HR NOSHADE>
+<H3 id="kepler-vs-fermi-performance"><A NAME="10_12_1">Kepler vs Fermi
+ performance</A></H3>
+<P>Results referred to hybrid memory implementations (HM speedups in
+ Tab. [tab:execGM_HM]) show how the use of shared memory can improve
+ performances up to 15%, with respect to the implementation that
+ considers only global memory (GM speedups in Tab. [tab:execGM_HM] ) for
+ CA space allocation. In addition, the use of the <CODE>fast_math</CODE>
+ option has not produced expected benefits in terms of performances,
+ especially for the high-performing GTX680, probably due to the relative
+ low computational intensity rate of the model. Unexpectedly,
+ experiments executed on the GTX580 have outclassed simulations that
+ were performed on the GTX 680: even in this case, this is probably due
+ to the adopted non optimal CUDA occupancy for the considered hardware
+<!--span class=&quot;citation&quot;-->
+ [@Kirk2010]. Another reason might be that the GTX680, though having a
+ number of cores nearly triple respect to the GTX580, has a lesser CUDA
+ core clock-rate (1006Mhz vs. 1544Mhz of the GTX580). Moreover, as shown
+ by different benchmarks, the GTX680 has proven to be more suitable for
+ 3D graphic applications than for numerical computations
+<!--span class=&quot;citation&quot;-->
+ [@gurusite2013].</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Testvalidationandperformancesresults.html">Previous</A>
+<A HREF="FloatDoubleprecisionconsiderations.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Elementaryprocess.html">
+<LINK REL="Next" HREF="Computationoftheminimizingoutflowsphi0i.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Elementaryprocess.html">Previous</A>
+<A HREF="Computationoftheminimizingoutflowsphi0i.html">Next</A>
+<HR NOSHADE>
+<H3 id="elementary-process-tau_1-lava-flows-computation"><A NAME="9_2_1">
+Elementary process
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_1\): lava flows computation</A></H3>
+<P>The elementary process
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_1\) computes lava outflows and their velocities. It is formally
+ defined as:
+<!--span class=&quot;math display&quot;-->
+ \[\tau_1: Q_z^9 \times Q_h^9 \times Q_{\overrightarrow{p}} \to Q_f^9
+ \times Q_{\overrightarrow{v_f}}^9\]</P>
+<P>Lava flows are computed by a two-step process: the first computes the
+ CA clock,
+<!--span class=&quot;math inline&quot;-->
+ \(t\), i.e. the physical time corresponding to a CA computational step,
+ while the second the effective lava outflows,
+<!--span class=&quot;math inline&quot;-->
+ \(h_{(0,i)}\), their velocities
+<!--span class=&quot;math inline&quot;-->
+ \(v_{f_{(0,i)}}\) and displacements
+<!--span class=&quot;math inline&quot;-->
+ \(s_{(0,i)}\)
+<!--span class=&quot;math inline&quot;-->
+ \((i=0,1,...,8)\). The elementary process
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_1\) is thus executed two times, the first one in “time
+ evaluation mode”, the second in “flow computing mode”. Both modes
+ compute the so called “minimizing outflows”,
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,i)}\), i.e. those which minimize the unbalance conditions
+ within the neighborhood, besides their final velocities and
+ displacements. In “time evaluation mode”,
+<!--span class=&quot;math inline&quot;-->
+ \(t\) is preliminary set to a large value,
+<!--span class=&quot;math inline&quot;-->
+ \(t_{\max}\), and the computed displacement,
+<!--span class=&quot;math inline&quot;-->
+ \(s_{(0,i)}\), is compared with the maximum allowed value,
+<!--span class=&quot;math inline&quot;-->
+ \(d_{(0,i)}\), which is set to the distance between the central cell
+ and the neighbor that receives the flow. In case of over-displacement,
+ the time
+<!--span class=&quot;math inline&quot;-->
+ \(t\) must be opportunely reduced in order to avoid the overflow
+ condition. In case no over-displacement are obtained,
+<!--span class=&quot;math inline&quot;-->
+ \(t\) remains unchanged. Eventually, in “flow computing mode”,
+ effective lava outflows,
+<!--span class=&quot;math inline&quot;-->
+ \(h_{(0,i)}\), are computed by adopting the CA clock obtained in
+ “time evaluation mode”, by guarantying no overflow condition.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Elementaryprocess.html">Previous</A>
+<A HREF="Computationoftheminimizingoutflowsphi0i.html">Next</A>
+</BODY>
+</HTML>

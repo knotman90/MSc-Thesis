@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="FormalDefinition.html">
+<LINK REL="Next" HREF="HomogeneousCellularAutomata.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="FormalDefinition.html">Previous</A>
+<A HREF="HomogeneousCellularAutomata.html">Next</A>
+<HR NOSHADE>
+<H3 id="DFA"><A NAME="7_3_1">Finite State Automaton</A></H3>
+<P>Also known as deterministic finite automata (DFAs) or as
+ deterministic finite state machines, are ones of the most studied and
+ simple computational model known. It is a theoretical model of
+ computation<A class="footnoteRef" href="#fn66" id="fnref66"><SUP>66</SUP>
+</A> that can be in a finite number of states, only one at a time, the
+ current state. Its state can change in response of inputs taken by a
+ transition function that describe the state change given the current
+ state and</P>
+<P>
+<!--span-->
+r
+<!--span-->
+6.0cm</P>
+<P>the received input of the automata. Its a much more restrictive in
+ its capabilities than a Turing machines,<A class="footnoteRef" href="#fn67"
+id="fnref67"><SUP>67</SUP></A> but they are still capable to solve
+ simpler problems, and hence to recognize simpler languages, like well
+ parenthesized string; More in general they are capable to recognize the
+ so called<EM> Regular languages</EM><A class="footnoteRef" href="#fn68" id="fnref68">
+<SUP>68</SUP></A>, but they fail for example in parsing<EM> context-free</EM>
+ languages. More formally a DFA is a 5-tuple:
+<!--span class=&quot;math display&quot;-->
+ \[M = &lt;Q,\Sigma,\delta,q_0,F&gt;\]</P>
+<UL>
+<LI>
+<P><EM>Q</EM> is a finite, nonempty, set of states.</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\Sigma\) is the alphabet</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\( \delta : Q \times \Sigma \longmapsto Q \) is the transition function
+ (also called next-state function, may be represented in tabular form
+ (see table [tab:tabularTransitionFunction])</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(q_0 \) is the initial (or starting) state :
+<!--span class=&quot;math inline&quot;-->
+ \( q_0 \in Q \)</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(F \) is the set, possibly empty, of final states :
+<!--span class=&quot;math inline&quot;-->
+ \( F \subseteq Q \)</P>
+</LI>
+</UL>
+<P>A run of DFA on a input string
+<!--span class=&quot;math inline&quot;-->
+ \(u = a_0,a_1,\ldots,a_n\) is a sequence of states
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \( q_0,q_1,\ldots,q_n\) s.t.
+<!--span class=&quot;math inline&quot;-->
+ \(q_i \overset{a_i}{\longmapsto} q_{i+1} \),
+<!--span class=&quot;math inline&quot;-->
+ \( 0 \leq i \le n\). It means that for each couple of state and input
+ the transition function deterministically return the next DFA’s state
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(q_i=\delta(q_{i-1},a_{i}) \). For a given word
+<!--span class=&quot;math inline&quot;-->
+ \(\textit{w}\in \Sigma^* \) the DFA has a unique run (it is
+ deterministic), and we say that it<STRONG> accepts</STRONG> w if the
+ last state
+<!--span class=&quot;math inline&quot;-->
+ \(q_n \in F \). A DFA recognizes the language L(M) consisting of all
+ accepted strings.</P>
+<P>Figure [amod3Automata] is an example of DFA<A class="footnoteRef" href="#fn69"
+id="fnref69"><SUP>69</SUP></A>. It accepts the language made up of
+ strings with a number N s.t
+<!--span class=&quot;math inline&quot;-->
+ \(N \;mod\; 3 = 0 \)</P>
+<UL>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\( \Sigma = \{a,b\}\)</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\( Q = \{t_0,t_1,t_2\}\)</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\( q_0 = t_0\)</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\( F = \{t_0\} \)</P>
+</LI>
+</UL>
+<P>If we execute the DFA on an input string S={aaabba} we can see that
+ at time t=0 the DFA is in the initial state
+<!--span class=&quot;math inline&quot;-->
+ \(t_0\) and the first symbol of S is read. The transition function is
+ applied once per each symbol is S (i.e.
+<!--span class=&quot;math inline&quot;-->
+ \(\left\vert{S}\right\vert\)). The only rule that match the current
+ state and input is
+<!--span class=&quot;math inline&quot;-->
+ \(\delta=(t_0,a)=t_1 \) hence the new state is
+<!--span class=&quot;math inline&quot;-->
+ \(t_1\). The DFA accept the string only if there is not any input left
+ and the current state is the final state
+<!--span class=&quot;math inline&quot;-->
+ \(q_f\)<A class="footnoteRef" href="#fn70" id="fnref70"><SUP>70</SUP></A>
+. S is not accepted by the DFA defined in the example [amod3Automata]
+ because at the end of the computation the reached state is
+<!--span class=&quot;math inline&quot;-->
+ \(t_1\) that is not a final state.
+<!--span class=&quot;math display&quot;-->
+ \[t_0\overset{\delta(t_0,a)} {\longmapsto}t_{1}\overset{\delta(t_1,a)}
+ {\longmapsto}t_{2}\overset{\delta(t_2,a)} {\longmapsto}
+ t_{0}\overset{\delta(t_0,b)} {\longmapsto}t_{0}\overset{\delta(t_0,b)}
+ {\longmapsto}t_{0}\overset{\delta(t_0,a)} {\longmapsto} t_{1}\] On the
+ input
+<!--span class=&quot;math inline&quot;-->
+ \(S^1=\{abababb\}\) the DFA accept:
+<!--span class=&quot;math display&quot;-->
+ \[t_0\overset{\delta(t_0,a)} {\longmapsto}t_{1}\overset{\delta(t_1,b)}
+ {\longmapsto}t_{1}\overset{\delta(t_1,a)} {\longmapsto}
+ t_{2}\overset{\delta(t_2,b)} {\longmapsto}t_{2}\overset{\delta(t_2,a)}
+ {\longmapsto}t_{0}\overset{\delta(t_0,b)}
+ {\longmapsto}t_{0}\overset{\delta(t_0,b)} {\longmapsto}\mathbf{t_{0}}\]</P>
+<DIV class="figure"> <IMG alt="Graph representation of a DFA" HEIGHT="811"
+src="amod3Automata.png" WIDTH="1140">
+<P class="caption">Graph representation of a DFA
+<!--span data-label=&quot;amod3Automata&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="FormalDefinition.html">Previous</A>
+<A HREF="HomogeneousCellularAutomata.html">Next</A>
+</BODY>
+</HTML>

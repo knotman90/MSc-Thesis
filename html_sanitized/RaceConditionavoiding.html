@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Blocksorganization.html">
+<LINK REL="Next" HREF="Deviceoccupancyconsiderations.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Blocksorganization.html">Previous</A>
+<A HREF="Deviceoccupancyconsiderations.html">Next</A>
+<HR NOSHADE>
+<H3 id="sect:raceCondAvoiding"><A NAME="10_5_2">Race Condition avoiding</A>
+</H3>
+<P>Some parts of the code are not race condition free, and were
+ re-designed in order to avoid them. The flows distribution phase, in
+ the serial model, is designed such that each cell is responsible for
+ updating substates of the neighbors (see section
+ [sect:sciaraModelTau2]). In a parallel context this kind of approach is
+ unfeasible due to obvious consequences of modifying the same memory
+ locations at the same time from within different threads
+ (uncongruences, dirty reads, etc). Thus, a new substate was added named<EM>
+ flows</EM> substate that keeps trace of all the flows destinated to the
+ cell. For each cell and for each substate that need an update 9
+ variables are reserved, and updated only once by only one thread and
+ then “reduced” by the central cell in order to compute the final
+ value.</P>
+<P>Formally, let
+<!--span class=&quot;math inline&quot;-->
+ \(c\) be the index of the central cell and
+<!--span class=&quot;math inline&quot;-->
+ \(k\) the number of substates to be threated as race-condition free.
+ Then, for each cell, a buffer of length
+<!--span class=&quot;math inline&quot;-->
+ \(k \cdot 9 \) is allocated, and each space of it is reserved to store
+ the
+<!--span class=&quot;math inline&quot;-->
+ \(i\)th cell’s contribution to one of the
+<!--span class=&quot;math inline&quot;-->
+ \(k\) state substates. The organization of this buffer is such that
+ elements from
+<!--span class=&quot;math inline&quot;-->
+ \(ki\) to
+<!--span class=&quot;math inline&quot;-->
+ \(ki +9\) represents the
+<!--span class=&quot;math inline&quot;-->
+ \(9\) contributions (one from each neighbors) to the
+<!--span class=&quot;math inline&quot;-->
+ \(c\)’s
+<!--span class=&quot;math inline&quot;-->
+ \(i\)th substate. It is up to the central cell to reduce all the values
+ within this buffer, compute the final result and update the
+ correspondent substate after that it was filled in completely. In this
+ way no concurrent updates may take place.</P>
+<P>[alg:substateUpdate]
+<!--span class=&quot;math inline&quot;-->
+ \(f(c,v)\) flow from cell c to neighbor v
+<!--span class=&quot;math inline&quot;-->
+ \(vic(c,v)\)
+<!--span class=&quot;math inline&quot;-->
+ \(v-th\) neighbor of the cell
+<!--span class=&quot;math inline&quot;-->
+ \(c\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=4 \Leftarrow v=1\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=3 \Leftarrow v=2\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=2 \Leftarrow v=3\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=1 \Leftarrow v=4\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=7 \Leftarrow v=5\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=8 \Leftarrow v=6\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=5 \Leftarrow v=7\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=6 \Leftarrow v=8\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(k=0 \Leftarrow v=0\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(SUBST(C) = SUBST(C) - f(c,v);\)
+<!--span class=&quot;math inline&quot;-->
+ \(SUBST(C) = SUBST(C) + f(vic(c,v),k);\)</P>
+<P>All the quantities that flow out to the neighbors have to be
+ subtracted from the central cell (according to the law of conservation
+ of mass, see figure [fig:exitingFlows]). Next, all the flows related to
+ that cell have to be collected and processed. Note that each cell
+ receives only one flow (per substate) from one neighbor. The cell
+<!--span class=&quot;math inline&quot;-->
+ \(c\) has to collect all the flows that flow out from the neighbors and
+ are addressed to it. From the point of view of
+<!--span class=&quot;math inline&quot;-->
+ \(vic(c,1)\),
+<!--span class=&quot;math inline&quot;-->
+ \(c\) is the
+<!--span class=&quot;math inline&quot;-->
+ \(4-th\) neighbor, and that’s why
+<!--span class=&quot;math inline&quot;-->
+ \(c\) will collect
+<!--span class=&quot;math inline&quot;-->
+ \(f(vic(c,1),4)\); the same idea holds for the whole neighborhood (see
+ figure [fig:exitingFlows] , algorithm [alg:substateUpdate]).</P>
+<DIV class="figure"> <IMG alt="Exiting flows subtraction from the central cell. In orange the relative index of the neighbor to the central cell. F(c,v) represent the flow designed for the neighbor v."
+src="exitingFlows.png">
+<P class="caption">Exiting flows subtraction from the central cell. In
+ orange the relative index of the neighbor to the central cell. F(c,v)
+ represent the flow designed for the neighbor v.
+<!--span data-label=&quot;fig:exitingFlows&quot;-->
+</P>
+</DIV>
+<P>At the end of this phase all the flow exchanges are already performed
+ and the model can proceed applying the further elementary functions.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Blocksorganization.html">Previous</A>
+<A HREF="Deviceoccupancyconsiderations.html">Next</A>
+</BODY>
+</HTML>

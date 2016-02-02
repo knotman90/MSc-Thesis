@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<H1 ALIGN="CENTER"><A NAME="CONTENTS">Table of Contents</A></H1>
+<BR>
+<BR><B><A HREF="AcceleratingthenewSCIARAfv3numericalmodelbydifferentGPGPUstrategies.html#1">
+Accelerating the new SCIARA-fv3 numerical model by different GPGPU
+ strategies</A></B>
+<UL>
+<LI><A HREF="DavideSpataro.html#1_1">Davide Spataro</A></LI>
+</UL>
+<B><A HREF="Acknowledgments.html#2">Acknowledgments</A></B>
+<BR>
+<BR><B><A HREF="Parallelcomputingarchitectures.html#3">Parallel
+ computing architectures</A></B>
+<UL>
+<LI><A HREF="Introduction.html#3_1">Introduction</A></LI>
+<LI><A HREF="Architectures.html#3_2">Architectures</A>
+<UL>
+<LI><A HREF="ClassicalclassificationFlynnstaxonomy.html#3_2_1">Classical
+ classification - Flynn’s taxonomy</A></LI>
+<LI><A HREF="Memoryclassification.html#3_2_2">Memory classification</A></LI>
+</UL>
+</LI>
+<LI><A HREF="NetworkTopologies.html#3_3">Network Topologies</A>
+<UL>
+<LI><A HREF="Busbasednetworks.html#3_3_1">Bus-based networks</A></LI>
+<LI><A HREF="Completelyconnectednetworks.html#3_3_2">Completely
+ connected networks</A></LI>
+<LI><A HREF="StarConnectedNetworks.html#3_3_3">Star-Connected Networks</A>
+</LI>
+<LI><A HREF="KMeshes.html#3_3_4">K-Meshes</A></LI>
+<LI><A HREF="Threebased.html#3_3_5">Three based</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="GPGPUHistoryAndMotivation.html#4">GPGPU - History And
+ Motivation</A></B>
+<UL>
+<LI><A HREF="Introduction1.html#4_1">Introduction</A></LI>
+<LI><A HREF="WhyGPUcomputing.html#4_2">Why GPU computing?</A></LI>
+<LI><A HREF="FromGraphicstoGeneralPurposeComputing.html#4_3">From
+ Graphics to General Purpose Computing</A>
+<UL>
+<LI><A HREF="TraditionalGraphicsPipeline.html#4_3_1">Traditional
+ Graphics Pipeline</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="ComputeUnifiedDeviceArchitectureCUDA.html#5">Compute Unified
+ Device Architecture - CUDA</A></B>
+<UL>
+<LI><A HREF="Introduction2.html#5_1">Introduction</A></LI>
+<LI><A HREF="CUDAHardwaremodel.html#5_2">CUDA Hardware model</A>
+<UL>
+<LI><A HREF="ComputeCapability.html#5_2_1">Compute Capability</A></LI>
+<LI><A HREF="KeplerArchitecture.html#5_2_2">Kepler Architecture</A>
+<UL>
+<LI><A HREF="StreamingMultiProcessorSMX.html#5_2_2_1">Streaming
+ MultiProcessor-SMX</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A HREF="CUDAProgrammingmodel.html#5_3">CUDA Programming model</A>
+<UL>
+<LI><A HREF="HostandDevice.html#5_3_1">Host and Device</A></LI>
+<LI><A HREF="KernelsFunctionsAndThreadHierarchy.html#5_3_2">Kernels
+ Functions And Thread Hierarchy</A></LI>
+<LI><A HREF="Memorymodel.html#5_3_3">Memory model</A>
+<UL>
+<LI><A HREF="DeviceMemory.html#5_3_3_1">Device Memory</A></LI>
+<LI><A HREF="GlobalMemory.html#5_3_3_2">Global Memory</A></LI>
+<LI><A HREF="Coalescence.html#5_3_3_3">Coalescence</A></LI>
+<LI><A HREF="TextureMemory.html#5_3_3_4">Texture Memory</A></LI>
+<LI><A HREF="ConstantMemory.html#5_3_3_5">Constant Memory</A></LI>
+<LI><A HREF="SharedMemory.html#5_3_3_6">Shared Memory</A></LI>
+<LI><A HREF="Registers.html#5_3_3_7">Registers</A></LI>
+</UL>
+</LI>
+<LI><A HREF="DynamicParallelism.html#5_3_4">Dynamic Parallelism</A></LI>
+<LI><A HREF="PerformanceGuidelines.html#5_3_5">Performance Guidelines</A>
+<UL>
+<LI><A HREF="MaximizeUtilization.html#5_3_5_1">Maximize Utilization</A></LI>
+<LI><A HREF="MemorythroughputUtilization.html#5_3_5_2">Memory throughput
+ Utilization</A></LI>
+<LI><A HREF="MemorythroughputUtilization1.html#5_3_5_3">Memory
+ throughput Utilization</A></LI>
+<LI><A HREF="Optimizeinstructionthroughput.html#5_3_5_4">Optimize
+ instruction throughput</A></LI>
+<LI><A HREF="Libraryusage.html#5_3_5_5">Library usage</A></LI>
+</UL>
+</LI>
+<LI><A HREF="NvidiaVisualProfiler.html#5_3_6">Nvidia Visual Profiler</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="AlternativestoCUDA.html#6">Alternatives to CUDA</A></B>
+<UL>
+<LI><A HREF="Introduction3.html#6_1">Introduction</A></LI>
+<LI><A HREF="OpenCL.html#6_2">OpenCL</A>
+<UL>
+<LI><A HREF="ModelArchitecture.html#6_2_1">Model Architecture</A></LI>
+</UL>
+</LI>
+<LI><A HREF="OpenACC.html#6_3">OpenACC</A>
+<UL>
+<LI><A HREF="WaitDirective.html#6_3_1">Wait Directive</A></LI>
+<LI><A HREF="KernelDirective.html#6_3_2">Kernel Directive</A></LI>
+<LI><A HREF="DataConstruct.html#6_3_3">Data Construct</A></LI>
+</UL>
+</LI>
+<LI><A HREF="CAcceleratedMassiveParallelismCAMP.html#6_4">C++
+ Accelerated Massive Parallelism (C++ AMP)</A></LI>
+</UL>
+<B><A HREF="CellularAutomata.html#7">Cellular Automata</A></B>
+<UL>
+<LI><A HREF="Introduction4.html#7_1">Introduction</A></LI>
+<LI><A HREF="InformalDefinition.html#7_2">Informal Definition</A>
+<UL>
+<LI><A HREF="Cellularspacedimensionandgeometry.html#7_2_1">Cellular
+ space dimension and geometry</A></LI>
+<LI><A HREF="Neighborhood.html#7_2_2">Neighborhood</A></LI>
+<LI><A HREF="TransitionFunction.html#7_2_3">Transition Function</A></LI>
+</UL>
+</LI>
+<LI><A HREF="FormalDefinition.html#7_3">Formal Definition</A>
+<UL>
+<LI><A HREF="FiniteStateAutomaton.html#7_3_1">Finite State Automaton</A></LI>
+</UL>
+</LI>
+<LI><A HREF="HomogeneousCellularAutomata.html#7_4">Homogeneous Cellular
+ Automata</A></LI>
+<LI><A HREF="Theoriesandstudies.html#7_5">Theories and studies</A>
+<UL>
+<LI><A HREF="Elementarycellularautomata.html#7_5_1">Elementary cellular
+ automata</A>
+<UL>
+<LI><A HREF="Wolframscode.html#7_5_1_1">Wolfram’s code</A></LI>
+</UL>
+</LI>
+<LI><A HREF="Wolframsclassification.html#7_5_2">Wolfram’s
+ classification</A></LI>
+<LI><A HREF="AttheedgeofChaos.html#7_5_3">At the edge of Chaos</A></LI>
+<LI><A HREF="Gameoflife.html#7_5_4">Game of life</A>
+<UL>
+<LI><A HREF="Gameoflifebriefdefinition.html#7_5_4_1">Game of life -
+ brief definition</A></LI>
+<LI><A HREF="GameoflifeasTuringmachine.html#7_5_4_2">Game of life as
+ Turing machine</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A HREF="ExtensionoftheCellularautomatamodel.html#7_6">Extension of
+ the Cellular automata model</A>
+<UL>
+<LI><A HREF="ProbabilisticCA.html#7_6_1">Probabilistic CA</A>
+<UL>
+<LI><A HREF="CellularautomataasMarkovprocess.html#7_6_1_1">Cellular
+ automata as Markov process</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="Complexcellularautomata.html#8">Complex cellular automata</A>
+</B>
+<UL>
+<LI><A HREF="Introduction5.html#8_1">Introduction</A></LI>
+<LI><A HREF="Complexphenomenamodellationwithcellularautomata.html#8_2">
+Complex phenomena modellation with cellular automata</A></LI>
+<LI><A HREF="ComplexCellularautomataCCA.html#8_3">Complex Cellular
+ automata (CCA)</A>
+<UL>
+<LI><A HREF="Parameters.html#8_3_1">Parameters</A></LI>
+<LI><A HREF="Substates.html#8_3_2">Substates</A></LI>
+<LI><A HREF="Elementaryprocesses.html#8_3_3">Elementary processes</A>
+<UL>
+<LI><A HREF="Externalinfluences.html#8_3_3_1">External influences</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A HREF="CCAaformaldefinition.html#8_4">CCA - a formal definition</A>
+</LI>
+</UL>
+<B><A HREF="SCIARAfv3ModelFormalization.html#9">SCIARA-fv3 - Model
+ Formalization</A></B>
+<UL>
+<LI><A HREF="ModelOverview.html#9_1">Model Overview</A></LI>
+<LI><A HREF="Elementaryprocess.html#9_2">Elementary process</A>
+<UL>
+<LI><A HREF="Elementaryprocesstau1lavaflowscomputation.html#9_2_1">
+Elementary process: lava flows computation</A>
+<UL>
+<LI><A HREF="Computationoftheminimizingoutflowsphi0i.html#9_2_1_1">
+Computation of the minimizing outflows</A></LI>
+<LI><A HREF="Timeevaluation.html#9_2_1_2">Time evaluation</A></LI>
+<LI><A HREF="Outflowscomputation.html#9_2_1_3">Outflows computation</A></LI>
+</UL>
+</LI>
+<LI><A HREF="Elementaryprocesstau2updatingofmassandmomentum.html#9_2_2">
+Elementary process: updating of mass and momentum</A></LI>
+<LI><A HREF="Elementaryprocesstau3temperaturevariationandlavasolidification.html#9_2_3">
+Elementary process: temperature variation and lava solidification</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="ParallelGPUCUDAImplementationofthelavaflowmodelSCIARAfv3.html#10">
+Parallel GPU/CUDA Implementation of the lava flow model SCIARA-fv3</A></B>
+<UL>
+<LI><A HREF="Introduction6.html#10_1">Introduction</A></LI>
+<LI><A HREF="TheAssessParallelizeOptimizeDeployAPODdesigncycle.html#10_2">
+The Assess, Parallelize, Optimize, Deploy (APOD) design cycle</A>
+<UL>
+<LI><A HREF="Assess.html#10_2_1">Assess</A></LI>
+<LI><A HREF="Parallelize.html#10_2_2">Parallelize</A></LI>
+<LI><A HREF="Optimize.html#10_2_3">Optimize</A></LI>
+<LI><A HREF="Deploy.html#10_2_4">Deploy</A></LI>
+</UL>
+</LI>
+<LI><A HREF="Analysisoftheserialcode.html#10_3">Analysis of the serial
+ code</A>
+<UL>
+<LI><A HREF="Serialcodeoverview.html#10_3_1">Serial code overview</A>
+<UL>
+<LI><A HREF="MemoryOrganizationanddatastructures.html#10_3_1_1">Memory
+ Organization and data structures</A></LI>
+<LI><A HREF="Transitionfunctionandelementaryprocesses.html#10_3_1_2">
+Transition function and elementary processes</A></LI>
+<LI><A HREF="SerialOptimizations.html#10_3_1_3">Serial Optimizations</A></LI>
+</UL>
+</LI>
+<LI><A HREF="ProfilingGprof.html#10_3_2">Profiling - Gprof</A></LI>
+<LI><A HREF="SCIARAfv3profiling.html#10_3_3">SCIARA-fv3 profiling</A></LI>
+</UL>
+</LI>
+<LI><A HREF="Toplevelandstrategiesoverview.html#10_4">Top level and
+ strategies overview</A>
+<UL>
+<LI><A HREF="Migrationfrom2Dmatricestolineararrays.html#10_4_1">
+Migration from 2D matrices to linear arrays</A>
+<UL>
+<LI><A HREF="RowMajorndimensionalarraysrepresentation.html#10_4_1_1">
+Row-Major n-dimensional arrays representation</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A HREF="Naveimplementation.html#10_5">Naïve implementation</A>
+<UL>
+<LI><A HREF="Blocksorganization.html#10_5_1">Blocks organization</A></LI>
+<LI><A HREF="RaceConditionavoiding.html#10_5_2">Race Condition avoiding</A>
+</LI>
+</UL>
+</LI>
+<LI><A HREF="Deviceoccupancyconsiderations.html#10_6">Device occupancy
+ considerations</A></LI>
+<LI><A HREF="RectangularBoundingBoxRBB.html#10_7">Rectangular Bounding
+ Box - RBB</A></LI>
+<LI><A HREF="AtomicFunctionsimplementation.html#10_8">Atomic Functions
+ implementation</A></LI>
+<LI><A HREF="Listofactivecellsimplementation.html#10_9">List of active
+ cells implementation</A></LI>
+<LI><A HREF="Sharedmemoryoptimizations.html#10_10">Shared memory
+ optimizations</A></LI>
+<LI><A HREF="Ifdivergencesmitigation.html#10_11">If divergences
+ mitigation</A></LI>
+<LI><A HREF="Testvalidationandperformancesresults.html#10_12">Test,
+ validation and performances results</A>
+<UL>
+<LI><A HREF="KeplervsFermiperformance.html#10_12_1">Kepler vs Fermi
+ performance</A></LI>
+<LI><A HREF="FloatDoubleprecisionconsiderations.html#10_12_2">
+Float-Double precision considerations</A></LI>
+<LI><A HREF="Approximationandnumericalerrors.html#10_12_3">Approximation
+ and numerical errors</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="Conclusions.html#11">Conclusions</A></B>
+<UL>
+<LI><A HREF="Summary.html#11_1">Summary</A></LI>
+<LI><A HREF="Workinprogress.html#11_2">Work in progress</A>
+<UL>
+<LI><A HREF="MultipleRectangularBoundingBoxes.html#11_2_1">Multiple
+ Rectangular Bounding Boxes</A>
+<UL>
+<LI><A HREF="RBBspositioninganddimensioning.html#11_2_1_1">RBBs
+ positioning and dimensioning</A></LI>
+</UL>
+</LI>
+<LI><A HREF="GeneralCCACUDAGPGPUlibraryCuCCAl.html#11_2_2">General CCA
+ CUDA-GPGPU library (CuCCAl)</A>
+<UL>
+<LI><A HREF="Usageoverview.html#11_2_2_1">Usage overview</A></LI>
+<LI><A HREF="2DGPUDynamicsubstatemanagement.html#11_2_2_2">2D GPU
+ Dynamic substate management</A></LI>
+</UL>
+</LI>
+<LI><A HREF="Publications.html#11_2_3">Publications</A></LI>
+</UL>
+</LI>
+</UL>
+<B><A HREF="CodeListings.html#12">Code Listings</A></B><HR NOSHADE>
+</BODY>
+</HTML>

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Memoryclassification.html">
+<LINK REL="Next" HREF="Busbasednetworks.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Memoryclassification.html">Previous</A>
+<A HREF="Busbasednetworks.html">Next</A>
+<HR NOSHADE>
+<H2 id="network-topologies"><A NAME="3_3">Network Topologies</A></H2>
+<P>An important role is played, as seen before, by the interconnection
+ network because provide mechanisms for data transfer between processing
+ nodes. Typically they consist of<EM> n</EM> inputs and<EM> m</EM>
+ outputs and are built in by switches and links (set of wires or fibers
+ capable of carrying information<A class="footnoteRef" href="#fn6" id="fnref6">
+<SUP>6</SUP></A>).</P>
+<P><IMG alt="Start network topology" HEIGHT="431" src="StartMesh.png" title="fig:"
+WIDTH="434"> [fig:starMesh]</P>
+<P>A first classification can be done considering only if the nodes are
+ connected directly to each others or not. In the first case the entire
+ network consist of point-to-point links and they are called<STRONG><EM>
+ static</EM></STRONG> or<STRONG><EM> direct</EM></STRONG> networks. On
+ the other hand when the nodes are connected to each others using
+ switches we talk about<STRONG><EM> indirect</EM></STRONG> networks.
+ Because communication is an important task in parallel computing, the
+ way the nodes are connected to each other is important and can
+ influence the overall performance of the system that is determined by
+ the capabilities of the network access devices, the level of control or
+ fault tolerance desired, and the cost associated with cabling or
+ telecommunications circuits. Networks topologies try to trade off cost
+ and scalability with performance</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Memoryclassification.html">Previous</A>
+<A HREF="Busbasednetworks.html">Next</A>
+</BODY>
+</HTML>

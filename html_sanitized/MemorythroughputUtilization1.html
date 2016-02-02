@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="MemorythroughputUtilization.html">
+<LINK REL="Next" HREF="Optimizeinstructionthroughput.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="MemorythroughputUtilization.html">Previous</A>
+<A HREF="Optimizeinstructionthroughput.html">Next</A>
+<HR NOSHADE>
+<H4 id="memory-throughput-utilization-1"><A NAME="5_3_5_3">Memory
+ throughput Utilization</A></H4>
+<P>Shared memory and caches (i.e., L1/L2 caches available on devices
+ compute capability 2.x and higher) should be used to minimized memory
+ transfers and global memory accesses. The typical patter of a program
+ that use shared memory is :</P>
+<UL>
+<LI>
+<P>Load data in shared memory. Usually each thread in a block load its
+ address.</P>
+</LI>
+<LI>
+<P>Synchronize with the other threads so the memory is coherent after
+ its population.</P>
+</LI>
+<LI>
+<P>Process data in shared memory as much as possible.</P>
+</LI>
+<LI>
+<P>Write back to device memory.</P>
+</LI>
+</UL>
+<P>As explained in section [memoryModel] accesses pattern is important
+ even in shared memory, so a second phase of optimization is often
+ necessary to organize accesses in order to enable coalesced access in
+ case of global memory<A class="footnoteRef" href="#fn43" id="fnref43"><SUP>
+43</SUP></A> or avoid bank conflict in shared memory.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="MemorythroughputUtilization.html">Previous</A>
+<A HREF="Optimizeinstructionthroughput.html">Next</A>
+</BODY>
+</HTML>

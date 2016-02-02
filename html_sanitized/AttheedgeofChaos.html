@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Wolframsclassification.html">
+<LINK REL="Next" HREF="Gameoflife.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Wolframsclassification.html">Previous</A>
+<A HREF="Gameoflife.html">Next</A>
+<HR NOSHADE>
+<H3 id="at-the-edge-of-chaos"><A NAME="7_5_3">At the edge of Chaos</A></H3>
+<P>Class 4 automata are at<EM> the edge of chaos</EM> and give a good
+ metaphor for the idea that the<EM> interesting</EM> complexity (like
+ the one exhibit by biological entities and their interactions or
+ analogous to the phase transition between solid and fluid state of the
+ matter, is in equilibrium between stability and chaos
+<!--span class=&quot;citation&quot;-->
+[@Langton1990].</P>
+<BLOCKQUOTE>
+<P><EM>Perhaps the most exciting implication (of CA representation of
+ biological phenomena) is the possibility that life had its origin in
+ the vicinity of a phase transition and that evolution reflects the
+ process by which life has gained local control over a successively
+ greater number of environmental parameters affecting its ability to
+ maintain itself at a critical balance point between order and chaos.
+<BR> (<EM><STRONG>Chris Langton</STRONG> - Computation at the edge of
+ chaos. Phase transition and emergent computation - pag.13</EM>).</EM></P>
+</BLOCKQUOTE>
+<P>
+<BR></P>
+<P>Langton in his famous paper,<EM> Computation at the edge of chaos:
+ phase transition and emergent computation</EM>
+<!--span class=&quot;citation&quot;-->
+[@Langton1990],was able to identify, simply parametrizing the rule
+ space, the various AC classes, the relation between them and to
+ “couple” them with the classical complexity classes. He introduced
+ the parameter
+<!--span class=&quot;math inline&quot;-->
+ \(\lambda\)
+<!--span class=&quot;citation&quot;-->
+[@LangtonThesis1990]that, informally, is simply the fraction of the
+ entries in the transition rule table that are mapped the not-quiescent
+ state.
+<!--span class=&quot;math display&quot;-->
+ \[\lambda=\frac{K^N-n_q}{K^N}\] where:</P>
+<UL>
+<LI>
+<P>K is the number of the cell states</P>
+</LI>
+<LI>
+<P>N the arity of the neighborhood</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(n_q\) the number of rules mapped to the quiescent state
+<!--span class=&quot;math inline&quot;-->
+ \(q_q\)</P>
+</LI>
+</UL>
+<DIV class="figure"> <IMG alt="Relation between lambda parameter and the CA behaviors-Wolfram’s classes."
+HEIGHT="284" src="edgeofchaos.png" WIDTH="503">
+<P class="caption">Relation between lambda parameter and the CA
+ behaviors-Wolfram’s classes.
+<!--span data-label=&quot;lambdaWolframClass&quot;-->
+</P>
+</DIV>
+<P>Langton’s major finding was that a simple measure such as it
+ correlates with the system behavior: as it goes from 0 to
+<!--span class=&quot;math inline&quot;-->
+ \( 1-\frac{1}{K}\)(respectively the most homogeneous and the most
+ heterogeneous rules table scenario), the average behavior of the system
+ goes from freezing to periodic patterns to chaos and functions with an
+ average value of
+<!--span class=&quot;math inline&quot;-->
+ \(\lambda\) (see
+<!--span class=&quot;citation&quot;-->
+ [@Langton1990] for a more general discussion) are being on<EM> on the
+ edge</EM>(see figure [lambdaWolframClass]).</P>
+<P>He studied a entire family of totalistic CA with
+<!--span class=&quot;math inline&quot;-->
+ \(k=4 \) and
+<!--span class=&quot;math inline&quot;-->
+ \(N=5\) with
+<!--span class=&quot;math inline&quot;-->
+ \(\lambda\) varying in
+<!--span class=&quot;math inline&quot;-->
+ \([0,0.75]\). He was able to determine that values of
+<!--span class=&quot;math inline&quot;-->
+ \(\lambda\approx0.45\) raise up to class 4 cellular automata.
+ Computational system must to provide fundamental properties if it is to
+ support computation. Only CA<EM> on the edge</EM> show these properties
+ on manipulating and store information data. Here the properties that a
+ computational system as to provide:</P>
+<DL>
+<DT>Storage</DT>
+<DD>
+<P>
+<BR> Storage is the ability of the system of preserving information for
+ arbitrarily long times</P>
+</DD>
+<DT>Transmission</DT>
+<DD>
+<P>
+<BR> Transmission is the propagation of the information in the form of
+ signals over arbitrarily long distance</P>
+</DD>
+<DT>Modification</DT>
+<DD>
+<P>
+<BR> Stored and transmitted information is the mutual possible
+ modification of two signals.</P>
+</DD>
+</DL>
+<P>Storage is coupled with less entropy of the system, but transmission
+ and modification are not. Few entropy is associated with CA of Class 1
+ and 2 and high entropy with class 3. Class 4 is something in between,
+ the cells cooperate and are correlate each other, but not too much
+ otherwise they would be overly dependent with one mimicking the other
+ supporting computation in all its aspects and requirements. Moreover
+ class 4 CA are very dependent from the initial configuration opening to
+ the possibility to encode programs in it.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Wolframsclassification.html">Previous</A>
+<A HREF="Gameoflife.html">Next</A>
+</BODY>
+</HTML>

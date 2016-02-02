@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="AcceleratingthenewSCIARAfv3numericalmodelbydifferentGPGPUstrategies.html">
+<LINK REL="Next" HREF="Acknowledgments.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="AcceleratingthenewSCIARAfv3numericalmodelbydifferentGPGPUstrategies.html">Previous</A>
+<A HREF="Acknowledgments.html">Next</A>
+<HR NOSHADE>
+<H2 class="author"><A NAME="1_1">Davide Spataro</A></H2>
+</DIV><DIV id="TOC">
+<UL>
+<LI><A href="#acknowledgments">Acknowledgments</A></LI>
+<LI><A href="#chap:parallelArchitectures">Parallel computing
+ architectures</A>
+<UL>
+<LI><A href="#introduction">Introduction</A></LI>
+<LI><A href="#architectures">Architectures</A>
+<UL>
+<LI><A href="#classical-classification---flynns-taxonomy">Classical
+ classification - Flynn’s taxonomy</A></LI>
+<LI><A href="#memory-classification">Memory classification</A></LI>
+</UL>
+</LI>
+<LI><A href="#network-topologies">Network Topologies</A>
+<UL>
+<LI><A href="#bus-based">Bus-based networks</A></LI>
+<LI><A href="#completely-connected-networks">Completely connected
+ networks</A></LI>
+<LI><A href="#star-connected-networks">Star-Connected Networks</A></LI>
+<LI><A href="#k-meshes">K-Meshes</A></LI>
+<LI><A href="#three-based">Three based</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A href="#gpgpu---history-and-motivation">GPGPU - History And
+ Motivation</A>
+<UL>
+<LI><A href="#introduction-1">Introduction</A></LI>
+<LI><A href="#why-gpu-computing">Why GPU computing?</A></LI>
+<LI><A href="#from-graphics-to-general-purpose-computing">From Graphics
+ to General Purpose Computing</A>
+<UL>
+<LI><A href="#graphicPipeline">Traditional Graphics Pipeline</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A href="#chap:CUDA">Compute Unified Device Architecture - CUDA</A>
+<UL>
+<LI><A href="#introduction-2">Introduction</A></LI>
+<LI><A href="#cuda-hardware-model">CUDA Hardware model</A>
+<UL>
+<LI><A href="#computeCapability">Compute Capability</A></LI>
+<LI><A href="#sect:keplerArch">Kepler Architecture</A></LI>
+</UL>
+</LI>
+<LI><A href="#cudaProgrammingModel">CUDA Programming model</A>
+<UL>
+<LI><A href="#host-and-device">Host and Device</A></LI>
+<LI><A href="#kernels">Kernels Functions And Thread Hierarchy</A></LI>
+<LI><A href="#memoryModel">Memory model</A></LI>
+<LI><A href="#DynamicParallelism">Dynamic Parallelism</A></LI>
+<LI><A href="#sect:cudaPerfGuideline">Performance Guidelines</A></LI>
+<LI><A href="#nvidia-visual-profiler">Nvidia Visual Profiler</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A href="#alternatives-to-cuda">Alternatives to CUDA</A>
+<UL>
+<LI><A href="#introduction-3">Introduction</A></LI>
+<LI><A href="#opencl">OpenCL</A>
+<UL>
+<LI><A href="#model-architecture">Model Architecture</A></LI>
+</UL>
+</LI>
+<LI><A href="#openacc">OpenACC</A>
+<UL>
+<LI><A href="#wait-directive">Wait Directive</A></LI>
+<LI><A href="#kernel-directive">Kernel Directive</A></LI>
+<LI><A href="#data-construct">Data Construct</A></LI>
+</UL>
+</LI>
+<LI><A href="#c-accelerated-massive-parallelism-c-amp">C++ Accelerated
+ Massive Parallelism (C++ AMP)</A></LI>
+</UL>
+</LI>
+<LI><A href="#cellular-automata">Cellular Automata</A>
+<UL>
+<LI><A href="#cellularAutomataIntroduction">Introduction</A></LI>
+<LI><A href="#informal-definition">Informal Definition</A>
+<UL>
+<LI><A href="#cellular-space-dimension-and-geometry">Cellular space
+ dimension and geometry</A></LI>
+<LI><A href="#neighborhood">Neighborhood</A></LI>
+<LI><A href="#transition-function">Transition Function</A></LI>
+</UL>
+</LI>
+<LI><A href="#formal-definition">Formal Definition</A>
+<UL>
+<LI><A href="#DFA">Finite State Automaton</A></LI>
+</UL>
+</LI>
+<LI><A href="#homogeneousCellularAutomata">Homogeneous Cellular Automata</A>
+</LI>
+<LI><A href="#theories-and-studies">Theories and studies</A>
+<UL>
+<LI><A href="#elementary-cellular-automata">Elementary cellular automata</A>
+</LI>
+<LI><A href="#wolframs-classification">Wolfram’s classification</A></LI>
+<LI><A href="#at-the-edge-of-chaos">At the edge of Chaos</A></LI>
+<LI><A href="#sect:GOL">Game of life</A></LI>
+</UL>
+</LI>
+<LI><A href="#extension-of-the-cellular-automata-model">Extension of the
+ Cellular automata model</A>
+<UL>
+<LI><A href="#probabilistic-ca">Probabilistic CA</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A href="#complex-cellular-automata">Complex cellular automata</A>
+<UL>
+<LI><A href="#introduction-4">Introduction</A></LI>
+<LI><A href="#complex-phenomena-modellation-with-cellular-automata">
+Complex phenomena modellation with cellular automata</A></LI>
+<LI><A href="#complex-cellular-automata-cca">Complex Cellular automata
+ (CCA)</A>
+<UL>
+<LI><A href="#parameters">Parameters</A></LI>
+<LI><A href="#substates">Substates</A></LI>
+<LI><A href="#elementaryProcesses">Elementary processes</A></LI>
+</UL>
+</LI>
+<LI><A href="#mcaFormal">CCA - a formal definition</A></LI>
+</UL>
+</LI>
+<LI><A href="#sect:SCIARA_MODEL">SCIARA-fv3 - Model Formalization</A>
+<UL>
+<LI><A href="#model-overview">Model Overview</A></LI>
+<LI><A href="#sect:ElementaryProcesses">Elementary process</A>
+<UL>
+<LI><A href="#elementary-process-tau_1-lava-flows-computation">
+Elementary process
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_1\): lava flows computation</A></LI>
+<LI><A href="#sect:sciaraModelTau2">Elementary process
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_2\): updating of mass and momentum</A></LI>
+<LI><A href="#sect:temperatureDrop">Elementary process
+<!--span class=&quot;math inline&quot;-->
+ \(\tau_3\): temperature variation and lava solidification</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A href="#parallel-gpucuda-implementation-of-the-lava-flow-model-sciara-fv3">
+Parallel GPU/CUDA Implementation of the lava flow model SCIARA-fv3</A>
+<UL>
+<LI><A href="#introduction-5">Introduction</A></LI>
+<LI><A href="#sect:APOD">The Assess, Parallelize, Optimize, Deploy
+ (APOD) design cycle</A>
+<UL>
+<LI><A href="#assess">Assess</A></LI>
+<LI><A href="#parallelize">Parallelize</A></LI>
+<LI><A href="#optimize">Optimize</A></LI>
+<LI><A href="#deploy">Deploy</A></LI>
+</UL>
+</LI>
+<LI><A href="#analysysserialCode">Analysis of the serial code</A>
+<UL>
+<LI><A href="#serial-code-overview">Serial code overview</A></LI>
+<LI><A href="#sect:profiling">Profiling - Gprof</A></LI>
+<LI><A href="#sciara-fv3-profiling">SCIARA-fv3 profiling</A></LI>
+</UL>
+</LI>
+<LI><A href="#sect:topLevelStrategies">Top level and strategies overview</A>
+<UL>
+<LI><A href="#1Dto2Dmemory">Migration from 2D matrices to linear arrays</A>
+</LI>
+</UL>
+</LI>
+<LI><A href="#sect:naiveImplementation">Naïve implementation</A>
+<UL>
+<LI><A href="#blocks-organization">Blocks organization</A></LI>
+<LI><A href="#sect:raceCondAvoiding">Race Condition avoiding</A></LI>
+</UL>
+</LI>
+<LI><A href="#sect:idleThreadsDevOccupancy">Device occupancy
+ considerations</A></LI>
+<LI><A href="#sect:RBBOptimization">Rectangular Bounding Box - RBB</A></LI>
+<LI><A href="#sect:atomicImplementation">Atomic Functions implementation</A>
+</LI>
+<LI><A href="#sect:linearCellAtomic">List of active cells implementation</A>
+</LI>
+<LI><A href="#sect:sharedMemoryOptimization">Shared memory optimizations</A>
+</LI>
+<LI><A href="#if-divergences-mitigation">If divergences mitigation</A></LI>
+<LI><A href="#test-validation-and-performances-results">Test, validation
+ and performances results</A>
+<UL>
+<LI><A href="#kepler-vs-fermi-performance">Kepler vs Fermi performance</A>
+</LI>
+<LI><A href="#sect:precisionConsid">Float-Double precision
+ considerations</A></LI>
+<LI><A href="#approximation-and-numerical-errors">Approximation and
+ numerical errors</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A href="#conclusions">Conclusions</A>
+<UL>
+<LI><A href="#summary">Summary</A></LI>
+<LI><A href="#work-in-progress">Work in progress</A>
+<UL>
+<LI><A href="#multiple-rectangular-bounding-boxes">Multiple Rectangular
+ Bounding Boxes</A></LI>
+<LI><A href="#general-cca-cuda-gpgpu-library-cuccal">General CCA
+ CUDA-GPGPU library (CuCCAl)</A></LI>
+<LI><A href="#publications">Publications</A></LI>
+</UL>
+</LI>
+</UL>
+</LI>
+<LI><A href="#code-listings">Code Listings</A></LI>
+</UL>
+</DIV>
+<P>
+<!--span-->
+<EM>Alla mia famiglia.</EM></P>
+<P><EM>A Maria.</EM></P>
+<P>
+<BR><EM><STRONG> English</STRONG></EM>
+<BR>
+<BR> In this thesis, a parallel version of the model SCIARA-fv3
+<!--span class=&quot;citation&quot;-->
+[@Spataro2010] was designed and implemented using General-Purpose
+ Computation with Graphics Processing Units (GPGPU) and specifically, by
+ adopting the NVIDIA Compute Unified Device Architecture (CUDA)
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide] framework in order to improve the overall execution
+ time. It involves the design and the application of strategies that
+ allow to avoid incorrect computation results due to race conditions of
+ any type and at the same time to achieve the best performance and
+ occupancy of the underlying available hardware. Carried out experiments
+ show that significant performance improvement in terms of speedup are
+ achieved also thanks to some original optimizations strategies adopted,
+ confirming the validity of graphics hardware as an alternative to much
+ more expensive solutions for the simulation of cellular automata
+ models.
+<BR></P>
+<P>(1,0)
+<!--span-->
+350
+<BR></P>
+<P>
+<BR>
+<BR><EM><STRONG> Italian</STRONG></EM>
+<BR>
+<BR> In questo lavoro di tesi ho progettato ed implementato una versione
+ parallela del modello numero SCIARA-fv3
+<!--span class=&quot;citation&quot;-->
+[@Spataro2010] utilizzando le schede grafiche per il calcolo
+ general-purpose (General Purpose Computation with Graphics Processing
+ Units - GPGPU), adottando il Compute Unified Device Architecture (CUDA)
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide] framework di NVIDIA con lo scopo di migliorare i
+ tempi di esecuzione complessivi. Questo ha comportato il design prima,
+ e l’applicazione vera e propria poi, di strategie che permettessero
+ sia di evitare errori dovuti a race-conditions di qualsiasi tipo che di
+ raggiungere gli speedups migliori con l’hardware a disposizione. Gli
+ esperimenti effettuati mostrano significativi miglioramenti nelle
+ performance in termini di speedup grazie anche all’utilizzo di alcune
+ stragie d’ottimizzazione nuove, confermando la validità dell’uso
+ di processori grafici come alternativa a soluzioni hardware per la
+ parallelizzazione di modelli ad automi cellulari molto più costose.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="AcceleratingthenewSCIARAfv3numericalmodelbydifferentGPGPUstrategies.html">Previous</A>
+<A HREF="Acknowledgments.html">Next</A>
+</BODY>
+</HTML>

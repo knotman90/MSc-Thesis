@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Substates.html">
+<LINK REL="Next" HREF="Externalinfluences.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Substates.html">Previous</A>
+<A HREF="Externalinfluences.html">Next</A>
+<HR NOSHADE>
+<H3 id="elementaryProcesses"><A NAME="8_3_3">Elementary processes</A></H3>
+<P>The transition function has to take into account all the possible
+ processes that can happen in Complex phenomena, as physics, chemical
+ etc. So as the state set was decomposed in substates also the
+ transition function is divided in so called elementary processes that
+ when applied in concert make up transition function that describe the
+ entire process. Moreover the elementary processes can be divided in :</P>
+<DL>
+<DT>Internal transformations</DT>
+<DD>
+<P>
+<BR> Internal transformation
+<!--span class=&quot;math inline&quot;-->
+ \(T_1,T_2,\ldots,T_l\) define the changes in the values of the
+ substates only due to interactions among them (e.g., temperature drop
+ in SCIARA-fv3, see section [sect:temperatureDrop], is function of the
+ substate lava thickness) inside the cell or due simply to the elapsing
+ of the time (e.g., water loss by evaporation). All cell processes
+ evolution that are not due to interaction with other cells can be
+ “labeled” as<EM> internal transformation</EM>. That is, internal
+ transformation are those which would take place if all the cells were
+ independent of each other.</P>
+<P>For each internal transformation :
+<!--span class=&quot;math display&quot;-->
+ \[T_i \equiv \sigma_{t_i} \colon S_{T_{i1}}\rightarrow S_{T_{i2}} \:,\:
+ 1 \leq i \leq l\] where
+<!--span class=&quot;math inline&quot;-->
+ \(S_{T_{i1}},S_{T_{i2}} \in \mathcal{P}(Q) \)(power set of Q)</P>
+</DD>
+<DT>Local/neighborhood interaction</DT>
+<DD>
+<P>
+<BR> Local interaction
+<!--span class=&quot;math inline&quot;-->
+ \(I_1,I_2,\ldots,I_k\) describe transformation due to local interaction
+ with the neighborhood cells and are often described in terms of flows
+ of some quantities across them.
+<!--span class=&quot;math display&quot;-->
+ \[I_j \equiv \sigma_{I_j} \colon S^m_{I_{j1}} \rightarrow S_{I_{j2}}
+ \:,\: 1 \leq j \leq k\] where
+<!--span class=&quot;math inline&quot;-->
+ \(S_{I_{j1}},S_{I_{j2}} \in \mathcal{P}(Q) \)(power set of Q) and
+<!--span class=&quot;math inline&quot;-->
+ \(m\) is the number of the neighborhood cells.</P>
+</DD>
+</DL>
+<P>The whole phenomenon can be so described by sequentially calculating
+ internal and local interaction functions. The execution order may be
+ particularly for the model evolution and for the results
+<!--span class=&quot;citation&quot;-->
+[@Ruxton1996].</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Substates.html">Previous</A>
+<A HREF="Externalinfluences.html">Next</A>
+</BODY>
+</HTML>

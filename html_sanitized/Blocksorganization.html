@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Naveimplementation.html">
+<LINK REL="Next" HREF="RaceConditionavoiding.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Naveimplementation.html">Previous</A>
+<A HREF="RaceConditionavoiding.html">Next</A>
+<HR NOSHADE>
+<H3 id="blocks-organization"><A NAME="10_5_1">Blocks organization</A></H3>
+<P>The whole cellular space was equally divided in <CODE>BLOCK_SIZE_X</CODE>
+ chunks of threads on the<EM> x</EM>-dimension and in <CODE>BLOCK_SIZE_Y</CODE>
+ on the<EM> y</EM> one. Then each thread within the blocks was mapped to
+ one cell of the cellular space. We simple used the block and thread
+ indexing provided by the CUDA framework (see section [kernels]) to
+ implement that kind of mapping. More in detail the problem here is to
+ calculate the global index
+<!--span class=&quot;math inline&quot;-->
+ \(o\) (unique) of the thread given a grid-block organization. As stated
+ before the launch configuration can be set up with all the combinations
+ of possible dimensions values for grids and blocks (1 to 3 dimensions
+ each). In particular here the thread organization used is always:</P>
+<UL>
+<LI>
+<P>2D<STRONG> grid</STRONG> and 2D<STRONG> blocks</STRONG> reflecting
+ the 2D nature of the model.</P>
+</LI>
+</UL>
+<P>so the approach used was to find first a unique couple of indexes
+ mapping to the 2D coordinate of the cellular automata, and then use the
+ formula (see section [1Dto2Dmemory]) to transform it into the 1D index,
+ needed to refer to 1D CUDA buffers.</P>
+<P>
+<!--span class=&quot;math display&quot;-->
+\[col=threadIdx.x+blockIdx.x \times blockDim.x;\]
+<!--span class=&quot;math display&quot;-->
+ \[row=threadIdx.y+blockIdx.y \times blockDim.y;\]
+<!--span class=&quot;math display&quot;-->
+ \[linearIndex=row \times DIMROW + COL\]</P>
+<P>The two values, <CODE>BLOCK_SIZE_X</CODE> and <CODE>BLOCK_SIZE_Y</CODE>
+ are considered in effect parameters and a tuning phase was needed in
+ order to find the better configuration in terms of minimizing the
+ execution time. Obviously is possible to allocate only an integer
+ number of blocks and hence a simple blocks number calculation like
+<!--span class=&quot;math display&quot;-->
+ \[BLOCK\_NUM\_X=\frac{SIZE\_CELL\_SPACE\_X}{BLOCK\_SIZE\_X}\]
+<!--span class=&quot;math display&quot;-->
+ \[BLOCK\_NUM\_Y=\frac{SIZE\_CELL\_SPACE\_Y}{BLOCK\_SIZE\_Y}\] would
+ fail in most of cases (it would work only when
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(SIZE\_CELL\_SPACE\_\{X\_Y\}\) is multiple of
+<!--span class=&quot;math inline&quot;-->
+ \(BLOCK\_SIZE\_\{X\_Y\}\)). So the approach used was :
+<!--span class=&quot;math display&quot;-->
+ \[BLOCK\_NUM\_X=\Bigl\lfloor\frac{SIZE\_CELL\_SPACE\_X}{BLOCK\_SIZE\_X}\Bigl\rfloor
+ + 1 \cdot \alpha\]
+<!--span class=&quot;math display&quot;-->
+ \[BLOCK\_NUM\_Y=\Bigl\lfloor\frac{SIZE\_CELL\_SPACE\_Y}{BLOCK\_SIZE\_Y}\Bigl\rfloor
+ + 1 \cdot \beta\]</P>
+<P>where
+<!--span class=&quot;math display&quot;-->
+ \[\alpha = \begin{cases} 1 &amp;\mbox{if }
+ \frac{SIZE\_CELL\_SPACE\_X}{BLOCK\_SIZE\_X} \not\in \mathbb{N} \\ 0 &amp;
+ \mbox{otherwise } \end{cases}\]
+<!--span class=&quot;math display&quot;-->
+ \[\beta = \begin{cases} 1 &amp;\mbox{if }
+ \frac{SIZE\_CELL\_SPACE\_Y}{BLOCK\_SIZE\_Y} \not\in \mathbb{N} \\ 0 &amp;
+ \mbox{otherwise } \end{cases}\] For example let
+<!--span class=&quot;math inline&quot;-->
+ \(SIZE\_CELL\_SPACE\_X=500\),
+<!--span class=&quot;math inline&quot;-->
+ \(SIZE\_CELL\_SPACE\_Y=800 \) and
+<!--span class=&quot;math inline&quot;-->
+ \(BLOCK\_SIZE\_X=16,BLOCK\_SIZE\_Y=8\) be respectively the X and Y
+ dimension sizes of the cellular space and the X and Y block sizes; the
+ number of blocks is so calculated:
+<!--span class=&quot;math display&quot;-->
+ \[BLOCK\_NUM\_X=\Bigl\lfloor\frac{500}{16} \Bigl\rfloor + 1 \cdot 1 =
+ \floor{31.25}+1\cdot1= 31 + 1= 32\]
+<!--span class=&quot;math display&quot;-->
+ \[BLOCK\_NUM\_Y=\Bigl\lfloor\frac{800}{8} \Bigl\rfloor + 1 \cdot 0
+ =\floor{100}+0= 100 + 1\cdot0= 100\] This means that it is possible to
+ ceate more threads than the total number of cells that make up the
+ whole cellular space. Regarding the latter example:
+<!--span class=&quot;math display&quot;-->
+ \[(32\cdot 16) \cdot (100\cdot 8)=409600 &gt; 800 \cdot 500= 400000\]
+ meaning that
+<!--span class=&quot;math inline&quot;-->
+ \(409600-400000=9600\) allocated threads are “superfluous” in a
+ context of<EM> one-cell one-thread</EM> mapping and have to be managed
+ into code and taken into account when designing the porting and
+ evaluating performances. We handled the bad consequence of this
+ scenario just denying them from computation within each kernel (see
+ listing [code:wastedThreads])</P>
+<PRE> <CODE>//calculating 2D coordinate of the cellular
+	//space cell to be handled by this specific thread
+	int col=(threadIdx.x+blockIdx.x*blockDim.x);
+	int row=(threadIdx.y+blockIdx.y*blockDim.y);
+	if(col&gt;=0 &amp;&amp; col &lt;= SIZE_X){
+		if(row&gt;=0 &amp;&amp; row &lt;= SIZE_Y){
+			/*
+			Do work only here
+			*/
+		}
+	}</CODE></PRE>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Naveimplementation.html">Previous</A>
+<A HREF="RaceConditionavoiding.html">Next</A>
+</BODY>
+</HTML>

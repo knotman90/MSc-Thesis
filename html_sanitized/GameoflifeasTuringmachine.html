@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Gameoflifebriefdefinition.html">
+<LINK REL="Next" HREF="ExtensionoftheCellularautomatamodel.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Gameoflifebriefdefinition.html">Previous</A>
+<A HREF="ExtensionoftheCellularautomatamodel.html">Next</A>
+<HR NOSHADE>
+<H4 id="game-of-life-as-turing-machine"><A NAME="7_5_4_2">Game of life
+ as Turing machine</A></H4>
+<P>Every CA con be considered a device capable of supporting computation
+ and the initial configuration can encode an input string (a program for
+ example). At some point the current configuration can be interpreted as
+ the result of the computation and decoded in a output string. But as we
+ stated before in section [DFA] not all the computational device have
+ the same computational power. So which is the one of the game of life?
+ Life was proved can compute everything a universal Turing machine can,
+ and under Turing-Church’s thesis, everything can be computed by a
+ computer
+<!--span class=&quot;citation&quot;-->
+[@berlekamp1982].</P>
+<P>This raises a computational issue; given the<EM> Halting Theorem</EM><A
+class="footnoteRef" href="#fn74" id="fnref74"><SUP>74</SUP></A> the
+ evolution of<EM> Life</EM> is unpredictable (as all the universal
+ computational systems) so it means that is not possible to use any
+ algorithmically shortcuts to anticipate the resulting configuration
+ given an initial input. The most efficient way is to let the system
+ run.</P>
+<BLOCKQUOTE>
+<P><EM>Life, like all computationally universal systems, defines the
+ most efficient simulation of its own behavior
+<!--span class=&quot;citation&quot;-->
+[@Ilachinski2001]</EM></P>
+</BLOCKQUOTE><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Gameoflifebriefdefinition.html">Previous</A>
+<A HREF="ExtensionoftheCellularautomatamodel.html">Next</A>
+</BODY>
+</HTML>

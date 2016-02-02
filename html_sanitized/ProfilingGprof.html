@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="SerialOptimizations.html">
+<LINK REL="Next" HREF="SCIARAfv3profiling.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="SerialOptimizations.html">Previous</A>
+<A HREF="SCIARAfv3profiling.html">Next</A>
+<HR NOSHADE>
+<H3 id="sect:profiling"><A NAME="10_3_2">Profiling - Gprof</A></H3>
+<P>Bottlenecks can be identified by performing the profiling analysis of
+ the code. Profiling consist of a numbers of metrics that describe the
+ complexity of an application in term of space and time. Profiling is
+ achieved using tools called<EM> code profilers</EM>. The output of a
+ profiler usually consist of a :</P>
+<DL>
+<DT>Statistical summary:</DT>
+<DD>
+<P>
+<BR> The profiler annotates statistics and metrics against the source
+ code statements when a certain event occurs (e.g. a method call or an <CODE>
+else</CODE> part of a <CODE>if</CODE> branching). It can record for
+ example the entire trace of the called methods in a so called<EM> call
+ graph</EM> (see figure [stackCall]). A call graph is a direct graph
+ describing relations between subroutines. It could be:</P>
+<UL>
+<LI>
+<P><STRONG>dynamic</STRONG> Is dynamic when the graph is a record of an
+ execution of the program.</P>
+</LI>
+<LI>
+<P><STRONG>static</STRONG> Static call graph are built “offline” and
+ it intends to represent<STRONG> every</STRONG> possible run of the
+ program. Building an exact static call graph is an undecidable problem
+ so usually they are approximations. An example of tools that perform
+ static call graph analysis are<EM> cflow</EM><A class="footnoteRef" href="#fn85"
+id="fnref85"><SUP>85</SUP></A> and<EM> egypt</EM><A class="footnoteRef" href="#fn86"
+id="fnref86"><SUP>86</SUP></A></P>
+</LI>
+</UL>
+</DD>
+</DL>
+<P>For this work the profiling tool Gprof was used. It is a Unix tool
+ that allows to compute a large number of statistics and a dynamical
+ call graph. There was no need for any static graph call analysis
+ because the purpose of using a profiling tool was not to understand the
+ behavior of the program but to find the possible bottlenecks and
+ hotspots. It works injecting instrumentation code automatically into
+ the code ( compiling<A class="footnoteRef" href="#fn87" id="fnref87"><SUP>
+87</SUP></A> with the option<EM> -pg</EM>) like for example a call to a
+ monitor function<EM> mcount</EM><A class="footnoteRef" href="#fn88" id="fnref88">
+<SUP>88</SUP></A> before each function call. At the end of the execution
+ a file with extension<EM> .gmon</EM> (program_name.gmmon) is saved. The
+ information is collected simply sampling the execution of the program
+ probing the target program’s<EM> program counter</EM> at regular
+ intervals using operating system interrupts (programmed via <CODE>
+profil()</CODE> or <CODE>setitimer()</CODE> syscalls). The overhead
+ related to the profiling with Gprof can vary from 30% to 250%
+<!--span class=&quot;citation&quot;-->
+ [@Froyd2005].</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="SerialOptimizations.html">Previous</A>
+<A HREF="SCIARAfv3profiling.html">Next</A>
+</BODY>
+</HTML>

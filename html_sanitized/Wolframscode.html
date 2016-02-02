@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Elementarycellularautomata.html">
+<LINK REL="Next" HREF="Wolframsclassification.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Elementarycellularautomata.html">Previous</A>
+<A HREF="Wolframsclassification.html">Next</A>
+<HR NOSHADE>
+<H4 id="wolframs-code"><A NAME="7_5_1_1">Wolfram’s code</A></H4>
+<P>The transition function is
+<!--span class=&quot;math inline&quot;-->
+ \(F(C_{i-1},C_i,C_{i+1})\) is defined by a look-up table of the form
+ stated in table [wolframcodeGeneral], and an example of an instance of
+ a function is given (rule 110, an important rule on which
+<!--span class=&quot;citation&quot;-->
+ [@cook2004] proved universal computational power, as Wolfram had
+ conjectured in 1985, and is arguably the simplest Turing complete
+ system
+<!--span class=&quot;citation&quot;-->
+[@wolfram2002]) in table [wolframcodeGeneral].</P>
+<P>
+<!--span-->
+l [wolframcodeGeneral]</P>
+<P>
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(F(1,1,1)=\{0,1\}\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(F(1,1,0)=\{0,1\}\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(F(1,0,1)=\{0,1\}\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(F(1,0,0)=\{0,1\}\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(F(0,1,1)=\{0,1\}\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(F(0,1,0)=\{0,1\}\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(F(0,0,1)=\{0,1\}\)
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(F(0,0,0)=\{0,1\}\)
+<BR></P>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\overset{instance}{\longrightarrow}\)</P>
+<TABLE><CAPTION> Encoding of a transition function for a generic
+ elementary CA. On the right the instance 110.</CAPTION><THEAD></THEAD>
+<TR class="header"><TH align="left">[wolframcoderule]</TH></TR>
+<TBODY></TBODY>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(F(1,1,1)=0\)</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(F(1,1,0)=1\)</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(F(1,0,1)=1\)</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(F(1,0,0)=0\)</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(F(0,1,1)=1\)</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(F(0,1,0)=1\)</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(F(0,0,1)=1\)</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(F(0,0,0)=0\)</TD></TR>
+</TABLE>
+<P>More generally Wolfram’s code
+<!--span class=&quot;citation&quot;-->
+[@wolfram1983; @wolfram2002] can be calculated Conventionally
+ neighborhoods are sorted in non-decreasing order
+ ,(111=7),(110=6),(101=5) etc., and the may be interpreted as a 8-digit
+ number
+<!--span class=&quot;math display&quot;-->
+ \[01101110=2^0\times0+2^1\times1+2^2\times1+2^\times1+2^4\times0+2^5\times1+2^6\times1+2^7\times0=110\]
+</P>
+<OL>
+<LI>
+<P>List and sort in decreasing numerical (if interpreted as number)
+ order all the possible configuration of the neighborhood of a given
+ cell.</P>
+</LI>
+<LI>
+<P>For each configuration, list the state which the given cell will
+ have, according to this rule, on the next iteration.</P>
+</LI>
+<LI>
+<P>Interprets the resulting list as binary number and convert it to
+ decimal. That is the Wolfram’s code.</P>
+</LI>
+</OL>
+<P>Note that is not possible to understand from that code which is the
+ size or the shape of the neighborhood. Is tacit to suppose that those
+ information are already known.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Elementarycellularautomata.html">Previous</A>
+<A HREF="Wolframsclassification.html">Next</A>
+</BODY>
+</HTML>

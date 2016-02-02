@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="RectangularBoundingBoxRBB.html">
+<LINK REL="Next" HREF="Listofactivecellsimplementation.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="RectangularBoundingBoxRBB.html">Previous</A>
+<A HREF="Listofactivecellsimplementation.html">Next</A>
+<HR NOSHADE>
+
+<H2 id="sect:atomicImplementation"><A NAME="10_8">Atomic Functions
+ implementation</A></H2>
+<P>Atomic operations
+<!--span class=&quot;citation&quot;-->
+[@NvidiaprogGuide] (see section [chap:CUDA]) are essential in
+ multithreaded programming, especially when different threads need to
+ read or write the same data location. Conventional multicore CPUs
+ generally use a test-and-set instruction to manage which thread
+ controls which data. CUDA has a much more extensive set of atomic
+ operations<A class="footnoteRef" href="#fn98" id="fnref98"><SUP>98</SUP>
+</A> but, in a parallel environment they represent a real challenge
+ because they serialize the execution flow. In other words, incrementing
+ a single counter with <CODE>atomicAdd()</CODE> means that the counter
+ has to be locked, thus forcing all threads to stop and wait in order to
+ individually perform the increment operation — one after the other;
+ it is the antithesis of parallel programming. The goal, when using this
+ kind of operation is to design<STRONG> low-wait</STRONG> algorithms,
+ s.t. the number of threads that must wait for the lock to be released
+ is kept to the minimum and, at the same time, maximixing the active
+ threads number.<A class="footnoteRef" href="#fn99" id="fnref99"><SUP>99</SUP>
+</A></P>
+<P>With CUDA, one can effectively perform a test-and-set using the <CODE>
+atomicInc()</CODE> instruction or use atomic operations as well, to
+ actually manipulate the data itself, without the need for a lock
+ variable.</P>
+<P>Atomic functions have to be used with caution also due to another
+ possible performance side-effect: when operating from global memory
+ they are not cached. This means that every time an atomic operation is
+ performed there must be a read from the global memory, and if the value
+ needs to be modified, there must be a write to global memory too. This
+ can take hundreds of clock cycles to accomplish. The CUDA architecture
+ is set up to withstand extreme latency but, if too many threads are
+ stalled, the computational throughput of the GPU will severely
+ diminish.</P>
+<P>Atomic functions were successfully employed in solving the problem of
+ race conditions faced in section [sect:raceCondAvoiding]. They open the
+ possibility of utilize the original (see section
+ [sect:sciaraModelTau2]) lava distribution schema across the cells
+ instead the creation and management of another substate. They allow a
+ more direct and easy porting, because the responsibility of the
+ computational coherence rely on the CUDA framework instead on the
+ programmer. The implementation is such that during the distribution
+ phase each substate is managed via atomic functions. An example in
+ listing [code:atomicDistribution] shows how a cell distribute
+ quantities to its 1-th neighbor (the same concept holds for the whole
+ neighborhood).</P>
+<PRE> <CODE>int lungCOL=d_params[EN_LY];
+	float cache=d_outFlwPriv[getPrivateVarIdx(index,0,1)];
+	int idxNeigh=getNeigh1(index,lungCOL);
+	if (cache &gt; 0){
+		//central cell lava flow subtraction 
+		atomicAdd(&amp;d_nSh[index],-cache);
+		//neighbor - lava flow
+		atomicAdd(&amp;d_nSh[idxNeigh],+cache);
+		//neighbor - momentum along x-axis
+		atomicAdd(&amp;d_nSpx[idxNeigh],cache*d_outFlwPriv[getPrivateVarIdx(index,1,1)]*COS_ALPHA_1);
+		//neighbor - momentum along y-axis
+		atomicAdd(&amp;d_nSpy[idxNeigh],cache*d_outFlwPriv[getPrivateVarIdx(index,1,1)]*SIN_ALPHA_1);
+		//central cell temperature subtraction 
+		atomicAdd(&amp;d_nST[index],-cache*d_ST[index]);
+		//neighbor - temperature
+		atomicAdd(&amp;d_nST[idxNeigh],cache*d_ST[index]);
+ 		...
+}</CODE></PRE>
+<P>Despite its simplicity, this approach does not allow the utilization
+ (on the available hardware) of double precision buffers, because the
+ framework does not expose any<EM> official</EM><A class="footnoteRef" href="#fn100"
+id="fnref100"><SUP>100</SUP></A> support for atomic operations on
+ double. It will be shown in section [sect:precisionConsid] that in
+ SCIARA-fv3, double precision may be crucial for the correctness of
+ final result. A different discussion is reserved for atomic operations
+ on<EM> Kepler</EM> family GPUs that are more efficient than on<EM>
+ Fermi</EM> GPUs insomuch they can often be processed at rates similar
+ to global load operations<A class="footnoteRef" href="#fn101" id="fnref101">
+<SUP>101</SUP></A>.</P>
+<P>Note that within this setting each substate value of each cell may be
+ modified by a maximum number of 9 threads per step (the whole
+ neighborhood itself) meaning that the global memory substate updates of
+ a cell may stall not more that 9 threads, so it is possible to classify
+ this approach as low-wait. In addition, in real case simulation it is
+ very improbable that at each step all the active cells are interested
+ by all the 9 outflowing flows, and this furtherly decreases the overall
+ serialization rate.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="RectangularBoundingBoxRBB.html">Previous</A>
+<A HREF="Listofactivecellsimplementation.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Parallelcomputingarchitectures.html">
+<LINK REL="Next" HREF="Architectures.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Parallelcomputingarchitectures.html">Previous</A>
+<A HREF="Architectures.html">Next</A>
+<HR NOSHADE>
+<H2 id="introduction"><A NAME="3_1">Introduction</A></H2>
+<P>Parallel computing has a tremendous impact on various areas, raging
+ from scientific computation or simulation, commercial and industrial
+ application and data mining. Lot of effort has put during these years
+ in order to try to mitigate and overcome the limits regarding the
+ sequential computer architecture. In particular sequential architecture
+ consist of three main components:</P>
+<OL>
+<LI>
+<P>Processor</P>
+</LI>
+<LI>
+<P>Memory</P>
+</LI>
+<LI>
+<P>Communication system (datapaths, usually buses)</P>
+</LI>
+</OL>
+<P>All three components present bottlenecks that limit the overall
+ computing rate of a system. Caches, low-latency high bandwidth and
+ small capacity storage, for example can hide latency of DRAM chips
+ storing the fetched data and serving subsequent requests of the same
+ memory location<A class="footnoteRef" href="#fn1" id="fnref1"><SUP>1</SUP>
+</A>. But one of the most important innovation that addresses these
+ bottlenecks is multiplicity (in processor, memories and dataphats) that
+ allows to extend the class of tractable problems with larger instances
+ and more cases that can be handled. It is so popular that even
+ smartphones are multicore; Iphone 4S is 2-core, and nexus 4 is 4-core.
+ This multiplicity has been organized in several manners during the
+ years giving birth to a variety of architectures. Here a brief
+ classification of the most important ones.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Parallelcomputingarchitectures.html">Previous</A>
+<A HREF="Architectures.html">Next</A>
+</BODY>
+</HTML>

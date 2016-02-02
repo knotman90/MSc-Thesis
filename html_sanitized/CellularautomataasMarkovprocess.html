@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="ProbabilisticCA.html">
+<LINK REL="Next" HREF="Complexcellularautomata.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="ProbabilisticCA.html">Previous</A>
+<A HREF="Complexcellularautomata.html">Next</A>
+<HR NOSHADE>
+<H4 id="cellular-automata-as-markov-process"><A NAME="7_6_1_1">Cellular
+ automata as Markov process</A></H4>
+<P>Another approach in studying CA, even if it is probably not a
+ practical way to study the CA is to see CA as a Markov process<A class="footnoteRef"
+href="#fn76" id="fnref76"><SUP>76</SUP></A>. A Markov process, is a
+ stochastic process that exhibits memorylessness <A class="footnoteRef" href="#fn77"
+id="fnref77"><SUP>77</SUP></A> and it means that the future state is
+ conditionally independent<A class="footnoteRef" href="#fn78" id="fnref78">
+<SUP>78</SUP></A> of the past. This property of the process means that
+ future probabilities of an event may be determined from the
+ probabilities of events at the current time. More formally if a process
+ has this property following equation holds:
+<!--span class=&quot;math display&quot;-->
+ \[\begin{aligned} P(X(t_n)&amp;= x \,| X\,(t_1) = x_1,X(t_2) = x_2,
+ \ldots,X(t_{n-1})=x_{n-1}) \\ &amp;= P(X(t_n)=x |
+ X(t_{n-1}=x_{n-1})\end{aligned}\]</P>
+<P>In PCA analysis we are more interested in Markov chain because each
+ cell has a discrete set of possible value for the status variable. In
+ terms of chain a CA is a process that starts in one of these states and
+ moves successively from one state to another. If the chain is currently
+ in state
+<!--span class=&quot;math inline&quot;-->
+ \(s_i\), than it evolve to state
+<!--span class=&quot;math inline&quot;-->
+ \(s_j\) at the next step with probability
+<!--span class=&quot;math inline&quot;-->
+ \(p_{ij}\).The changes of state of the system are called transitions,
+ and the probabilities associated with various state changes are called
+ transition probabilities usually represented in the Markov chain
+ transition matrix :
+<!--span class=&quot;math display&quot;-->
+ \[M = \left( {\begin{array}{cccc} p_{11} &amp; p_{12} &amp; p_{13} &amp;\cdots \\
+ p_{21} &amp; p_{12} &amp; p_{23} &amp;\cdots \\ p_{31} &amp; p_{32} &amp; p_{33} &amp;\cdots \\
+ \vdots &amp; \vdots &amp;\vdots&amp; \ddots\\ \end{array} } \right)\]</P>
+<P>This could seems to be a good way to analyze the probabilistic CA
+ but, a small grid
+<!--span class=&quot;math inline&quot;-->
+ \(10\times10\) (common models model use grid
+<!--span class=&quot;math inline&quot;-->
+ \(100\times100\) or larger) identify
+<!--span class=&quot;math inline&quot;-->
+ \(2^{10\times10}\)possible states and the resulting matrix dimension of
+<!--span class=&quot;math inline&quot;-->
+ \(2^{10\times10}\times2^{10\times10}\) that is a very large number!</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="ProbabilisticCA.html">Previous</A>
+<A HREF="Complexcellularautomata.html">Next</A>
+</BODY>
+</HTML>

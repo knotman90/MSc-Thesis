@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Gameoflife.html">
+<LINK REL="Next" HREF="GameoflifeasTuringmachine.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Gameoflife.html">Previous</A>
+<A HREF="GameoflifeasTuringmachine.html">Next</A>
+<HR NOSHADE>
+<H4 id="game-of-life---brief-definition"><A NAME="7_5_4_1">Game of life
+ - brief definition</A></H4>
+<P>Game of Life (see figure [gameoflife]) (GOL)
+<!--span class=&quot;citation&quot;-->
+[@Conway1970] is a totalistic CA<A class="footnoteRef" href="#fn73" id="fnref73">
+<SUP>73</SUP></A> defined by :</P>
+<UL>
+<LI>
+<P>a 2-D lattice of square cells in an orthogonal grid, ideally infinite</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(Q=\{0,1\} \) 2 states, and we can picture 1 as meaning alive and 0
+ dead (those interpretation come from the behaviour of the next-state
+ function).</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(X\) is the Moore neighborhood template.</P>
+</LI>
+<LI>
+<P>
+<!--span class=&quot;math inline&quot;-->
+\(\sigma\) is the transition function and can be summarized :</P>
+<UL>
+<LI>
+<P><EM>Birth</EM>: If the cell is in the state<STRONG><EM> dead</EM></STRONG>
+ and the number of alive neighbors is<STRONG><EM> 3</EM></STRONG>, then
+ the cell state becomes alive (1).</P>
+</LI>
+<LI>
+<P><EM>Survival</EM>: If the cell is in the state<STRONG><EM> alive</EM></STRONG>
+ and the number of alive neighbors is<STRONG><EM> 2 or 3</EM></STRONG>,
+ then the cell state is still alive (1).</P>
+</LI>
+<LI>
+<P><EM>Dead</EM>: If the cell is in the state<STRONG><EM> alive</EM></STRONG>
+ and the number of alive neighbors is<STRONG><EM> less than 2 or higher
+ than 3</EM></STRONG>, then the cell state becomes dead (0).</P>
+</LI>
+</UL>
+</LI>
+</UL>
+<P>GOL is a class 4 Wolfram’s taxonomy, rich complex structures,
+ stable blocks and moving patterns come into existence even starting
+ from a completely random configuration.</P>
+<DIV class="figure"> <IMG alt="GOL execution example." HEIGHT="306" src="game-of-life.png"
+WIDTH="616">
+<P class="caption">GOL execution example.
+<!--span data-label=&quot;gameoflife&quot;-->
+</P>
+</DIV>
+<P>A famous block for example is the<EM> glider</EM> ( see picture
+ [fig:glider]) that is a 5-step-period pattern that is capable of moving
+ into the cellular space.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Gameoflife.html">Previous</A>
+<A HREF="GameoflifeasTuringmachine.html">Next</A>
+</BODY>
+</HTML>

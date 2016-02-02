@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Elementaryprocesstau1lavaflowscomputation.html">
+<LINK REL="Next" HREF="Timeevaluation.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Elementaryprocesstau1lavaflowscomputation.html">Previous</A>
+<A HREF="Timeevaluation.html">Next</A>
+<HR NOSHADE>
+<H4 id="sec:min-ouflows"><A NAME="9_2_1_1">Computation of the minimizing
+ outflows
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,i)}\)</A></H4>
+<P>As in
+<!--span class=&quot;citation&quot;-->
+ [@xxx; @xxx], the initial velocity of the lava inside the cell,
+<!--span class=&quot;math inline&quot;-->
+ \(\overrightarrow{v_{0}}_{_{(0)}}\), is obtained from the momentum
+ components. In turn, it is decomposed in two components laying over the
+ two directions of the CA cellular space which are the nearest with
+ respect to
+<!--span class=&quot;math inline&quot;-->
+ \(\overrightarrow{v_{0}}_{_{(0)}}\) itself. These latter directions,
+ which will be indicated by
+<!--span class=&quot;math inline&quot;-->
+ \(e^\circlearrowleft\) and
+<!--span class=&quot;math inline&quot;-->
+ \(e^\circlearrowright\), can be found by moving in counterclockwise and
+ clockwise directions starting from the direction of
+<!--span class=&quot;math inline&quot;-->
+ \(\overrightarrow{v_{0}}_{_{(0)}}\), respectively, as shown in Fig.
+ [fig:mooreNeighModel]. Thus, if
+<!--span class=&quot;math inline&quot;-->
+ \(i\) denotes the
+<!--span class=&quot;math inline&quot;-->
+ \(i\)-th direction of the cellular space,
+<!--span class=&quot;math inline&quot;-->
+ \(v_{0_{(0)}}^\circlearrowleft\) and
+<!--span class=&quot;math inline&quot;-->
+ \(v_{0_{(0)}}^\circlearrowright\) the modules of the components of
+<!--span class=&quot;math inline&quot;-->
+ \(\overrightarrow{v_{0}}_{_{(0)}}\) along the directions
+<!--span class=&quot;math inline&quot;-->
+ \(e^\circlearrowleft\) and
+<!--span class=&quot;math inline&quot;-->
+ \(e^\circlearrowright\), respectively, then the modules of the
+ components of
+<!--span class=&quot;math inline&quot;-->
+ \(\overrightarrow{v_{0}}_{_{(0)}}\) along the directions of the
+ cellular space can be expressed as:
+<!--span class=&quot;math display&quot;-->
+ \[v_{0_{(0,i)}}= \begin{cases} v_{0_{(0)}}^\circlearrowleft, &amp; \mbox{if
+ }i = e^\circlearrowleft \\ v_{0_{(0)}}^\circlearrowright, &amp; \mbox{if }i
+ = e ^\circlearrowright \\ 0, &amp; \mbox{otherwise} \end{cases}\] Moreover,
+ let
+<!--span class=&quot;math inline&quot;-->
+ \({h_k}_{(0,i)} = {v_0}_{(0,i)}^2/2g\) denote the kinetic head
+ associated to the
+<!--span class=&quot;math inline&quot;-->
+ \(i\)-th component of velocity.</P>
+<P>Viscosity effects are modeled in terms of velocity dissipation
+ mechanism, by means of the function
+<!--span class=&quot;math inline&quot;-->
+ \(dP\). It depends on temperature and vary according to a power law of
+ the type
+<!--span class=&quot;math inline&quot;-->
+ \(\log dP = a+bT\), where
+<!--span class=&quot;math inline&quot;-->
+ \(T \in Q_T\) is the lava temperature and
+<!--span class=&quot;math inline&quot;-->
+ \(a\) and
+<!--span class=&quot;math inline&quot;-->
+ \(b\) are coefficients determined by solving the system (cf. Tab.
+ [tab:parameters]):
+<!--span class=&quot;math display&quot;-->
+ \[\begin{cases} \log dP_{T_{sol}} = a+bT_{sol}\\ \log dP_{T_{vent}} =
+ a+bT_{vent}\\ \end{cases}\] Similarly, the relation between critical
+ height and lava temperature can be described by a power law of the kind
+<!--span class=&quot;math inline&quot;-->
+ \(\log hc = c+dT\) whose coefficients are obtained by solving the
+ system (cf. Tab. [tab:parameters]):
+<!--span class=&quot;math display&quot;-->
+ \[\begin{cases} \log hc_{T_{sol}} = c+dT_{sol}\\ \log hc_{T_{vent}} =
+ c+dT_{vent}\\ \end{cases}\]</P>
+<P>Before applying the minimization algorithm of the differences for
+ computing the minimizing outflows, a preliminary control was performed
+ to eliminating cells that cannot receive lava due to their energy
+ conditions. As in
+<!--span class=&quot;citation&quot;-->
+ [@Spataro2010], a topographic correction is considered for flow
+ symmetry reason. In addition, in Sciara-fv3 the concepts of effective
+ height,
+<!--span class=&quot;math inline&quot;-->
+ \(h_{e_{(0,i)}}\), and apparent height,
+<!--span class=&quot;math inline&quot;-->
+ \(h_{a_{(0,i)}}\), was introduced. The first is the part of
+<!--span class=&quot;math inline&quot;-->
+ \(h_{(0)}\) that can really flow out of the cell toward its
+<!--span class=&quot;math inline&quot;-->
+ \(i\)-th neighborhood, while the second one is the part which is
+ constrained inside the cell due to energy conditions. There are three
+ cases (see Fig. [fig:cases]):</P>
+<OL>
+<LI>
+<P>if
+<!--span class=&quot;math inline&quot;-->
+ \(z_{(0)} + h_{k_{(0,i)}} + h_{(0)} \leq z_{(i)} + h_{(i)}\), then
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(\begin{cases} h_{e_{(0,i)}} = 0\\ h_{a_{(0,i)}} = h_{(0)}\\
+ \end{cases}\)</P>
+</LI>
+<LI>
+<P>if
+<!--span class=&quot;math inline&quot;-->
+ \(z_{(0)} + h_{k_{(0,i)}} &lt; z_{(i)} + h_{(i)} &lt; z_{(0)} + hk_{(0,i)} +
+ h_{(0)}\), then
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(\begin{cases} h_{e_{(0,i)}} = (z_{(0)} + h_{k_{(0,i)}} + h_{(0)}) -
+ (z_{(i)} + h_{(i)})\\ h_{a_{(0,i)}} = h_{(0)} - h_{e_{(0,i)}}\\
+ \end{cases}\)</P>
+</LI>
+<LI>
+<P>if
+<!--span class=&quot;math inline&quot;-->
+ \(z_{(i)} + h_{(i)} \leq z_{(0)} + h_{k_{(0,i)}}\), then
+<BR>
+<!--span class=&quot;math inline&quot;-->
+ \(\begin{cases} h_{e_{(0,i)}} = h_{(0)}\\ h_{a_{(0,i)}} = 0\\
+ \end{cases}\)</P>
+</LI>
+</OL>
+<P>Thus, if denoting with
+<!--span class=&quot;math inline&quot;-->
+ \(\theta_{(0,i)} = \arctan ((z_{(0)} + h_{a_{(0,i)}} + h_{e_{(0,i)}}/2)
+ - (z_{(i)} + h_{(i)}))\) the slope angle between the central cell and
+ its
+<!--span class=&quot;math inline&quot;-->
+ \(i\)-th neighbor (see Fig. [fig:cases]), according to the concept of
+ critical height, the cells for which
+<!--span class=&quot;math display&quot;-->
+ \[h_{e_{(0,i)}} \leq hc \cos \theta_i\] are eliminated and cannot
+ receive flow.</P>
+<P>The minimization algorithm of the differences is therefore applied to
+ the following quantities, in order to compute the minimizing outflows:</P>
+<TABLE><TBODY></TBODY>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(u_{(0)} = z_{(0)}\)</TD></TR>
+<TR class="even"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(m = h_{(0)}\)</TD></TR>
+<TR class="odd"><TD align="left">
+<!--span class=&quot;math inline&quot;-->
+\(u_{(i)} = z_{(i)} + h_{(i)}\)</TD></TR>
+</TABLE>
+<P>The application of the algorithm determines the computation of the
+ minimizing flows,
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,i)}\), from the central cell to the
+<!--span class=&quot;math inline&quot;-->
+ \(i\)-th neighbor, where
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,0)}\) represents the residual flow which does not leave the
+ cell. Eventually, final velocities and displacements are computed. As a
+ first step, final velocities are computed for each outflow
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,i)}\)
+<!--span class=&quot;math inline&quot;-->
+ \((i=1,2, \ldots, 8)\), by taking into account dissipation:
+<!--span class=&quot;math display&quot;-->
+ \[v_{f_{(0,i)}} = (v_{0_{(0,i)}} + a t)(1-dP)\] Here,
+<!--span class=&quot;math inline&quot;-->
+ \(a = g \sin \theta\) is the acceleration of gravity, and does not take
+ into account dissipation, which is modeled by the function
+<!--span class=&quot;math inline&quot;-->
+ \(dP\). Instead, the final velocity of
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,0)}\) is computed as:
+<!--span class=&quot;math display&quot;-->
+ \[v_{f_{(0,0)}} = v_{0_{(0)}}(1-dP)\] In order to compute the
+ displacement, a mean acceleration is computed, which also takes into
+ account dissipation effects:
+<!--span class=&quot;math inline&quot;-->
+ \(\overline{a} = (v_{f_{(0,i)}} - v_{0_{(0,i)}})/t\). Therefore, the
+ displacements
+<!--span class=&quot;math inline&quot;-->
+ \(s_{(0,i)}\)
+<!--span class=&quot;math inline&quot;-->
+ \((i = 1,2, \ldots, 9)\) are computed as:
+<!--span class=&quot;math display&quot;-->
+ \[s_{(0,i)} = v_{0_{(0,i)}} t + \frac{1}{2} \overline{a} t^2\] while, a
+ null displacement is assigned to
+<!--span class=&quot;math inline&quot;-->
+ \(\phi_{(0,0)}\):
+<!--span class=&quot;math display&quot;-->
+ \[s_{(0,0)} = 0\] since, even if in the real case a movement can occur,
+ inside the discrete context of the cellular space, it is always located
+ at the center of the cell. This is a model simplification which is much
+ more correct as the smaller the size of the cell is.</P>
+<DIV class="figure"> <IMG alt="Cases in which the generic neighbor (cell i) is eliminated or not eliminated by the minimization algorithm of the difference. If the neighbor is eliminated (Case 1), the overall amount of debris inside the central cell is considered as apparent (h=h_a), and can not generate an outflow. If the neighbor is not eliminated (Case 2 and 3), a part (Case 2) or the entire amount of debris (Case 3) on the central cell is considered effective (h \geq h_e) and can generate outflows. Note that the slope angle \theta, considered in the critical height computation, is also shown."
+HEIGHT="306" src="fig2PDP.png" WIDTH="719">
+<P class="caption">Cases in which the generic neighbor (<EM>cell</EM>
+<!--span class=&quot;math inline&quot;-->
+ \(i\)) is eliminated or not eliminated by the minimization algorithm of
+ the difference. If the neighbor is eliminated (<EM>Case</EM> 1), the
+ overall amount of debris inside the central cell is considered as
+ apparent (
+<!--span class=&quot;math inline&quot;-->
+\(h=h_a\)), and can not generate an outflow. If the neighbor is not
+ eliminated (<EM>Case</EM> 2 and 3), a part (<EM>Case</EM> 2) or the
+ entire amount of debris (<EM>Case</EM> 3) on the central cell is
+ considered effective (
+<!--span class=&quot;math inline&quot;-->
+\(h \geq h_e\)) and can generate outflows. Note that the slope angle
+<!--span class=&quot;math inline&quot;-->
+ \(\theta\), considered in the critical height computation, is also
+ shown.
+<!--span data-label=&quot;fig:cases&quot;-->
+</P>
+</DIV><HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Elementaryprocesstau1lavaflowscomputation.html">Previous</A>
+<A HREF="Timeevaluation.html">Next</A>
+</BODY>
+</HTML>

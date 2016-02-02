@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="DataConstruct.html">
+<LINK REL="Next" HREF="CellularAutomata.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="DataConstruct.html">Previous</A>
+<A HREF="CellularAutomata.html">Next</A>
+<HR NOSHADE>
+<H2 id="c-accelerated-massive-parallelism-c-amp"><A NAME="6_4">C++
+ Accelerated Massive Parallelism (C++ AMP)</A></H2>
+<P><STRONG>C++ AMP</STRONG><A class="footnoteRef" href="#fn58" id="fnref58">
+<SUP>58</SUP></A> is a family of tools developed by Microsoft, first
+ announced in 2011. It is aiming to significantly lower the barrier to
+ entry parallel programming by providing a mainstream C++ option that we
+ are calling “<EM>C++ Accelerated Massive Parallelism</EM>” or “<EM>
+C++ AMP</EM>” for short.</P>
+<P>C++ AMP introduces a key new language feature to C++ and a minimal
+ STL-like library that enables you to very easily work with large
+ multidimensional arrays to express your data parallel algorithms in a
+ manner that exposes massive parallelism on an accelerator, such as the
+ GPU. It is part of<EM> Visual C++</EM> compiler and of Visual Studio
+ tool.</P>
+<P>Microsoft’s implementation targets Windows by building on top of
+ the ubiquitous and reliable Direct3D platform, and that means that in
+ addition to the performance and productivity advantages of C++ AMP, you
+ will benefit from hardware portability across all major hardware
+ vendors. The core API surface area is general and Direct3D-neutral,
+ such that one could think of Direct3D as an implementation detail; in
+ future releases, we could offer additional implementations targeting
+ other kinds of hardware and topologies (e.g., cloud).</P>
+<P>Once you build your C++ AMP code, it will be able to execute on any
+ DirectX 11 device or newer, from any major hardware vendor, and
+ fallback to the CPU if necessary. For example this is how the vector
+ addition example looks in C++ AMP:</P>
+<PRE><CODE>#include &lt;vector&gt;
+	  #include &lt;amp.h&gt;
+	  void example_amp(const std::vector&lt;int&gt;&amp; v1, const std::vector&lt;int&gt;&amp; v2, std::vector&lt;int&gt;&amp; v3)
+	  {
+	    concurrency::array_view&lt;const int&gt; av1(v1.size(), v1);
+	    concurrency::array_view&lt;const int&gt; av2(v2.size(), v2);  
+	    concurrency::array_view&lt;int&gt; av3(v3.size(), v3);  
+	
+	    // add pairs of elements in v1 and v2 into v3 in parallel 
+	    concurrency::parallel_for_each(av3.grid, [=] (concurrency::index&lt;1&gt; idx)  restrict(direct3d)
+	   {
+	     av3[idx] = av1[idx] + av2[idx]; 
+	   });
+	
+	   av3.synchronize();
+	 }</CODE></PRE>
+<P>Lines 5 through 7 (<CODE>concurrency::array_view</CODE>) create array
+ views on top of the std::vectors which were passed into the function.
+ GPUs typically have their own memory and wrapping your CPU-side arrays
+ or STD vectors in an array view is required in order to make the data
+ accessible on the GPU. Then, C++ AMP copies data as necessary between
+ the CPU and the GPU, in a mostly automatic fashion. Like an <CODE>
+std::vector</CODE> or an <CODE>std::array</CODE>, class <CODE>
+concurrency::array_view</CODE> is a template on the element type. Lines
+ 9 through 13 contain an invocation of <CODE>parallel_for_each</CODE>.
+ This newly added overload of <CODE>parallel_for_each</CODE> is the
+ method using which C++ AMP injects parallelism into your program (well,
+ not the only one). This instruction take some parameters like how many
+ logical threads have to be allocated in launching the parallel code and
+ what their numerical thread ID’s are going to be. The body of the
+ lambda function is just a single line that actually performs the sum
+ addition, and it is here that the “parallel” code is specified.</P>
+<P>Microsoft is offering C++ AMP in order to ease the entry into the
+ massive parallelism world by hiding current and future hardware
+ differences and by making it a first class feature of Visual C++, and
+ by working with industry partners to make it an open specification.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="DataConstruct.html">Previous</A>
+<A HREF="CellularAutomata.html">Next</A>
+</BODY>
+</HTML>

@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Assess.html">
+<LINK REL="Next" HREF="Optimize.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Assess.html">Previous</A>
+<A HREF="Optimize.html">Next</A>
+<HR NOSHADE>
+<H3 id="parallelize"><A NAME="10_2_2">Parallelize</A></H3>
+<P>Once hotspots have been identified the developer has to start to
+ parallelize the code. Depending on the application this goal can be
+ achieved just calling accelerated libraries (in GPUGPU CUDA environment
+ e.g. cuBLAS or Thrust) or adding preprocessor directives (e.g. OpenACC
+ or OpenMP). On the other hand, sometimes in order to fully expose
+ inherent program’s parallelism the parallel porting require some
+ amount of refactoring of the existing serial code.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Assess.html">Previous</A>
+<A HREF="Optimize.html">Next</A>
+</BODY>
+</HTML>

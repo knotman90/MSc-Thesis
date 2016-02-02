@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Accelerating the new SCIARA-fv3 numerical model by different GPGPU strategies</TITLE>
+<META NAME="author" CONTENT="Davide Spataro">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; CHARSET=utf-8">
+<LINK REL="Start" HREF="index.html">
+<LINK REL="Contents" HREF="toc.html">
+<LINK REL="Prev" HREF="Transitionfunctionandelementaryprocesses.html">
+<LINK REL="Next" HREF="ProfilingGprof.html">
+<link rel="stylesheet" href="github-pandoc.css">
+<link rel="stylesheet" href="http://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</HEAD>
+<BODY>
+<A HREF="toc.html">Contents</A>
+<A HREF="Transitionfunctionandelementaryprocesses.html">Previous</A>
+<A HREF="ProfilingGprof.html">Next</A>
+<HR NOSHADE>
+<H4 id="sect:serialoptimization"><A NAME="10_3_1_3">Serial Optimizations</A>
+</H4>
+<P>This way of updating the cellular space, although it does not fit
+ perfectly with the theoretical cellular automata model, may be
+ considered as an optimization because otherwise a set of nine flow
+ substates should be stored and managed to keep track of the substates
+ quantities interchanged at each step. Moreover the transition function
+ is applied only on cells where the thickness substate value
+<!--span class=&quot;math inline&quot;-->
+ \(sh_{cell} &gt; 0 \). The cellular space could be formed by a very large
+ number of cells (for example we applied the model to a discretization
+ of a flank of Mount Etna corresponding to a
+<!--span class=&quot;math inline&quot;-->
+ \(517 \times 378 = 195426\) cells cellular space), but in the context
+ of “evolutive” phenomena such as volcano eruptions and consequent
+ lava flow modelling, that evolve starting from only a limited active
+ part of the space and growing as the time passes by, cells that are far
+ from lava are considered to be<EM> idle</EM> because they cannot be
+ neither sources nor receivers of any lava quantity, consequently
+ skipping their computation would not affect the final result. Hence
+ minimizing the number of times in which transition function is applied
+ on idle cells could be crucial for performances and in a serial
+ programming context this can be accomplished easily without any
+ overhead. The listing [code:skypIdleCell] shows how a serial
+ implementation of the cellular automata loops over the cellular space
+ and it selectively applies the transition function whether the <CODE>if</CODE>
+ predicate
+<!--span class=&quot;math inline&quot;-->
+ \(sh_{cell} &gt; 0 \) is true. The most computationally intesive part of
+ the transition function is so avoided for such cells.</P>
+<PRE> <CODE>for (int x = 0; x &lt; COLS ; x++)
+		for (int y = 0; y &lt; ROWS ; y++)
+		if (Sh[x][y] &gt; 0 ) {
+			...
+			/*HEAVY WORK*/
+			...</CODE></PRE>
+<P>Hence from here it’s clear that the minimization of the idle cells
+ computation is an important optimization and we’ll see in sections
+ [sect:RBBOptimization] and [sect:linearCellAtomic] that this idea is
+ still valid in a parallel context.</P>
+<HR NOSHADE>
+<A HREF="toc.html">Contents</A>
+<A HREF="Transitionfunctionandelementaryprocesses.html">Previous</A>
+<A HREF="ProfilingGprof.html">Next</A>
+</BODY>
+</HTML>
